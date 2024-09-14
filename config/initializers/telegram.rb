@@ -1,9 +1,11 @@
-Telegram.bots_config = {
-  default: ENV.fetch("BOT_TOKEN", "token"),
-  dnd_spells_2024_bot: {
+bots_config = {
+  default: {
     async: Rails.env.production?,
     token: ENV.fetch("BOT_TOKEN", "token"),
     username: ENV.fetch("BOT_NAME", "name"),
-    server: ENV.fetch("BOT_SERVER_URL", "http://localhost:3000/")
-  }
+  }.tap do |hash|
+    hash[:server] = "http://localhost:3000/" if Rails.env.local?
+  end
 }
+
+Telegram.bots_config = bots_config

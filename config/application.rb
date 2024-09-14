@@ -1,6 +1,16 @@
 require_relative "boot"
 
-require "rails/all"
+# require "rails/all"
+require "active_record/railtie"
+# require "active_storage/engine"
+require "action_controller/railtie"
+require "action_view/railtie"
+# require "action_mailer/railtie"
+require "active_job/railtie"
+require "action_cable/engine"
+# require "action_mailbox/engine"
+require "action_text/engine"
+require "rails/test_unit/railtie"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -26,5 +36,7 @@ module TgBotDndSpells2024
 
     # config.cache_store = :redis_store, 'redis://localhost:6379/0/cache', { expires_in: 90.minutes }
     config.telegram_updates_controller.session_store = :redis_store
+
+    config.active_storage.draw_routes = false
   end
 end
