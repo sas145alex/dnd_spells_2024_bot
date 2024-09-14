@@ -2,6 +2,8 @@
 default: &default
   adapter: postgresql
   encoding: unicode
+  username: sas145
+  password: qwerty
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
 development:
@@ -15,5 +17,4 @@ test:
 production:
   <<: *default
   database: tg_bot_dnd_spells_2024_production
-  username: tg_bot_dnd_spells_2024
-  password: <%= ENV["TG_BOT_DND_SPELLS_2024_DATABASE_PASSWORD"] %>
+  password: <%= ENV["APP_DATABASE_PASSWORD"] %>
