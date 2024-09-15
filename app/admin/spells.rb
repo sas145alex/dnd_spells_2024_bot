@@ -50,6 +50,13 @@ ActiveAdmin.register Spell do
     f.actions
   end
 
+  batch_action :publish do |ids|
+    batch_action_collection.find(ids).each do |spell|
+      spell.publish!
+    end
+    redirect_to collection_path, notice: "The spells have been published."
+  end
+
   controller do
     def create
       @spell = Spell.new
