@@ -17,7 +17,23 @@ ActiveAdmin.register Spell do
   filter :title
   filter :description
   filter :published_at
-  filter :created_at
+  filter :created_at, as: :select, collection: AdminUser.all.pluck(:email, :id)
+  filter :created_by, as: :select, collection: AdminUser.all.pluck(:email, :id)
+
+  show do
+    attributes_table_for(resource) do
+      row :id
+      row :title
+      row :description do |spell|
+        markdown(spell.description)
+      end
+      row :published_at
+      row :created_at
+      row :updated_at
+      row :created_by
+      row :updated_by
+    end
+  end
 
   form do |f|
     f.inputs do

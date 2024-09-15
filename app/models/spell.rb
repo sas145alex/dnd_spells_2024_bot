@@ -1,5 +1,5 @@
 class Spell < ApplicationRecord
-  DESCRIPTION_FORMAT = "MarkdownV2"
+  DESCRIPTION_FORMAT = "Markdown"
 
   belongs_to :created_by,
              class_name: "AdminUser",
@@ -19,6 +19,10 @@ class Spell < ApplicationRecord
             allow_blank: true
 
   scope :published, -> { where.not(published_at: nil) }
+
+  def self.ransackable_associations(auth_object = nil)
+    %w[created_by updated_by]
+  end
 
   def published?
     published_at.present?

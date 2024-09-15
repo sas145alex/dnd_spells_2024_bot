@@ -8,4 +8,13 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-AdminUser.create!(email: 'admin@admin.io', password: 'qwerty', password_confirmation: 'qwerty') if Rails.env.development?
+AdminUser.find_or_create_by!(id: AdminUser::SYSTEM_USER_ID) do |admin|
+  admin.email = 'system@system.io'
+  admin.password = SecureRandom.hex(8)
+end
+
+if Rails.env.development?
+  AdminUser.find_or_create_by!(email: 'admin@admin.io') do |admin|
+    admin.password ='qwerty'
+  end
+end
