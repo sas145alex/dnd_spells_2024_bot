@@ -12,6 +12,8 @@ require "action_cable/engine"
 require "action_text/engine"
 require "rails/test_unit/railtie"
 
+require "dotenv/load"
+
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
@@ -35,7 +37,7 @@ module TgBotDndSpells2024
     # config.eager_load_paths << Rails.root.join("extras")
 
     # config.cache_store = :redis_store, 'redis://localhost:6379/0/cache', { expires_in: 90.minutes }
-    config.telegram_updates_controller.session_store = :file_store, 'file_session_store', { expires_in: 20.minutes }
+    config.telegram_updates_controller.session_store = :file_store, "file_session_store", {expires_in: 20.minutes}
 
     config.active_storage.draw_routes = false
   end

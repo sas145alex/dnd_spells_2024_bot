@@ -1,10 +1,10 @@
 bots_config = {
   default: {
     async: Rails.env.production?,
-    token: ENV.fetch("BOT_TOKEN", "token"),
-    username: ENV.fetch("BOT_NAME", "name"),
+    token: ENV.fetch("BOT_TOKEN"),
+    username: ENV.fetch("BOT_NAME")
   }.tap do |hash|
-    hash[:server] = "http://localhost:3000/" if Rails.env.local?
+    hash[:server] = "http://localhost:3000/" if ENV["BOT_USE_LOCALHOST"]
   end
 }
 

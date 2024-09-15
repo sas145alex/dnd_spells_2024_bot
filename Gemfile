@@ -12,6 +12,7 @@ gem "jbuilder"
 gem "redis-rails"
 
 gem "telegram-bot"
+gem "mutex_m"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[windows jruby]
@@ -19,7 +20,7 @@ gem "tzinfo-data", platforms: %i[windows jruby]
 gem "bootsnap", require: false
 
 group :development, :test do
-  gem 'dotenv'
+  gem "dotenv"
   gem "debug", platforms: %i[mri windows], require: "debug/prelude"
   gem "brakeman", require: false
   gem "standard"
