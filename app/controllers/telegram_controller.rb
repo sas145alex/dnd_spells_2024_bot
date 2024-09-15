@@ -10,7 +10,7 @@ class TelegramController < Telegram::Bot::UpdatesController
   end
 
   def stop_search!(*args)
-    set_last_variants([])
+    set_last_found_spells([])
 
     reply_markup = {
       remove_keyboard: true
@@ -33,34 +33,26 @@ class TelegramController < Telegram::Bot::UpdatesController
     return if search_value_invalid?
 
     reply_markup = {}
-    if provided_variant_picked?
-      text = <<~MARKDOWN
-        __underline__
-        ~strikethrough~
-        ||spoiler||
-        *bold _italic bold ~italic bold strikethrough ||italic bold strikethrough spoiler||~ __underline italic bold___ bold*
-        [inline URL](http://www.example.com/)
-        [inline mention of a user](tg://user?id=123456789)
-        ![👍](tg://emoji?id=5368324170671202286)
-        `inline fixed-width code`
-        ```
-        pre-formatted fixed-width code block
-        ```
-      MARKDOWN
+    if selected_spell.present?
+        text = "title: #{selected_spell.title}"
       respond_with :message, text: text, reply_markup: reply_markup, parse_mode: Spell::DESCRIPTION_FORMAT
       return
     else
-      variants = fetch_new_variants!
+      fetch_new_variants!
 
-      if variants.present? && variants.size <= MAX_VARIANTS_SIZE
-        text = "Найдено несколько вариантов. Выбери:"
+      if found_spells.present? && found_spells.size <= MAX_VARIANTS_SIZE
+        text = "Найдено несколько вариантов. Выбери: \n"
+        found_spells.each.with_index(1) do |spell, index|
+          text << "#{index}. #{spell.title}"
+        end
+        variants = last_found_spells.keys
         reply_markup = {
           keyboard: [variants, %w[/stop_search]],
           resize_keyboard: true,
           one_time_keyboard: false,
           selective: true
         }
-      elsif variants.present?
+      elsif found_spells.present?
         text = "Найдено слишком много вариантов"
       else
         text = "Не найдено никаких вариантов"
@@ -74,28 +66,35 @@ class TelegramController < Telegram::Bot::UpdatesController
   private
 
   def search_value_invalid?
-    search_value.size < SEARCH_VALUE_MIN_LENGTH && last_variants.empty?
+    search_value.size < SEARCH_VALUE_MIN_LENGTH && last_found_spells.empty?
   end
 
   def search_value
     @search_value ||= payload["text"].chomp
   end
 
-  def last_variants
-    session[:last_variants]
+  def last_found_spells
+    session[:last_found_spells]
   end
 
-  def set_last_variants(value)
-    session[:last_variants] = value
+  def set_last_found_spells(spells)
+    session[:last_found_spells] = spells.map.with_index(1) { |spell, index| [index.to_s, spell.id] }.to_h
   end
 
-  def provided_variant_picked?
-    last_variants.present? && payload["text"].in?(last_variants)
+  def selected_spell
+    @selected_spell ||= begin
+                          if last_found_spells.present? && payload["text"].in?(last_found_spells.keys)
+                            Spell.find_by(id: last_found_spells[payload["text"]])
+                          end
+                        end
   end
 
   def fetch_new_variants!
-    variants = %w[1 2 3]
-    set_last_variants(variants)
-    variants
+    set_last_found_spells(found_spells)
+    found_spells
+  end
+
+  def found_spells
+    @found_spells = Spell.select(:id, :title).ransack(title_cont: payload["text"]).result
   end
 end
