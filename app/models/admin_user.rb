@@ -5,8 +5,4 @@ class AdminUser < ApplicationRecord
          :rememberable,
          :validatable,
          :trackable
-
-  def self.ransackable_attributes(auth_object = nil)
-    column_names
-  end
 end

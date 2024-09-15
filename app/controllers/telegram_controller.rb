@@ -47,7 +47,7 @@ class TelegramController < Telegram::Bot::UpdatesController
         pre-formatted fixed-width code block
         ```
       MARKDOWN
-      respond_with :message, text: text, reply_markup: reply_markup, parse_mode: "MarkdownV2"
+      respond_with :message, text: text, reply_markup: reply_markup, parse_mode: Spell::DESCRIPTION_FORMAT
       return
     else
       variants = fetch_new_variants!
