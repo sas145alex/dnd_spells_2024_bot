@@ -17,8 +17,8 @@ class TelegramController < Telegram::Bot::UpdatesController
     }
 
     respond_with :message,
-      text: "Поиск окончен",
-      reply_markup: reply_markup
+                 text: "Поиск окончен",
+                 reply_markup: reply_markup
   end
 
   def start_search_spell!(*args)
@@ -34,9 +34,23 @@ class TelegramController < Telegram::Bot::UpdatesController
 
     reply_markup = {}
     if provided_variant_picked?
-      text = "Подробное описание для - #{payload["text"]}"
+      text = <<~MARKDOWN
+        __underline__
+        ~strikethrough~
+        ||spoiler||
+        *bold _italic bold ~italic bold strikethrough ||italic bold strikethrough spoiler||~ __underline italic bold___ bold*
+        [inline URL](http://www.example.com/)
+        [inline mention of a user](tg://user?id=123456789)
+        ![👍](tg://emoji?id=5368324170671202286)
+        `inline fixed-width code`
+        ```
+        pre-formatted fixed-width code block
+        ```
+      MARKDOWN
+      respond_with :message, text: text, reply_markup: reply_markup, parse_mode: "MarkdownV2"
+      return
     else
-      variants = fetch_new_variants
+      variants = fetch_new_variants!
 
       if variants.present? && variants.size <= MAX_VARIANTS_SIZE
         text = "Найдено несколько вариантов. Выбери:"
@@ -79,7 +93,7 @@ class TelegramController < Telegram::Bot::UpdatesController
     last_variants.present? && payload["text"].in?(last_variants)
   end
 
-  def fetch_new_variants
+  def fetch_new_variants!
     variants = %w[1 2 3]
     set_last_variants(variants)
     variants
