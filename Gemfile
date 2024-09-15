@@ -11,6 +11,13 @@ gem "importmap-rails"
 gem "jbuilder"
 gem "redis-rails"
 
+gem "activeadmin"
+gem "devise"
+gem "sassc-rails"
+gem 'bootstrap-sass'
+gem 'active_bootstrap_skin'
+gem "font-awesome-rails"
+
 gem "telegram-bot"
 gem "mutex_m"
 
