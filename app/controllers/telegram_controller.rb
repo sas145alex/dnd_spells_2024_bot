@@ -17,8 +17,8 @@ class TelegramController < Telegram::Bot::UpdatesController
     }
 
     respond_with :message,
-                 text: "Поиск окончен",
-                 reply_markup: reply_markup
+      text: "Поиск окончен",
+      reply_markup: reply_markup
   end
 
   def start_search_spell!(*args)
@@ -34,7 +34,7 @@ class TelegramController < Telegram::Bot::UpdatesController
 
     reply_markup = {}
     if selected_spell.present?
-        text = selected_spell.description
+      text = selected_spell.description
       respond_with :message, text: text, reply_markup: reply_markup, parse_mode: Spell::DESCRIPTION_FORMAT
       return
     else
@@ -82,11 +82,9 @@ class TelegramController < Telegram::Bot::UpdatesController
   end
 
   def selected_spell
-    @selected_spell ||= begin
-                          if last_found_spells.present? && payload["text"].in?(last_found_spells.keys)
-                            Spell.find_by(id: last_found_spells[payload["text"]])
-                          end
-                        end
+    @selected_spell ||= if last_found_spells.present? && payload["text"].in?(last_found_spells.keys)
+      Spell.find_by(id: last_found_spells[payload["text"]])
+    end
   end
 
   def fetch_new_variants!

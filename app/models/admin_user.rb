@@ -3,10 +3,10 @@ class AdminUser < ApplicationRecord
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  devise :database_authenticatable, 
-         :rememberable,
-         :validatable,
-         :trackable
+  devise :database_authenticatable,
+    :rememberable,
+    :validatable,
+    :trackable
 
   def self.system_user
     @system_user ||= find_by(id: SYSTEM_USER_ID)

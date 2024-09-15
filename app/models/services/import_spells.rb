@@ -1,13 +1,13 @@
 class Services::ImportSpells
-  SPELL_BREAK_LINE = '---'
+  SPELL_BREAK_LINE = "---"
 
   def self.call(...)
     new(...).call
   end
 
   def call
-    title = ''
-    description = ''
+    title = ""
+    description = ""
 
     File.readlines(file_path).each do |line|
       if line.chomp == SPELL_BREAK_LINE
@@ -16,13 +16,13 @@ class Services::ImportSpells
           description: description,
           created_by: created_by
         )
-        title = ''
-        description = ''
+        title = ""
+        description = ""
 
         next
       end
 
-      title = line.delete('*') if title.blank? && line.present?
+      title = line.delete("*") if title.blank? && line.present?
       description.concat(line)
     end
 
@@ -33,7 +33,7 @@ class Services::ImportSpells
     )
   end
 
-  def initialize(file_path: 'db/seeds/spells.md', created_by: AdminUser.system_user)
+  def initialize(file_path: "db/seeds/spells.md", created_by: AdminUser.system_user)
     @file_path = file_path
     @created_by = created_by
   end

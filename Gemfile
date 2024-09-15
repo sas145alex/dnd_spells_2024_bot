@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-ruby '3.3.4'
+ruby "3.3.4"
 gem "rails", "~> 7.2.1"
 gem "pg", "~> 1.1"
 gem "puma", ">= 5.0"
@@ -15,8 +15,8 @@ gem "redis-rails"
 gem "activeadmin"
 gem "devise"
 gem "sassc-rails"
-gem 'bootstrap-sass'
-gem 'active_bootstrap_skin'
+gem "bootstrap-sass"
+gem "active_bootstrap_skin"
 gem "font-awesome-rails"
 
 gem "telegram-bot"
