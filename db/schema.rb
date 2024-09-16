@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_15_103158) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_16_053057) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -50,11 +50,14 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_15_103158) do
     t.datetime "published_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "responsible_id"
     t.index ["created_by_id"], name: "index_spells_on_created_by_id"
     t.index ["published_at"], name: "index_spells_on_published_at", where: "(published_at IS NOT NULL)"
+    t.index ["responsible_id"], name: "index_spells_on_responsible_id"
     t.index ["updated_by_id"], name: "index_spells_on_updated_by_id"
   end
 
   add_foreign_key "spells", "admin_users", column: "created_by_id"
+  add_foreign_key "spells", "admin_users", column: "responsible_id"
   add_foreign_key "spells", "admin_users", column: "updated_by_id"
 end

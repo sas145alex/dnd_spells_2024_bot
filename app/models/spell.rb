@@ -9,6 +9,10 @@ class Spell < ApplicationRecord
     class_name: "AdminUser",
     foreign_key: "updated_by_id",
     optional: true
+  belongs_to :responsible,
+             class_name: "AdminUser",
+             foreign_key: "responsible_id",
+             optional: true
 
   validates :title, presence: true
   validates :title, length: {minimum: 5, maximum: 150}, allow_blank: true
@@ -22,7 +26,7 @@ class Spell < ApplicationRecord
   scope :not_published, -> { where(published_at: nil) }
 
   def self.ransackable_associations(auth_object = nil)
-    %w[created_by updated_by]
+    %w[created_by updated_by responsible]
   end
 
   def published?
@@ -31,5 +35,9 @@ class Spell < ApplicationRecord
 
   def publish!
     update!(published_at: Time.current)
+  end
+
+  def unpublish!
+    update!(published_at: nil)
   end
 end
