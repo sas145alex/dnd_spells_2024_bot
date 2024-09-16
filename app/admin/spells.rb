@@ -57,6 +57,14 @@ ActiveAdmin.register Spell do
       row :created_by
       row :updated_by
     end
+
+    div do
+      if resource.published?
+        link_to "Unpublish", unpublish_admin_spell_path(resource), class: "btn btn-primary"
+      else
+        link_to "Publish", publish_admin_spell_path(resource), class: "btn btn-primary"
+      end
+    end
   end
 
   form do |f|
@@ -106,12 +114,12 @@ ActiveAdmin.register Spell do
     redirect_to collection_path, notice: "The spells have been unpublished."
   end
 
-  member_action :publish, method: :put do
+  member_action :publish, method: :get do
     resource.publish!
     redirect_to resource_path, notice: "Published!"
   end
 
-  member_action :unpublish, method: :put do
+  member_action :unpublish, method: :get do
     resource.unpublish!
     redirect_to resource_path, notice: "Unpublished!"
   end
