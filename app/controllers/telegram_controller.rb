@@ -40,10 +40,10 @@ class TelegramController < Telegram::Bot::UpdatesController
     else
       fetch_new_variants!
 
-      if found_spells.present? && found_spells.size <= MAX_VARIANTS_SIZE
-        text = "Найдено несколько вариантов. Выбери: \n"
+      if found_spells.present?
+        text = "Найдено несколько вариантов. Выбери:\n\n"
         found_spells.each.with_index(1) do |spell, index|
-          text << "#{index}. #{spell.title}"
+          text << "#{index}. #{spell.title}\n"
         end
         variants = last_found_spells.keys
         reply_markup = {
@@ -52,8 +52,6 @@ class TelegramController < Telegram::Bot::UpdatesController
           one_time_keyboard: false,
           selective: true
         }
-      elsif found_spells.present?
-        text = "Найдено слишком много вариантов"
       else
         text = "Не найдено никаких вариантов"
         reply_markup = {}
@@ -93,6 +91,6 @@ class TelegramController < Telegram::Bot::UpdatesController
   end
 
   def found_spells
-    @found_spells = Spell.select(:id, :title).search_by_title(payload["text"])
+    @found_spells = Spell.select(:id, :title).search_by_title(payload["text"]).limit(MAX_VARIANTS_SIZE)
   end
 end

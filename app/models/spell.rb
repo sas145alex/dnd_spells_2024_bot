@@ -31,6 +31,8 @@ class Spell < ApplicationRecord
   scope :published, -> { where.not(published_at: nil) }
   scope :not_published, -> { where(published_at: nil) }
 
+  before_validation :chomp_title
+
   def self.ransackable_associations(auth_object = nil)
     %w[created_by updated_by responsible]
   end
@@ -45,5 +47,11 @@ class Spell < ApplicationRecord
 
   def unpublish!
     update!(published_at: nil)
+  end
+
+  private
+
+  def chomp_title
+    self.title = title&.chomp
   end
 end
