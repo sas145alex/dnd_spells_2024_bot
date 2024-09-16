@@ -10,9 +10,9 @@ class Spell < ApplicationRecord
     foreign_key: "updated_by_id",
     optional: true
   belongs_to :responsible,
-             class_name: "AdminUser",
-             foreign_key: "responsible_id",
-             optional: true
+    class_name: "AdminUser",
+    foreign_key: "responsible_id",
+    optional: true
 
   validates :title, presence: true
   validates :title, length: {minimum: 5, maximum: 150}, allow_blank: true

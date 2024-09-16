@@ -2,10 +2,10 @@ ActiveAdmin.register Spell do
   config.per_page = 30
   config.create_another = true
 
-  scope :not_published, -> (scope) { scope.not_published }
+  scope :not_published, ->(scope) { scope.not_published }
   scope("My tasks") { |scope| scope.where(responsible: current_admin_user) }
 
-  index do
+  index class: "asdf" do
     selectable_column
     id_column
     column :title
@@ -13,15 +13,24 @@ ActiveAdmin.register Spell do
     column :created_at
     actions defaults: false do |spell|
       links = []
-      links << link_to("Show", action: :show, id: spell.id)
-      links << link_to("Edit", action: :edit, id: spell.id)
+      links << link_to(
+        "Show",
+        admin_spell_path(spell),
+        class: "btn btn-primary"
+      )
+      links << link_to(
+        "Edit",
+        edit_admin_spell_path(spell),
+        class: "btn btn-primary"
+      )
       links << link_to(
         "Delete",
         admin_spell_path(spell),
         method: :delete,
-        data: {confirm: 'Are you sure?'},
+        data: {confirm: "Are you sure?"},
+        class: "btn btn-danger"
       )
-      links.join(' ').html_safe
+      links.join(" ").html_safe
     end
   end
 
@@ -42,6 +51,7 @@ ActiveAdmin.register Spell do
         markdown(spell.description)
       end
       row :published_at
+      row :responsible
       row :created_at
       row :updated_at
       row :created_by
@@ -70,11 +80,11 @@ ActiveAdmin.register Spell do
     unless f.object.new_record?
       f.actions do
         if f.object.published?
-          li class: 'action' do
+          li class: "action" do
             link_to "Unpublish", unpublish_admin_spell_path(f.object)
           end
         else
-          li class: 'action' do
+          li class: "action" do
             link_to "Publish", publish_admin_spell_path(f.object)
           end
         end
@@ -123,7 +133,6 @@ ActiveAdmin.register Spell do
     end
 
     def update
-      binding.irb
       if spell.update(update_params)
         redirect_to edit_admin_spell_path(spell), notice: "Spell was successfully updated."
       else
@@ -139,13 +148,13 @@ ActiveAdmin.register Spell do
 
     def create_params
       attrs = permitted_params[:spell].to_h
-      attrs.merge!(created_by: current_admin_user)
+      attrs[:created_by] = current_admin_user
       attrs
     end
 
     def update_params
       attrs = permitted_params[:spell].to_h
-      attrs.merge!(updated_by: current_admin_user)
+      attrs[:updated_by] = current_admin_user
       attrs
     end
   end
