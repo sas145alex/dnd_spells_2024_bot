@@ -2,6 +2,7 @@ ActiveAdmin.register Spell do
   config.per_page = 30
   config.create_another = true
 
+  scope :published, ->(scope) { scope.published }
   scope :not_published, ->(scope) { scope.not_published }
   scope("My tasks") { |scope| scope.where(responsible: current_admin_user) }
 
