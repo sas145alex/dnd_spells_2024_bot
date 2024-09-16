@@ -1,4 +1,6 @@
 class Spell < ApplicationRecord
+  include PgSearch::Model
+
   DESCRIPTION_FORMAT = "Markdown"
 
   belongs_to :created_by,
@@ -21,6 +23,10 @@ class Spell < ApplicationRecord
     length: {minimum: 5, maximum: 5000},
     if: :published?,
     allow_blank: true
+
+  pg_search_scope :search_by_title,
+    against: :title,
+    using: :trigram
 
   scope :published, -> { where.not(published_at: nil) }
   scope :not_published, -> { where(published_at: nil) }

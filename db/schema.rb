@@ -10,8 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_16_053057) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_16_094230) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_trgm"
   enable_extension "plpgsql"
 
   create_table "active_admin_comments", force: :cascade do |t|
@@ -54,6 +55,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_16_053057) do
     t.index ["created_by_id"], name: "index_spells_on_created_by_id"
     t.index ["published_at"], name: "index_spells_on_published_at", where: "(published_at IS NOT NULL)"
     t.index ["responsible_id"], name: "index_spells_on_responsible_id"
+    t.index ["title"], name: "index_spells_on_title"
+    t.index ["title"], name: "index_spells_on_title_gin", opclass: :gin_trgm_ops, using: :gin
     t.index ["updated_by_id"], name: "index_spells_on_updated_by_id"
   end
 

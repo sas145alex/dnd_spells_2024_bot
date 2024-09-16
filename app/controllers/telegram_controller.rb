@@ -93,6 +93,6 @@ class TelegramController < Telegram::Bot::UpdatesController
   end
 
   def found_spells
-    @found_spells = Spell.select(:id, :title).ransack(title_cont: payload["text"]).result
+    @found_spells = Spell.select(:id, :title).search_by_title(payload["text"])
   end
 end
