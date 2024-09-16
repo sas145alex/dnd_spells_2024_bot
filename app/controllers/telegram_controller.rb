@@ -91,6 +91,10 @@ class TelegramController < Telegram::Bot::UpdatesController
   end
 
   def found_spells
-    @found_spells = Spell.select(:id, :title).search_by_title(payload["text"]).limit(MAX_VARIANTS_SIZE)
+    @found_spells = Spell
+      .published
+      .select(:id, :title)
+      .search_by_title(payload["text"])
+      .limit(MAX_VARIANTS_SIZE)
   end
 end
