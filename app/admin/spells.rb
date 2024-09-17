@@ -74,8 +74,9 @@ ActiveAdmin.register Spell do
       f.input :title
       f.input :description,
         label: "Description (#{Spell::DESCRIPTION_FORMAT})",
-        as: :text,
+        as: :simplemde_editor,
         input_html: {rows: 12, style: "height:auto"}
+
       li "Published at #{f.object.published_at}" if f.object.published?
       li "Created at #{f.object.created_at}" unless f.object.new_record?
     end
@@ -133,7 +134,7 @@ ActiveAdmin.register Spell do
         if params[:create_another] == "on"
           redirect_to new_admin_spell_path, notice: "Spell was successfully created. Create another one."
         else
-          redirect_to edit_admin_spell_path(@spell), notice: "Spell was successfully created."
+          redirect_to admin_spell_path(@spell), notice: "Spell was successfully created."
         end
       else
         flash.now[:alert] = "Errors happened: " + @spell.errors.full_messages.to_sentence
