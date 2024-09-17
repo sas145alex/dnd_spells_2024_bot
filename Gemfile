@@ -13,6 +13,7 @@ gem "jbuilder"
 gem "redis-rails"
 
 gem "activeadmin"
+gem "activeadmin_addons"
 gem "activeadmin_simplemde"
 gem "devise"
 gem "sassc-rails"

@@ -18,6 +18,13 @@ class Spell < ApplicationRecord
     foreign_key: "responsible_id",
     optional: true
 
+  has_many :mentions,
+    class_name: "Mention",
+    as: :mentionable,
+    dependent: :restrict_with_error
+
+  accepts_nested_attributes_for :mentions, allow_destroy: true
+
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true
   validates :description, presence: true, if: :published?

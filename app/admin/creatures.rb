@@ -159,18 +159,22 @@ ActiveAdmin.register Creature do
     end
 
     def update
-      if creature.update(update_params)
-        redirect_to admin_creature_path(creature), notice: "Creature was successfully updated."
+      if resource.update(update_params)
+        redirect_to admin_creature_path(resource), notice: "Creature was successfully updated."
       else
         render(:edit, status: :unprocessable_entity)
       end
     end
 
-    private
-
-    def creature
-      @creature = Creature.find(params[:id])
+    def destroy
+      if resource.destroy
+        redirect_to collection_path, notice: "The creature has been deleted."
+      else
+        redirect_to collection_path, alert: "Errors happened: " + resource.errors.full_messages.to_sentence
+      end
     end
+
+    private
 
     def create_params
       attrs = permitted_params[:creature].to_h

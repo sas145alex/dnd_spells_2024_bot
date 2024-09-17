@@ -74,6 +74,14 @@ ActiveAdmin.register Spell do
       row :updated_by
     end
 
+    panel "Mentions" do
+      table_for resource.mentions do |_mention|
+        column :mentionable
+        column :another_mentionable
+        column :created_at
+      end
+    end
+
     div do
       if resource.published?
         link_to "Unpublish", unpublish_admin_spell_path(resource), class: "btn btn-primary"
@@ -95,6 +103,17 @@ ActiveAdmin.register Spell do
 
       li "Published at #{f.object.published_at}" if f.object.published?
       li "Created at #{f.object.created_at}" unless f.object.new_record?
+    end
+
+    panel "Mentions" do
+      f.has_many :mentions, heading: false, allow_destroy: true, new_record: true do |mention_f|
+        mention_f.input :another_mentionable_type, as: :hidden, input_html: {value: "Creature"}
+        mention_f.input :another_mentionable_type,
+          collection: ["Creature"],
+          selected: "Creature",
+          input_html: {disabled: true}
+        mention_f.input :another_mentionable, collection: Creature.all.pluck(:title, :id)
+      end
     end
 
     f.actions do
@@ -159,18 +178,22 @@ ActiveAdmin.register Spell do
     end
 
     def update
-      if spell.update(update_params)
-        redirect_to admin_spell_path(spell), notice: "Spell was successfully updated."
+      if resource.update(update_params)
+        redirect_to admin_spell_path(resource), notice: "Spell was successfully updated."
       else
         render(:edit, status: :unprocessable_entity)
       end
     end
 
-    private
-
-    def spell
-      @spell = Spell.find(params[:id])
+    def destroy
+      if resource.destroy
+        redirect_to collection_path, notice: "The creature has been deleted."
+      else
+        redirect_to collection_path, alert: "Errors happened: " + resource.errors.full_messages.to_sentence
+      end
     end
+
+    private
 
     def create_params
       attrs = permitted_params[:spell].to_h
@@ -187,5 +210,6 @@ ActiveAdmin.register Spell do
 
   permit_params :title,
     :original_title,
-    :description
+    :description,
+    mentions_attributes: [:id, :another_mentionable_type, :another_mentionable_id, :_destroy]
 end

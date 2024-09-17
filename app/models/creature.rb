@@ -18,6 +18,11 @@ class Creature < ApplicationRecord
     foreign_key: "responsible_id",
     optional: true
 
+  has_many :mentions,
+    class_name: "Mention",
+    foreign_key: "another_mentionable_id",
+    dependent: :restrict_with_error
+
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true
   validates :description, presence: true, if: :published?
