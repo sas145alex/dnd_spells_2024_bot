@@ -143,7 +143,7 @@ ActiveAdmin.register Spell do
 
     def update
       if spell.update(update_params)
-        redirect_to edit_admin_spell_path(spell), notice: "Spell was successfully updated."
+        redirect_to admin_spell_path(spell), notice: "Spell was successfully updated."
       else
         render(:edit, status: :unprocessable_entity)
       end
