@@ -2,6 +2,7 @@ class Spell < ApplicationRecord
   include PgSearch::Model
 
   DESCRIPTION_FORMAT = "Markdown"
+  DESCRIPTION_LIMIT = 4096
 
   belongs_to :created_by,
     class_name: "AdminUser",
@@ -47,6 +48,10 @@ class Spell < ApplicationRecord
 
   def unpublish!
     update!(published_at: nil)
+  end
+
+  def long_description?
+    description.size >= DESCRIPTION_LIMIT
   end
 
   private

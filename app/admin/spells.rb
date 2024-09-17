@@ -51,7 +51,22 @@ ActiveAdmin.register Spell do
       row :description do |spell|
         markdown(spell.description)
       end
-      row :published_at
+      row :length do |spell|
+        span class: "badge #{spell.long_description? ? "badge-danger" : "badge-success"}" do
+          "#{spell.description&.size} / #{Spell::DESCRIPTION_LIMIT}"
+        end
+      end
+      row :published_at do |spell|
+        if spell.published?
+          span class: "badge badge-success" do
+            spell.published_at
+          end
+        else
+          span class: "badge badge-danger" do
+            "Empty"
+          end
+        end
+      end
       row :responsible
       row :created_at
       row :updated_at
