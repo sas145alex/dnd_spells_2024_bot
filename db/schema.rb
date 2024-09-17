@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_16_094230) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_17_155925) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -52,6 +52,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_16_094230) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "responsible_id"
+    t.string "original_title"
     t.index ["created_by_id"], name: "index_spells_on_created_by_id"
     t.index ["published_at"], name: "index_spells_on_published_at", where: "(published_at IS NOT NULL)"
     t.index ["responsible_id"], name: "index_spells_on_responsible_id"

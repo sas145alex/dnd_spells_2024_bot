@@ -10,6 +10,7 @@ ActiveAdmin.register Spell do
     selectable_column
     id_column
     column :title
+    column :original_title
     column :published_at
     column :created_at
     actions defaults: false do |spell|
@@ -37,6 +38,7 @@ ActiveAdmin.register Spell do
 
   filter :id
   filter :title
+  filter :original_title
   filter :description
   filter :responsible, as: :select, collection: AdminUser.all.pluck(:email, :id)
   filter :published_at
@@ -48,6 +50,7 @@ ActiveAdmin.register Spell do
     attributes_table_for(resource) do
       row :id
       row :title
+      row :original_title
       row :description do |spell|
         markdown(spell.description)
       end
@@ -87,6 +90,7 @@ ActiveAdmin.register Spell do
     f.semantic_errors
     f.inputs do
       f.input :title
+      f.input :original_title
       f.input :description,
         label: "Description (#{Spell::DESCRIPTION_FORMAT})",
         as: :simplemde_editor,
@@ -184,5 +188,7 @@ ActiveAdmin.register Spell do
     end
   end
 
-  permit_params :title, :description
+  permit_params :title,
+    :original_title,
+    :description
 end
