@@ -26,7 +26,7 @@ class Spell < ApplicationRecord
     allow_blank: true
 
   pg_search_scope :search_by_title,
-    against: :title,
+    against: [:title, :original_title],
     using: :trigram
 
   scope :published, -> { where.not(published_at: nil) }
