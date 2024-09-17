@@ -1,8 +1,4 @@
-class Services::ImportOriginalNamings
-  def self.call(...)
-    new(...).call
-  end
-
+class Services::ImportOriginalNamings < ApplicationOperation
   def call
     CSV.foreach(file_path, headers: true) do |row|
       spell = Spell.find_by(title: row["rus"]&.chomp)

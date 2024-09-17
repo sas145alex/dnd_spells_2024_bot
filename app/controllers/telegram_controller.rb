@@ -34,8 +34,14 @@ class TelegramController < Telegram::Bot::UpdatesController
 
     reply_markup = {}
     if selected_spell.present?
-      text = selected_spell.description
-      respond_with :message, text: text, reply_markup: reply_markup, parse_mode: Spell::DESCRIPTION_FORMAT
+      messages = Telegram::Spell::FetchMessages.call(selected_spell)
+      messages.each do |text|
+        respond_with :message,
+          text: text,
+          reply_markup: reply_markup,
+          parse_mode: Spell::DESCRIPTION_FORMAT
+        sleep(0.1)
+      end
       return
     else
       fetch_new_variants!

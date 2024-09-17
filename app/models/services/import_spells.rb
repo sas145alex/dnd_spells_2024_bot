@@ -1,9 +1,5 @@
-class Services::ImportSpells
+class Services::ImportSpells < ApplicationOperation
   SPELL_BREAK_LINE = "---"
-
-  def self.call(...)
-    new(...).call
-  end
 
   def call
     title = ""
