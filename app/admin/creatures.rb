@@ -1,4 +1,4 @@
-ActiveAdmin.register Spell do
+ActiveAdmin.register Creature do
   scope :published, ->(scope) { scope.published }
   scope :not_published, ->(scope) { scope.not_published }
   scope("My tasks") { |scope| scope.where(responsible: current_admin_user) }
@@ -10,21 +10,21 @@ ActiveAdmin.register Spell do
     column :original_title
     column :published_at
     column :created_at
-    actions defaults: false do |spell|
+    actions defaults: false do |creature|
       links = []
       links << link_to(
         "Show",
-        admin_spell_path(spell),
+        admin_creature_path(creature),
         class: "btn btn-primary"
       )
       links << link_to(
         "Edit",
-        edit_admin_spell_path(spell),
+        edit_admin_creature_path(creature),
         class: "btn btn-primary"
       )
       links << link_to(
         "Delete",
-        admin_spell_path(spell),
+        admin_creature_path(creature),
         method: :delete,
         data: {confirm: "Are you sure?"},
         class: "btn btn-danger"
@@ -48,18 +48,18 @@ ActiveAdmin.register Spell do
       row :id
       row :title
       row :original_title
-      row :description do |spell|
-        markdown(spell.description)
+      row :description do |creature|
+        markdown(creature.description)
       end
-      row :length do |spell|
-        span class: "badge #{spell.long_description? ? "badge-danger" : "badge-success"}" do
-          "#{spell.description&.size} / #{Spell::DESCRIPTION_LIMIT}"
+      row :length do |creature|
+        span class: "badge #{creature.long_description? ? "badge-danger" : "badge-success"}" do
+          "#{creature.description&.size} / #{Creature::DESCRIPTION_LIMIT}"
         end
       end
-      row :published_at do |spell|
-        if spell.published?
+      row :published_at do |creature|
+        if creature.published?
           span class: "badge badge-success" do
-            spell.published_at
+            creature.published_at
           end
         else
           span class: "badge badge-danger" do
@@ -76,9 +76,9 @@ ActiveAdmin.register Spell do
 
     div do
       if resource.published?
-        link_to "Unpublish", unpublish_admin_spell_path(resource), class: "btn btn-primary"
+        link_to "Unpublish", unpublish_admin_creature_path(resource), class: "btn btn-primary"
       else
-        link_to "Publish", publish_admin_spell_path(resource), class: "btn btn-primary"
+        link_to "Publish", publish_admin_creature_path(resource), class: "btn btn-primary"
       end
     end
   end
@@ -89,7 +89,7 @@ ActiveAdmin.register Spell do
       f.input :title
       f.input :original_title
       f.input :description,
-        label: "Description (#{Spell::DESCRIPTION_FORMAT})",
+        label: "Description (#{Creature::DESCRIPTION_FORMAT})",
         as: :simplemde_editor,
         input_html: {rows: 12, style: "height:auto"}
 
@@ -107,11 +107,11 @@ ActiveAdmin.register Spell do
       f.actions do
         if f.object.published?
           li class: "action" do
-            link_to "Unpublish", unpublish_admin_spell_path(f.object)
+            link_to "Unpublish", unpublish_admin_creature_path(f.object)
           end
         else
           li class: "action" do
-            link_to "Publish", publish_admin_spell_path(f.object)
+            link_to "Publish", publish_admin_creature_path(f.object)
           end
         end
       end
@@ -119,17 +119,17 @@ ActiveAdmin.register Spell do
   end
 
   batch_action :publish do |ids|
-    batch_action_collection.find(ids).each do |spell|
-      spell.publish!
+    batch_action_collection.find(ids).each do |creature|
+      creature.publish!
     end
-    redirect_to collection_path, notice: "The spells have been published."
+    redirect_to collection_path, notice: "The creatures have been published."
   end
 
   batch_action :unpublish do |ids|
-    batch_action_collection.find(ids).each do |spell|
-      spell.unpublish!
+    batch_action_collection.find(ids).each do |creature|
+      creature.unpublish!
     end
-    redirect_to collection_path, notice: "The spells have been unpublished."
+    redirect_to collection_path, notice: "The creatures have been unpublished."
   end
 
   member_action :publish, method: :get do
@@ -144,23 +144,23 @@ ActiveAdmin.register Spell do
 
   controller do
     def create
-      @spell = Spell.new
+      @creature = Creature.new
 
-      if @spell.update(update_params)
+      if @creature.update(update_params)
         if params[:create_another] == "on"
-          redirect_to new_admin_spell_path, notice: "Spell was successfully created. Create another one."
+          redirect_to new_admin_creature_path, notice: "Creature was successfully created. Create another one."
         else
-          redirect_to admin_spell_path(@spell), notice: "Spell was successfully created."
+          redirect_to admin_creature_path(@creature), notice: "Creature was successfully created."
         end
       else
-        flash.now[:alert] = "Errors happened: " + @spell.errors.full_messages.to_sentence
+        flash.now[:alert] = "Errors happened: " + @creature.errors.full_messages.to_sentence
         render(:new, status: :unprocessable_entity)
       end
     end
 
     def update
-      if spell.update(update_params)
-        redirect_to admin_spell_path(spell), notice: "Spell was successfully updated."
+      if creature.update(update_params)
+        redirect_to admin_creature_path(creature), notice: "Creature was successfully updated."
       else
         render(:edit, status: :unprocessable_entity)
       end
@@ -168,18 +168,18 @@ ActiveAdmin.register Spell do
 
     private
 
-    def spell
-      @spell = Spell.find(params[:id])
+    def creature
+      @creature = Creature.find(params[:id])
     end
 
     def create_params
-      attrs = permitted_params[:spell].to_h
+      attrs = permitted_params[:creature].to_h
       attrs[:created_by] = current_admin_user
       attrs
     end
 
     def update_params
-      attrs = permitted_params[:spell].to_h
+      attrs = permitted_params[:creature].to_h
       attrs[:updated_by] = current_admin_user
       attrs
     end

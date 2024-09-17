@@ -1,4 +1,4 @@
-class Spell < ApplicationRecord
+class Creature < ApplicationRecord
   include Publishable
   include PgSearch::Model
 
