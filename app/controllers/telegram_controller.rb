@@ -34,19 +34,21 @@ class TelegramController < Telegram::Bot::UpdatesController
     return if search_value_invalid?
 
     if selected_spell.present?
-      text = selected_spell.description
+      text = selected_spell.description_for_telegram
+      parse_mode = selected_spell.parse_mode_for_telegram
       mentions = selected_spell.mentions.map do |mention|
         {
           text: mention.another_mentionable.title,
           callback_data: "pick_mention:#{mention.id}"
         }
       end
+
       inline_keyboard = mentions.in_groups_of(4, false)
       reply_markup = {inline_keyboard: inline_keyboard}
       respond_with :message,
         text: text,
         reply_markup: reply_markup,
-        parse_mode: Spell::DESCRIPTION_FORMAT
+        parse_mode: parse_mode
       return
     else
       fetch_new_variants!
@@ -78,11 +80,14 @@ class TelegramController < Telegram::Bot::UpdatesController
 
   def pick_mention_callback_query(*args)
     mention = Mention.find(args[0].to_i)
-    text = mention.another_mentionable.description
+    mentionable = mention.another_mentionable.decorate
+    text = mentionable.description_for_telegram
+    parse_mode = mentionable.parse_mode_for_telegram
+
     respond_with :message,
       text: text,
       reply_markup: {},
-      parse_mode: mention.another_mentionable.class::DESCRIPTION_FORMAT
+      parse_mode: parse_mode
   end
 
   private
@@ -105,7 +110,8 @@ class TelegramController < Telegram::Bot::UpdatesController
 
   def selected_spell
     @selected_spell ||= if last_found_spells.present? && payload["text"].in?(last_found_spells.keys)
-      Spell.find_by(id: last_found_spells[payload["text"]])
+      spell = Spell.find_by(id: last_found_spells[payload["text"]])
+      spell.decorate
     end
   end
 
@@ -120,6 +126,6 @@ class TelegramController < Telegram::Bot::UpdatesController
       .select(:id, :title, :original_title)
       .search_by_title(payload["text"])
       .limit(MAX_VARIANTS_SIZE)
-      .map { Telegram::SpellDecorator.new(_1) }
+      .map(&:decorate)
   end
 end

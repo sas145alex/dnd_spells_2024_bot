@@ -1,7 +1,13 @@
 Rails.application.routes.draw do
-  devise_for :admin_users, ActiveAdmin::Devise.config
-  ActiveAdmin.routes(self)
   get "up" => "rails/health#show", :as => :rails_health_check
+
+  devise_for :admin_users, ActiveAdmin::Devise.config
+
+  begin
+    ActiveAdmin.routes(self)
+  rescue
+    ActiveAdmin::DatabaseHitDuringLoad
+  end
 
   # Render dynamic PWA files from app/views/pwa/*
   # get "service-worker" => "rails/pwa#service_worker", :as => :pwa_service_worker

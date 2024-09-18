@@ -49,7 +49,7 @@ ActiveAdmin.register Spell do
       row :title
       row :original_title
       row :description do |spell|
-        markdown(spell.description)
+        markdown_to_html(spell.description)
       end
       row :length do |spell|
         span class: "badge #{spell.long_description? ? "badge-danger" : "badge-success"}" do

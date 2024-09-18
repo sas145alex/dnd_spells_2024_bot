@@ -49,7 +49,7 @@ ActiveAdmin.register Creature do
       row :title
       row :original_title
       row :description do |creature|
-        markdown(creature.description)
+        markdown_to_html(creature.description)
       end
       row :length do |creature|
         span class: "badge #{creature.long_description? ? "badge-danger" : "badge-success"}" do

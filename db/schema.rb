@@ -53,11 +53,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_180436) do
     t.datetime "published_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "spells_id"
     t.index ["created_by_id"], name: "index_creatures_on_created_by_id"
     t.index ["published_at"], name: "index_creatures_on_published_at", where: "(published_at IS NOT NULL)"
     t.index ["responsible_id"], name: "index_creatures_on_responsible_id"
-    t.index ["spells_id"], name: "index_creatures_on_spells_id"
     t.index ["title"], name: "index_creatures_on_title"
     t.index ["title"], name: "index_creatures_on_title_gin", opclass: :gin_trgm_ops, using: :gin
     t.index ["updated_by_id"], name: "index_creatures_on_updated_by_id"
@@ -95,7 +93,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_180436) do
   add_foreign_key "creatures", "admin_users", column: "created_by_id"
   add_foreign_key "creatures", "admin_users", column: "responsible_id"
   add_foreign_key "creatures", "admin_users", column: "updated_by_id"
-  add_foreign_key "creatures", "spells", column: "spells_id"
   add_foreign_key "spells", "admin_users", column: "created_by_id"
   add_foreign_key "spells", "admin_users", column: "responsible_id"
   add_foreign_key "spells", "admin_users", column: "updated_by_id"
