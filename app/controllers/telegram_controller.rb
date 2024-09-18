@@ -1,5 +1,6 @@
 class TelegramController < Telegram::Bot::UpdatesController
   include Telegram::Bot::UpdatesController::MessageContext
+  include Telegram::Bot::UpdatesController::CallbackQueryContext
   include Telegram::Bot::UpdatesController::Session
 
   MAX_VARIANTS_SIZE = 7
@@ -32,16 +33,20 @@ class TelegramController < Telegram::Bot::UpdatesController
 
     return if search_value_invalid?
 
-    reply_markup = {}
     if selected_spell.present?
-      messages = Telegram::Spell::FetchMessages.call(selected_spell)
-      messages.each do |text|
-        respond_with :message,
-          text: text,
-          reply_markup: reply_markup,
-          parse_mode: Spell::DESCRIPTION_FORMAT
-        sleep(0.1)
+      text = selected_spell.description
+      mentions = selected_spell.mentions.map do |mention|
+        {
+          text: mention.another_mentionable.title,
+          callback_data: "pick_mention:#{mention.id}"
+        }
       end
+      inline_keyboard = mentions.in_groups_of(4, false)
+      reply_markup = {inline_keyboard: inline_keyboard}
+      respond_with :message,
+        text: text,
+        reply_markup: reply_markup,
+        parse_mode: Spell::DESCRIPTION_FORMAT
       return
     else
       fetch_new_variants!
@@ -65,6 +70,19 @@ class TelegramController < Telegram::Bot::UpdatesController
     end
 
     respond_with :message, text: text, reply_markup: reply_markup
+  end
+
+  def callback_query(*args)
+    respond_with :message, text: "default callback answer", reply_markup: {}
+  end
+
+  def pick_mention_callback_query(*args)
+    mention = Mention.find(args[0].to_i)
+    text = mention.another_mentionable.description
+    respond_with :message,
+      text: text,
+      reply_markup: {},
+      parse_mode: mention.another_mentionable.class::DESCRIPTION_FORMAT
   end
 
   private
