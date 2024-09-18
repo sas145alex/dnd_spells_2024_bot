@@ -35,7 +35,12 @@ class Spell < ApplicationRecord
 
   pg_search_scope :search_by_title,
     against: [:title, :original_title],
-    using: :trigram
+    using: {
+      tsearch: {dictionary: "english"},
+      trigram: {
+        only: [:title]
+      }
+    }
 
   scope :published, -> { where.not(published_at: nil) }
   scope :not_published, -> { where(published_at: nil) }
