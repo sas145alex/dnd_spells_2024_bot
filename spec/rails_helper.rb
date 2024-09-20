@@ -45,4 +45,6 @@ RSpec.configure do |config|
 
   config.filter_rails_from_backtrace!
   # config.filter_gems_from_backtrace("gem name")
+
+  config.include FactoryBot::Syntax::Methods
 end

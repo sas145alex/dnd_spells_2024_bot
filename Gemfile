@@ -38,6 +38,10 @@ gem "bootsnap", require: false
 
 group :development, :test do
   gem "rspec-rails", "~> 7.0.0"
+  gem "factory_bot_rails"
+  gem "ffaker"
+  gem "observer" # for ffaker
+  gem "timecop"
   gem "dotenv"
   gem "debug", platforms: %i[mri windows], require: "debug/prelude"
   gem "brakeman", require: false
@@ -49,4 +53,5 @@ group :development do
 end
 
 group :test do
+  gem "test-prof", "~> 1.0"
 end

@@ -49,6 +49,10 @@ class TelegramController < Telegram::Bot::UpdatesController
         text: text,
         reply_markup: reply_markup,
         parse_mode: parse_mode
+
+      Telegram::UserMetricsJob.perform_later(payload)
+      Telegram::SpellMetricsJob.perform_later(selected_spell.id)
+
       return
     else
       fetch_new_variants!
