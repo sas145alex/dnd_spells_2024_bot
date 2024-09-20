@@ -11,6 +11,11 @@ class TelegramController < Telegram::Bot::UpdatesController
       text: "Вы ввели сообщение, но вы не находитесь ни в одном из режимов"
   end
 
+  def about!
+    answer_params = BotCommand::About.call
+    respond_with :message, answer_params
+  end
+
   def give_advice!(*args)
     if args.empty?
       save_context("give_advice!")

@@ -3,7 +3,7 @@ ActiveAdmin.register Creature do
   scope :not_published, ->(scope) { scope.not_published }
   scope("My tasks") { |scope| scope.where(responsible: current_admin_user) }
 
-  index class: "asdf" do
+  index do
     selectable_column
     id_column
     column :title
@@ -53,7 +53,7 @@ ActiveAdmin.register Creature do
       end
       row :length do |creature|
         span class: "badge #{creature.long_description? ? "badge-danger" : "badge-success"}" do
-          "#{creature.description&.size} / #{Creature::DESCRIPTION_LIMIT}"
+          "#{creature.description&.size} / #{resource.class::DESCRIPTION_LIMIT}"
         end
       end
       row :published_at do |creature|
@@ -146,7 +146,7 @@ ActiveAdmin.register Creature do
     def create
       @creature = Creature.new
 
-      if @creature.update(update_params)
+      if @creature.update(create_params)
         if params[:create_another] == "on"
           redirect_to new_admin_creature_path, notice: "Creature was successfully created. Create another one."
         else

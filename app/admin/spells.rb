@@ -3,7 +3,7 @@ ActiveAdmin.register Spell do
   scope :not_published, ->(scope) { scope.not_published }
   scope("My tasks") { |scope| scope.where(responsible: current_admin_user) }
 
-  index class: "asdf" do
+  index do
     selectable_column
     id_column
     column :title
@@ -53,7 +53,7 @@ ActiveAdmin.register Spell do
       end
       row :length do |spell|
         span class: "badge #{spell.long_description? ? "badge-danger" : "badge-success"}" do
-          "#{spell.description&.size} / #{Spell::DESCRIPTION_LIMIT}"
+          "#{spell.description&.size} / #{resource.class::DESCRIPTION_LIMIT}"
         end
       end
       row :published_at do |spell|
@@ -165,7 +165,7 @@ ActiveAdmin.register Spell do
     def create
       @spell = Spell.new
 
-      if @spell.update(update_params)
+      if @spell.update(create_params)
         if params[:create_another] == "on"
           redirect_to new_admin_spell_path, notice: "Spell was successfully created. Create another one."
         else

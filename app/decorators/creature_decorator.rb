@@ -13,10 +13,6 @@ class CreatureDecorator < ApplicationDecorator
   end
 
   def description_for_telegram
-    @description_for_telegram ||= begin
-      renderer = Renderers::TelegramHTML.new
-      markdown = Redcarpet::Markdown.new(renderer)
-      markdown.render(object.description)
-    end
+    @description_for_telegram ||= h.markdown_to_telegram_markdown(object.description)
   end
 end

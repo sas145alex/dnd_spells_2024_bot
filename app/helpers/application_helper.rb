@@ -1,16 +1,9 @@
 module ApplicationHelper
   def markdown_to_html(text)
-    options = {
-      filter_html: true,
-      hard_wrap: true,
-      link_attributes: {rel: "nofollow", target: "_blank"},
-      space_after_headers: true,
-      fenced_code_blocks: true
-    }
+    FormatChanger.markdown_to_html(text).html_safe
+  end
 
-    renderer = Redcarpet::Render::HTML.new(options)
-    markdown = Redcarpet::Markdown.new(renderer)
-
-    markdown.render(text).html_safe
+  def markdown_to_telegram_markdown(text)
+    FormatChanger.markdown_to_telegram_markdown(text)
   end
 end
