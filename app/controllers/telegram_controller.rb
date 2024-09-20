@@ -7,7 +7,20 @@ class TelegramController < Telegram::Bot::UpdatesController
   SEARCH_VALUE_MIN_LENGTH = 3
 
   def message(*args)
-    respond_with :message, text: "Вы ввели - #{payload["text"]}"
+    respond_with :message,
+      text: "Вы ввели сообщение, но вы не находитесь ни в одном из режимов"
+  end
+
+  def give_advice!(*args)
+    if args.empty?
+      save_context("give_advice!")
+
+      respond_with :message,
+        text: "Если вы хотите предложить исправление, то напишите нам об этом в следующем сообщении"
+    else
+      reply_with :message, text: "Принято"
+      Telegram::ProcessAdviceJob.perform_later(payload["text"], from: from, message_time: payload["date"])
+    end
   end
 
   def stop_search!(*args)

@@ -26,6 +26,7 @@ gem "mutex_m"
 gem "redcarpet"
 gem "pg_search"
 gem "draper"
+gem "httparty"
 
 gem "sentry-ruby"
 gem "sentry-rails"
@@ -54,4 +55,5 @@ end
 
 group :test do
   gem "test-prof", "~> 1.0"
+  gem "webmock"
 end

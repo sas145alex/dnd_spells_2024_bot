@@ -1,5 +1,3 @@
-require "rails_helper"
-
 RSpec.describe Telegram::UserMetricsJob do
   subject { described_class.perform_now(payload) }
 
