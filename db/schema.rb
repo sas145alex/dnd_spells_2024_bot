@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_20_172404) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_21_053930) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -62,11 +62,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_20_172404) do
     t.datetime "published_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "spells_id"
     t.index ["created_by_id"], name: "index_creatures_on_created_by_id"
     t.index ["published_at"], name: "index_creatures_on_published_at", where: "(published_at IS NOT NULL)"
     t.index ["responsible_id"], name: "index_creatures_on_responsible_id"
-    t.index ["spells_id"], name: "index_creatures_on_spells_id"
     t.index ["title"], name: "index_creatures_on_title"
     t.index ["title"], name: "index_creatures_on_title_gin", opclass: :gin_trgm_ops, using: :gin
     t.index ["updated_by_id"], name: "index_creatures_on_updated_by_id"
@@ -108,6 +106,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_20_172404) do
     t.integer "spells_requested_count", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "username"
     t.index ["external_id"], name: "index_telegram_users_on_external_id", unique: true
     t.index ["last_seen_at"], name: "index_telegram_users_on_last_seen_at"
   end
@@ -115,7 +114,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_20_172404) do
   add_foreign_key "creatures", "admin_users", column: "created_by_id"
   add_foreign_key "creatures", "admin_users", column: "responsible_id"
   add_foreign_key "creatures", "admin_users", column: "updated_by_id"
-  add_foreign_key "creatures", "spells", column: "spells_id"
   add_foreign_key "spells", "admin_users", column: "created_by_id"
   add_foreign_key "spells", "admin_users", column: "responsible_id"
   add_foreign_key "spells", "admin_users", column: "updated_by_id"

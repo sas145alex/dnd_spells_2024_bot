@@ -45,6 +45,7 @@ RSpec.describe Telegram::UserMetricsJob do
       expect { subject }.to change { TelegramUser.count }.from(0).to(1)
       expect(TelegramUser.last).to have_attributes(
         last_seen_at: date,
+        username: "UserName",
         spells_requested_count: 1
       )
     end
