@@ -1,14 +1,4 @@
-BotCommand.find_or_create_by!(title: BotCommand::ABOUT_ID) do |command|
-  command.description = "about"
-end
-
-AdminUser.find_or_create_by!(id: AdminUser::SYSTEM_USER_ID) do |admin|
-  admin.email = "system@system.io"
-  admin.password = SecureRandom.hex(8)
-end
-
-if Rails.env.development?
-  AdminUser.find_or_create_by!(email: "admin@admin.io") do |admin|
-    admin.password = "qwerty"
-  end
-end
+load "db/seeds/seeders/admin_users.rb"
+load "db/seeds/seeders/bot_commands.rb"
+load "db/seeds/seeders/spells.rb"
+load "db/seeds/seeders/creatures.rb"
