@@ -33,4 +33,8 @@ class WildMagic < ApplicationRecord
   def self.ransackable_associations(auth_object = nil)
     %w[created_by updated_by]
   end
+
+  def self.find_by_roll(roll_value)
+    find_by("int4range(roll) @> #{roll_value}")
+  end
 end

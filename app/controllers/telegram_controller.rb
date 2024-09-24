@@ -28,6 +28,11 @@ class TelegramController < Telegram::Bot::UpdatesController
     end
   end
 
+  def wild_magic!(*args)
+    answer_params = BotCommand::WildMagic.call
+    respond_with :message, answer_params
+  end
+
   def stop_search!(*args)
     set_last_found_spells([])
 
