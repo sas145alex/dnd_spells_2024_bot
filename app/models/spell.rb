@@ -23,6 +23,11 @@ class Spell < ApplicationRecord
     as: :mentionable,
     dependent: :restrict_with_error
 
+  has_many :mentioned_mentions,
+    class_name: "Mention",
+    as: :another_mentionable,
+    dependent: :restrict_with_error
+
   accepts_nested_attributes_for :mentions, allow_destroy: true
 
   validates :title, presence: true

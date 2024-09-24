@@ -20,8 +20,15 @@ class Creature < ApplicationRecord
 
   has_many :mentions,
     class_name: "Mention",
-    foreign_key: "another_mentionable_id",
+    as: :mentionable,
     dependent: :restrict_with_error
+
+  has_many :mentioned_mentions,
+    class_name: "Mention",
+    as: :another_mentionable,
+    dependent: :restrict_with_error
+
+  accepts_nested_attributes_for :mentions, allow_destroy: true
 
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true

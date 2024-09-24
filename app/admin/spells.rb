@@ -74,13 +74,7 @@ ActiveAdmin.register Spell do
       row :updated_by
     end
 
-    panel "Mentions" do
-      table_for resource.mentions do |_mention|
-        column :mentionable
-        column :another_mentionable
-        column :created_at
-      end
-    end
+    render "mentions"
 
     div do
       if resource.published?
