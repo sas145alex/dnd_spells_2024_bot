@@ -35,11 +35,12 @@ class Feat < ApplicationRecord
 
   scope :published, -> { where.not(published_at: nil) }
   scope :not_published, -> { where(published_at: nil) }
+  scope :ordered, -> { order(title: :asc) }
 
   before_validation :chomp_title
   before_validation :chomp_original_title
 
-  enum category: {
+  enum :category, {
     general: "general",
     origin: "origin",
     fighting_style: "fighting_style",

@@ -1,0 +1,9 @@
+ru:
+  activerecord:
+    attributes:
+      feat:
+        categories:
+          general: "Общие"
+          origin: "Происхождения"
+          fighting_style: "Боевой стиль"
+          epic_boon: "Эпические"

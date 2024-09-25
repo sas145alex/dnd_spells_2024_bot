@@ -28,4 +28,11 @@
 #       enabled: "ON"
 
 en:
-  hello: "Hello world"
+  activerecord:
+    attributes:
+      feat:
+        categories:
+          general: "General"
+          origin: "Origin"
+          fighting_style: "Fighting Style"
+          epic_boon: "Epic Boon"
