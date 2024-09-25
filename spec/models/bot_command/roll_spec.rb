@@ -1,4 +1,4 @@
-RSpec.fdescribe BotCommand::Roll do
+RSpec.describe BotCommand::Roll do
   subject { described_class.call(roll_formula: roll_formula) }
 
   context "when roll formula is blank" do

@@ -1,4 +1,4 @@
-class Spell < ApplicationRecord
+class Feat < ApplicationRecord
   include Publishable
   include PgSearch::Model
 
@@ -13,10 +13,6 @@ class Spell < ApplicationRecord
     class_name: "AdminUser",
     foreign_key: "updated_by_id",
     optional: true
-  belongs_to :responsible,
-    class_name: "AdminUser",
-    foreign_key: "responsible_id",
-    optional: true
 
   has_many :mentions,
     class_name: "Mention",
@@ -29,29 +25,26 @@ class Spell < ApplicationRecord
     dependent: :restrict_with_error
 
   accepts_nested_attributes_for :mentions, allow_destroy: true
-
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true
-  validates :description, presence: true, if: :published?
   validates :description,
     length: {minimum: 5, maximum: 5000},
     if: :published?,
     allow_blank: true
-
-  pg_search_scope :search_by_title,
-    against: [:title, :original_title],
-    using: {
-      tsearch: {dictionary: "english"},
-      trigram: {
-        only: [:title]
-      }
-    }
+  validates :category, presence: true
 
   scope :published, -> { where.not(published_at: nil) }
   scope :not_published, -> { where(published_at: nil) }
 
   before_validation :chomp_title
   before_validation :chomp_original_title
+
+  enum category: {
+    general: "general",
+    origin: "origin",
+    fighting_style: "fighting_style",
+    epic_boon: "epic_boon"
+  }
 
   def self.ransackable_associations(auth_object = nil)
     %w[created_by updated_by responsible]
