@@ -33,6 +33,16 @@ class TelegramController < Telegram::Bot::UpdatesController
     respond_with :message, answer_params
   end
 
+  def roll!(roll_formula = nil, *args)
+    answer_params = BotCommand::Roll.call(roll_formula: roll_formula)
+    respond_with :message, answer_params
+  end
+
+  def roll_formula_callback_query(roll_formula = nil, *args)
+    answer_params = BotCommand::Roll.call(roll_formula: roll_formula)
+    edit_message :text, answer_params
+  end
+
   def stop_search!(*args)
     set_last_found_spells([])
 
