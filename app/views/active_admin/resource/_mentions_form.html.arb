@@ -1,0 +1,15 @@
+f.has_many :mentions, heading: false, allow_destroy: true, new_record: true do |mention_f|
+  mention_f.input :another_mentionable_type,
+    collection: mention_types_for_select,
+    selected: mention_f.object.another_mentionable_type || mention_types_for_select.first,
+    input_html: {class: "another_mentionable_type_input"}
+  mention_f.input :another_mentionable_id,
+    as: :select,
+    collection: [],
+    selected: mention_f.object.another_mentionable_id,
+    input_html: {
+      class: "another_mentionable_id_input",
+      "data-initial-id": mention_f.object.another_mentionable_id,
+      "data-initial-type": mention_f.object.another_mentionable_type
+    }
+end

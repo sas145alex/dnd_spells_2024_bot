@@ -5,7 +5,7 @@ ActiveAdmin.register WildMagic do
     selectable_column
     id_column
     column :roll do |wild_magic|
-      print_range(wild_magic.roll)
+      wild_magic.decorate.title
     end
     column :description do |wild_magic|
       markdown_to_html(wild_magic.description.first(300))
@@ -47,7 +47,7 @@ ActiveAdmin.register WildMagic do
     attributes_table_for(resource) do
       row :id
       row :roll do
-        print_range(resource.roll)
+        resource.decorate.title
       end
       row :description do
         markdown_to_html(resource.description)
@@ -64,7 +64,7 @@ ActiveAdmin.register WildMagic do
   form do |f|
     f.semantic_errors
     f.inputs do
-      li "Roll: #{print_range(f.object.roll)}"
+      li f.object.decorate.title
       f.input :description,
         label: "Description (#{WildMagic::DESCRIPTION_FORMAT})",
         as: :simplemde_editor,
@@ -73,14 +73,7 @@ ActiveAdmin.register WildMagic do
     end
 
     panel "Mentions" do
-      f.has_many :mentions, heading: false, allow_destroy: true, new_record: true do |mention_f|
-        mention_f.input :another_mentionable_type, as: :hidden, input_html: {value: "Spell"}
-        mention_f.input :another_mentionable_type,
-          collection: ["Spell"],
-          selected: "Spell",
-          input_html: {disabled: true}
-        mention_f.input :another_mentionable, collection: Spell.all.pluck(:title, :id)
-      end
+      render partial: "mentions_form", locals: {f: f}
     end
 
     f.actions do

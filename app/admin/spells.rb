@@ -100,14 +100,7 @@ ActiveAdmin.register Spell do
     end
 
     panel "Mentions" do
-      f.has_many :mentions, heading: false, allow_destroy: true, new_record: true do |mention_f|
-        mention_f.input :another_mentionable_type, as: :hidden, input_html: {value: "Creature"}
-        mention_f.input :another_mentionable_type,
-          collection: ["Creature"],
-          selected: "Creature",
-          input_html: {disabled: true}
-        mention_f.input :another_mentionable, collection: Creature.all.pluck(:title, :id)
-      end
+      render partial: "mentions_form", locals: {f: f}
     end
 
     f.actions do

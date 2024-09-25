@@ -15,7 +15,13 @@ class BotCommand::WildMagic < ApplicationOperation
     end
   end
 
+  def initialize(rand_value = nil)
+    @rand_value = rand_value || rand(WildMagic::MIN_ROLL..WildMagic::MAX_ROLL)
+  end
+
   private
+
+  attr_reader :rand_value
 
   def text
     wild_magic.description_for_telegram
@@ -24,7 +30,7 @@ class BotCommand::WildMagic < ApplicationOperation
   def reply_markup
     mentions = wild_magic.mentions.map do |mention|
       {
-        text: mention.another_mentionable.title,
+        text: mention.another_mentionable.decorate.title,
         callback_data: "pick_mention:#{mention.id}"
       }
     end
@@ -39,9 +45,5 @@ class BotCommand::WildMagic < ApplicationOperation
 
   def wild_magic
     @wild_magic ||= WildMagic.find_by_roll(rand_value).decorate
-  end
-
-  def rand_value
-    @rand_value ||= rand(WildMagic::MIN_ROLL..WildMagic::MAX_ROLL)
   end
 end

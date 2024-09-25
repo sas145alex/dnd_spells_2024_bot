@@ -7,8 +7,7 @@ module ApplicationHelper
     FormatChanger.markdown_to_telegram_markdown(text)
   end
 
-  def print_range(value)
-    return unless value
-    "#{value.min}..#{value.max}"
+  def mention_types_for_select
+    %w[Creature Spell WildMagic]
   end
 end

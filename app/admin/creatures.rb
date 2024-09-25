@@ -74,6 +74,8 @@ ActiveAdmin.register Creature do
       row :updated_by
     end
 
+    render "mentions"
+
     div do
       if resource.published?
         link_to "Unpublish", unpublish_admin_creature_path(resource), class: "btn btn-primary"
@@ -95,6 +97,10 @@ ActiveAdmin.register Creature do
 
       li "Published at #{f.object.published_at}" if f.object.published?
       li "Created at #{f.object.created_at}" unless f.object.new_record?
+    end
+
+    panel "Mentions" do
+      render partial: "mentions_form", locals: {f: f}
     end
 
     f.actions do
@@ -191,5 +197,6 @@ ActiveAdmin.register Creature do
 
   permit_params :title,
     :original_title,
-    :description
+    :description,
+    mentions_attributes: [:id, :another_mentionable_type, :another_mentionable_id, :_destroy]
 end

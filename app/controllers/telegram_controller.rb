@@ -61,7 +61,7 @@ class TelegramController < Telegram::Bot::UpdatesController
       parse_mode = selected_spell.parse_mode_for_telegram
       mentions = selected_spell.mentions.map do |mention|
         {
-          text: mention.another_mentionable.title,
+          text: mention.another_mentionable.decorate.title,
           callback_data: "pick_mention:#{mention.id}"
         }
       end
