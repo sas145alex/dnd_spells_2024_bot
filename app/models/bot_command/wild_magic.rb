@@ -15,7 +15,7 @@ class BotCommand::WildMagic < ApplicationOperation
     end
   end
 
-  def initialize(rand_value = nil)
+  def initialize(rand_value: nil)
     @rand_value = rand_value || rand(WildMagic::MIN_ROLL..WildMagic::MAX_ROLL)
   end
 
@@ -44,6 +44,6 @@ class BotCommand::WildMagic < ApplicationOperation
   end
 
   def wild_magic
-    @wild_magic ||= WildMagic.find_by_roll(rand_value).decorate
+    @wild_magic ||= WildMagic.find_by_roll(rand_value)&.decorate
   end
 end

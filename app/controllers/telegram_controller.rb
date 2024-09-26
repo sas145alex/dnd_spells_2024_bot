@@ -28,8 +28,8 @@ class TelegramController < Telegram::Bot::UpdatesController
     end
   end
 
-  def wild_magic!(*args)
-    answer_params = BotCommand::WildMagic.call
+  def wild_magic!(rand_value = nil, *args)
+    answer_params = BotCommand::WildMagic.call(rand_value: rand_value)
     respond_with :message, answer_params
   end
 
