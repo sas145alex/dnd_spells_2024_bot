@@ -1,4 +1,7 @@
 class ApplicationRecord < ActiveRecord::Base
+  DESCRIPTION_FORMAT = "Markdown"
+  DESCRIPTION_LIMIT = 4096
+
   primary_abstract_class
 
   def self.ransackable_attributes(auth_object = nil)

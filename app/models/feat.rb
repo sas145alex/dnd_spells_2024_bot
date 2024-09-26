@@ -1,9 +1,7 @@
 class Feat < ApplicationRecord
   include Publishable
+  include Mentionable
   include PgSearch::Model
-
-  DESCRIPTION_FORMAT = "Markdown"
-  DESCRIPTION_LIMIT = 4096
 
   belongs_to :created_by,
     class_name: "AdminUser",
@@ -14,17 +12,6 @@ class Feat < ApplicationRecord
     foreign_key: "updated_by_id",
     optional: true
 
-  has_many :mentions,
-    class_name: "Mention",
-    as: :mentionable,
-    dependent: :restrict_with_error
-
-  has_many :mentioned_mentions,
-    class_name: "Mention",
-    as: :another_mentionable,
-    dependent: :restrict_with_error
-
-  accepts_nested_attributes_for :mentions, allow_destroy: true
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true
   validates :description,
@@ -33,12 +20,10 @@ class Feat < ApplicationRecord
     allow_blank: true
   validates :category, presence: true
 
-  scope :published, -> { where.not(published_at: nil) }
-  scope :not_published, -> { where(published_at: nil) }
   scope :ordered, -> { order(title: :asc) }
 
-  before_validation :chomp_title
-  before_validation :chomp_original_title
+  before_validation :strip_title
+  before_validation :strip_original_title
 
   enum :category, {
     general: "general",
@@ -57,11 +42,11 @@ class Feat < ApplicationRecord
 
   private
 
-  def chomp_title
-    self.title = title&.chomp
+  def strip_title
+    self.title = title&.strip
   end
 
-  def chomp_original_title
-    self.original_title = original_title&.chomp
+  def strip_original_title
+    self.original_title = original_title&.strip
   end
 end

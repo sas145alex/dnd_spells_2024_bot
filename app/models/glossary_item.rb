@@ -1,8 +1,9 @@
-class Spell < ApplicationRecord
+class GlossaryItem < ApplicationRecord
   include Publishable
   include Mentionable
-  include PgSearch::Model
 
+  belongs_to :category,
+    class_name: "GlossaryCategory"
   belongs_to :created_by,
     class_name: "AdminUser",
     foreign_key: "created_by_id",
@@ -10,10 +11,6 @@ class Spell < ApplicationRecord
   belongs_to :updated_by,
     class_name: "AdminUser",
     foreign_key: "updated_by_id",
-    optional: true
-  belongs_to :responsible,
-    class_name: "AdminUser",
-    foreign_key: "responsible_id",
     optional: true
 
   validates :title, presence: true
@@ -24,20 +21,11 @@ class Spell < ApplicationRecord
     if: :published?,
     allow_blank: true
 
-  pg_search_scope :search_by_title,
-    against: [:title, :original_title],
-    using: {
-      tsearch: {dictionary: "english"},
-      trigram: {
-        only: [:title]
-      }
-    }
-
   before_validation :strip_title
   before_validation :strip_original_title
 
   def self.ransackable_associations(auth_object = nil)
-    %w[created_by updated_by responsible]
+    %w[created_by updated_by category]
   end
 
   def long_description?

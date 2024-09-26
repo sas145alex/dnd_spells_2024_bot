@@ -1,6 +1,11 @@
 module Publishable
   extend ActiveSupport::Concern
 
+  included do
+    scope :published, -> { where.not(published_at: nil) }
+    scope :not_published, -> { where(published_at: nil) }
+  end
+
   def published?
     published_at.present?
   end

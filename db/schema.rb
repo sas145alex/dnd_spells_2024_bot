@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_25_152437) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_26_111707) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -84,6 +84,30 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_25_152437) do
     t.index ["updated_by_id"], name: "index_feats_on_updated_by_id"
   end
 
+  create_table "glossary_categories", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "original_title"
+    t.bigint "parent_category_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["parent_category_id"], name: "index_glossary_categories_on_parent_category_id"
+  end
+
+  create_table "glossary_items", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "original_title"
+    t.text "description", default: "", null: false
+    t.bigint "category_id", null: false
+    t.datetime "published_at"
+    t.bigint "created_by_id"
+    t.bigint "updated_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_glossary_items_on_category_id"
+    t.index ["created_by_id"], name: "index_glossary_items_on_created_by_id"
+    t.index ["updated_by_id"], name: "index_glossary_items_on_updated_by_id"
+  end
+
   create_table "mentions", force: :cascade do |t|
     t.string "mentionable_type"
     t.bigint "mentionable_id"
@@ -142,6 +166,10 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_25_152437) do
   add_foreign_key "creatures", "admin_users", column: "updated_by_id"
   add_foreign_key "feats", "admin_users", column: "created_by_id"
   add_foreign_key "feats", "admin_users", column: "updated_by_id"
+  add_foreign_key "glossary_categories", "glossary_categories", column: "parent_category_id"
+  add_foreign_key "glossary_items", "admin_users", column: "created_by_id"
+  add_foreign_key "glossary_items", "admin_users", column: "updated_by_id"
+  add_foreign_key "glossary_items", "glossary_categories", column: "category_id"
   add_foreign_key "spells", "admin_users", column: "created_by_id"
   add_foreign_key "spells", "admin_users", column: "responsible_id"
   add_foreign_key "spells", "admin_users", column: "updated_by_id"

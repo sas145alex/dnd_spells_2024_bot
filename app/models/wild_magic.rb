@@ -1,4 +1,6 @@
 class WildMagic < ApplicationRecord
+  include Mentionable
+
   MIN_ROLL = 1
   MAX_ROLL = 100
   DESCRIPTION_FORMAT = "Markdown"
@@ -11,18 +13,6 @@ class WildMagic < ApplicationRecord
     class_name: "AdminUser",
     foreign_key: "updated_by_id",
     optional: true
-
-  has_many :mentions,
-    class_name: "Mention",
-    as: :mentionable,
-    dependent: :restrict_with_error
-
-  has_many :mentioned_mentions,
-    class_name: "Mention",
-    as: :another_mentionable,
-    dependent: :restrict_with_error
-
-  accepts_nested_attributes_for :mentions, allow_destroy: true
 
   validates :description,
     length: {minimum: 5, maximum: 5000},
