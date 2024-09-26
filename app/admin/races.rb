@@ -51,7 +51,22 @@ ActiveAdmin.register Race do
       row :description do
         markdown_to_html(resource.description)
       end
-      row :published_at
+      row :length do
+        span class: "badge #{resource.long_description? ? "badge-danger" : "badge-success"}" do
+          "#{resource.description&.size} / #{resource.class::DESCRIPTION_LIMIT}"
+        end
+      end
+      row :published_at do
+        if resource.published?
+          span class: "badge badge-success" do
+            resource.published_at
+          end
+        else
+          span class: "badge badge-danger" do
+            "Empty"
+          end
+        end
+      end
       row :created_at
       row :updated_at
       row :created_by

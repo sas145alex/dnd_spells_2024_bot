@@ -48,18 +48,18 @@ ActiveAdmin.register Spell do
       row :id
       row :title
       row :original_title
-      row :description do |spell|
-        markdown_to_html(spell.description)
+      row :description do
+        markdown_to_html(resource.description)
       end
-      row :length do |spell|
-        span class: "badge #{spell.long_description? ? "badge-danger" : "badge-success"}" do
-          "#{spell.description&.size} / #{resource.class::DESCRIPTION_LIMIT}"
+      row :length do
+        span class: "badge #{resource.long_description? ? "badge-danger" : "badge-success"}" do
+          "#{resource.description&.size} / #{resource.class::DESCRIPTION_LIMIT}"
         end
       end
-      row :published_at do |spell|
-        if spell.published?
+      row :published_at do
+        if resource.published?
           span class: "badge badge-success" do
-            spell.published_at
+            resource.published_at
           end
         else
           span class: "badge badge-danger" do

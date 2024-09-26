@@ -48,18 +48,18 @@ ActiveAdmin.register Creature do
       row :id
       row :title
       row :original_title
-      row :description do |creature|
-        markdown_to_html(creature.description)
+      row :description do
+        markdown_to_html(resource.description)
       end
-      row :length do |creature|
-        span class: "badge #{creature.long_description? ? "badge-danger" : "badge-success"}" do
-          "#{creature.description&.size} / #{resource.class::DESCRIPTION_LIMIT}"
+      row :length do
+        span class: "badge #{resource.long_description? ? "badge-danger" : "badge-success"}" do
+          "#{resource.description&.size} / #{resource.class::DESCRIPTION_LIMIT}"
         end
       end
-      row :published_at do |creature|
-        if creature.published?
+      row :published_at do
+        if resource.published?
           span class: "badge badge-success" do
-            creature.published_at
+            resource.published_at
           end
         else
           span class: "badge badge-danger" do
