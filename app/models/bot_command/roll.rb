@@ -40,11 +40,9 @@ class BotCommand::Roll < ApplicationOperation
     elsif full_roll_formula?
       {}
     elsif partial_roll_formula?
-      inline_keyboard = keyboard_options(callback_prefix: "#{dice_count}d")
-      {inline_keyboard: inline_keyboard}
+      {inline_keyboard: keyboard_dice_value_options}
     else
-      inline_keyboard = keyboard_options
-      {inline_keyboard: inline_keyboard}
+      {inline_keyboard: keyboard_dice_count_options}
     end
   end
 
@@ -52,17 +50,25 @@ class BotCommand::Roll < ApplicationOperation
     "HTML"
   end
 
-  def keyboard_options(callback_prefix: "")
-    options = (1..20).map do |dice|
+  def keyboard_dice_value_options
+    option_builder = ->(num, val) { {text: "#{num}d#{val}", callback_data: "roll_formula:#{num}d#{val}"} }
+    option_lines = []
+    option_lines << [option_builder.call(dice_count, 20)]
+    option_lines << [4, 6, 8, 10, 12].map do |dice_val|
+      option_builder.call(dice_count, dice_val)
+    end
+    option_lines << [option_builder.call(dice_count, 100)]
+    option_lines
+  end
+
+  def keyboard_dice_count_options
+    options = (1..25).map do |dice|
       {
         text: dice.to_s,
-        callback_data: "roll_formula:#{callback_prefix}#{dice}"
+        callback_data: "roll_formula:#{dice}"
       }
     end
-    option_lines = options.in_groups_of(5, false)
-    option_lines.prepend([text: "20", callback_data: "roll_formula:#{callback_prefix}20"])
-    option_lines.append([text: "100", callback_data: "roll_formula:#{callback_prefix}100"])
-    option_lines
+    options.in_groups_of(5, false)
   end
 
   def invalid_input?
