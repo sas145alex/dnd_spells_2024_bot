@@ -3,21 +3,21 @@ class Race < ApplicationRecord
   include Mentionable
 
   belongs_to :created_by,
-             class_name: "AdminUser",
-             foreign_key: "created_by_id",
-             optional: true
+    class_name: "AdminUser",
+    foreign_key: "created_by_id",
+    optional: true
   belongs_to :updated_by,
-             class_name: "AdminUser",
-             foreign_key: "updated_by_id",
-             optional: true
+    class_name: "AdminUser",
+    foreign_key: "updated_by_id",
+    optional: true
 
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true
   validates :description, presence: true, if: :published?
   validates :description,
-            length: {minimum: 5, maximum: 5000},
-            if: :published?,
-            allow_blank: true
+    length: {minimum: 5, maximum: 5000},
+    if: :published?,
+    allow_blank: true
 
   scope :ordered, -> { order(title: :asc) }
 
