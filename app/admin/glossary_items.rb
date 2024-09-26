@@ -50,6 +50,9 @@ ActiveAdmin.register GlossaryItem do
   show do
     attributes_table_for(resource) do
       row :id
+      row "parent category" do
+        resource.category&.parent_category&.title
+      end
       row :category
       row :title
       row :original_title
@@ -75,9 +78,15 @@ ActiveAdmin.register GlossaryItem do
   end
 
   form do |f|
+    categories = GlossaryCategory.ordered.excluding(GlossaryCategory.top_level)
+    optgroups = categories
+      .group_by { _1.parent_category.title }
+      .transform_values { _1.pluck(:title, :id) }
     f.semantic_errors
     f.inputs do
-      f.input :category, as: :select, collection: GlossaryCategory.ordered.pluck(:title, :id)
+      f.input :category,
+        as: :select,
+        collection: grouped_options_for_select(optgroups, f.object.category_id)
       f.input :title
       f.input :original_title
       f.input :description,

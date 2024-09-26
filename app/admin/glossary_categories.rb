@@ -48,7 +48,9 @@ ActiveAdmin.register GlossaryCategory do
     f.semantic_errors
     f.inputs do
       f.input :title
-      f.input :parent_category, as: :select, collection: GlossaryCategory.where.not(id: f.object.id)
+      f.input :parent_category,
+        as: :select,
+        collection: GlossaryCategory.where.not(id: f.object.id).top_level.ordered
       li "Created at #{f.object.created_at}" unless f.object.new_record?
     end
 
