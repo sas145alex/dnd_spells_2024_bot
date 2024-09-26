@@ -21,6 +21,8 @@ class GlossaryItem < ApplicationRecord
     if: :published?,
     allow_blank: true
 
+  scope :ordered, -> { order(title: :asc) }
+
   before_validation :strip_title
   before_validation :strip_original_title
 
