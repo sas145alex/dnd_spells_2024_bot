@@ -62,6 +62,10 @@ ActiveAdmin.register GlossaryCategory do
   end
 
   controller do
+    def scoped_collection
+      super.includes :parent_category
+    end
+
     def create
       @resource = GlossaryCategory.new
 

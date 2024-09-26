@@ -38,7 +38,7 @@ ActiveAdmin.register GlossaryItem do
   end
 
   filter :id
-  filter :category, as: :select, collection: -> { GlossaryCategory.ordered.excluding(GlossaryCategory.top_level) }
+  filter :category, as: :select, collection: -> { GlossaryCategory.ordered }
   filter :title
   filter :original_title
   filter :description
@@ -89,9 +89,9 @@ ActiveAdmin.register GlossaryItem do
   end
 
   form do |f|
-    categories = GlossaryCategory.ordered.excluding(GlossaryCategory.top_level)
+    categories = GlossaryCategory.ordered
     optgroups = categories
-      .group_by { _1.parent_category.title }
+      .group_by { _1.top_level? ? "Top level" : _1.parent_category&.title }
       .transform_values { _1.pluck(:title, :id) }
     f.semantic_errors
     f.inputs do
@@ -157,6 +157,10 @@ ActiveAdmin.register GlossaryItem do
   end
 
   controller do
+    def scoped_collection
+      super.includes :category
+    end
+
     def create
       @resource = GlossaryItem.new
 
