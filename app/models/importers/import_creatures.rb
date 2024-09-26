@@ -1,15 +1,14 @@
-class Services::ImportGlossaryItems < ApplicationOperation
+class Importers::ImportCreatures < ApplicationOperation
   def call
-    GlossaryItem.transaction do
+    Creature.transaction do
       CSV.foreach(file_path, headers: true, header_converters: :symbol) do |row|
-        GlossaryItem.create!(
+        Creature.create!(
           title: row[:title],
           original_title: row[:original_title],
           description: row[:description],
-          published_at: Time.current,
+          published_at: row[:published_at],
           created_at: row[:created_at],
           updated_at: row[:updated_at],
-          category: category,
           created_by: created_by
         )
       end
@@ -18,7 +17,7 @@ class Services::ImportGlossaryItems < ApplicationOperation
     true
   end
 
-  def initialize(file_path: "db/seeds/data/glossary-items_2024_09_26.csv", created_by: AdminUser.system_user)
+  def initialize(file_path: "db/seeds/data/creatures_2024_09_24.csv", created_by: AdminUser.system_user)
     @file_path = file_path
     @created_by = created_by
   end
@@ -27,8 +26,4 @@ class Services::ImportGlossaryItems < ApplicationOperation
 
   attr_reader :file_path
   attr_reader :created_by
-
-  def category
-    @category ||= GlossaryCategory.default_category
-  end
 end

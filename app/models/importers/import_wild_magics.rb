@@ -1,4 +1,4 @@
-class Services::ImportWildMagics < ApplicationOperation
+class Importers::ImportWildMagics < ApplicationOperation
   def call
     WildMagic.transaction do
       CSV.foreach(file_path, headers: true, header_converters: :symbol) do |row|

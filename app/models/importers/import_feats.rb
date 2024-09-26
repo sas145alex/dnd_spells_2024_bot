@@ -1,10 +1,11 @@
-class Services::ImportSpells < ApplicationOperation
+class Importers::ImportFeats < ApplicationOperation
   def call
-    Spell.transaction do
+    Feat.transaction do
       CSV.foreach(file_path, headers: true, header_converters: :symbol) do |row|
-        Spell.create!(
+        Feat.create!(
           title: row[:title],
           original_title: row[:original_title],
+          category: row[:category],
           description: row[:description],
           published_at: row[:published_at],
           created_at: row[:created_at],
@@ -17,7 +18,7 @@ class Services::ImportSpells < ApplicationOperation
     true
   end
 
-  def initialize(file_path: "db/seeds/data/spells_2024_09_24.csv", created_by: AdminUser.system_user)
+  def initialize(file_path: "db/seeds/data/feats_2024_09_25.csv", created_by: AdminUser.system_user)
     @file_path = file_path
     @created_by = created_by
   end
