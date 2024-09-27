@@ -29,4 +29,8 @@ class GlossaryCategory < ApplicationRecord
   def top_level?
     parent_category_id.nil?
   end
+
+  def with_items?
+    items.exists?
+  end
 end

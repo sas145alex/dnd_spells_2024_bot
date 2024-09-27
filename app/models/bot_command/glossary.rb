@@ -18,20 +18,25 @@ class BotCommand::Glossary < ApplicationOperation
   def text
     if input_value.blank?
       "Выберете категорию:"
-    elsif selected_object&.is_a?(GlossaryCategory) && selected_object&.top_level?
+    elsif selected_object&.is_a?(GlossaryCategory) && selected_object&.with_items?
+      parent_category_text = if selected_object.top_level?
+        ""
+      else
+        "<b>Родительская категория:</b> #{selected_object.parent_category.title}>"
+      end
+      <<~HTML
+        "#{parent_category_text}"
+        <b>Категория:</b> #{selected_object.title}
+        <b>Всего терминов:</b> #{selected_object.items.count}
+
+        Выберите термин:
+      HTML
+    elsif selected_object&.is_a?(GlossaryCategory)
       <<~HTML
         <b>Категория:</b> #{selected_object.title}
         <b>Всего подкатегорий:</b> #{selected_object.subcategories.count}
 
         Выберете категорию:
-      HTML
-    elsif selected_object&.is_a?(GlossaryCategory)
-      <<~HTML
-        <b>Категория:</b> #{selected_object.parent_category.title}
-        <b>Подкатегория:</b> #{selected_object.title}
-        <b>Всего терминов:</b> #{selected_object.items.count}
-
-        Выберите термин:
       HTML
     elsif selected_object&.is_a?(GlossaryItem)
       <<~HTML
@@ -50,13 +55,13 @@ class BotCommand::Glossary < ApplicationOperation
       options = keyboard_options(variants)
       inline_keyboard = options.in_groups_of(2, false)
       {inline_keyboard: inline_keyboard}
-    elsif selected_object&.is_a?(GlossaryCategory) && selected_object&.top_level?
-      variants = selected_object.subcategories.published.ordered
+    elsif selected_object&.is_a?(GlossaryCategory) && selected_object&.with_items?
+      variants = selected_object.items.ordered
       options = keyboard_options(variants)
       inline_keyboard = options.in_groups_of(2, false)
       {inline_keyboard: inline_keyboard}
     elsif selected_object&.is_a?(GlossaryCategory)
-      variants = selected_object.items.ordered
+      variants = selected_object.subcategories.published.ordered
       options = keyboard_options(variants)
       inline_keyboard = options.in_groups_of(2, false)
       {inline_keyboard: inline_keyboard}
