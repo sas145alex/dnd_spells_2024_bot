@@ -1,4 +1,4 @@
-ActiveAdmin.register Race do
+ActiveAdmin.register Tool do
   index do
     selectable_column
     id_column
@@ -77,9 +77,9 @@ ActiveAdmin.register Race do
 
     div do
       if resource.published?
-        link_to "Unpublish", unpublish_admin_race_path(resource), class: "btn btn-primary"
+        link_to "Unpublish", unpublish_admin_tool_path(resource), class: "btn btn-primary"
       else
-        link_to "Publish", publish_admin_race_path(resource), class: "btn btn-primary"
+        link_to "Publish", publish_admin_tool_path(resource), class: "btn btn-primary"
       end
     end
   end
@@ -90,7 +90,7 @@ ActiveAdmin.register Race do
       f.input :title
       f.input :original_title
       f.input :description,
-        label: "Description (#{Race::DESCRIPTION_FORMAT})",
+        label: "Description (#{Tool::DESCRIPTION_FORMAT})",
         as: :simplemde_editor,
         input_html: {rows: 12, style: "height:auto"}
       li "Created at #{f.object.created_at}" unless f.object.new_record?
@@ -110,11 +110,11 @@ ActiveAdmin.register Race do
       f.actions do
         if f.object.published?
           li class: "action" do
-            link_to "Unpublish", unpublish_admin_race_path(f.object)
+            link_to "Unpublish", unpublish_admin_tool_path(f.object)
           end
         else
           li class: "action" do
-            link_to "Publish", publish_admin_race_path(f.object)
+            link_to "Publish", publish_admin_tool_path(f.object)
           end
         end
       end
@@ -147,13 +147,13 @@ ActiveAdmin.register Race do
 
   controller do
     def create
-      @resource = Race.new
+      @resource = Tool.new
 
       if @resource.update(create_params)
         if params[:create_another] == "on"
-          redirect_to new_admin_race_path, notice: "Race was successfully created. Create another one."
+          redirect_to new_admin_tool_path, notice: "Tool was successfully created. Create another one."
         else
-          redirect_to admin_race_path(@resource), notice: "Race was successfully created."
+          redirect_to admin_tool_path(@resource), notice: "Tool was successfully created."
         end
       else
         flash.now[:alert] = "Errors happened: " + @resource.errors.full_messages.to_sentence
@@ -163,7 +163,7 @@ ActiveAdmin.register Race do
 
     def update
       if resource.update(update_params)
-        redirect_to admin_race_path(resource), notice: "Race was successfully updated."
+        redirect_to admin_tool_path(resource), notice: "Tool was successfully updated."
       else
         render(:edit, status: :unprocessable_entity)
       end
@@ -171,7 +171,7 @@ ActiveAdmin.register Race do
 
     def destroy
       if resource.destroy
-        redirect_to collection_path, notice: "The race has been deleted."
+        redirect_to collection_path, notice: "The tool has been deleted."
       else
         redirect_to collection_path, alert: "Errors happened: " + resource.errors.full_messages.to_sentence
       end
@@ -180,13 +180,13 @@ ActiveAdmin.register Race do
     private
 
     def create_params
-      attrs = permitted_params[:race].to_h
+      attrs = permitted_params[:tool].to_h
       attrs[:created_by] = current_admin_user
       attrs
     end
 
     def update_params
-      attrs = permitted_params[:race].to_h
+      attrs = permitted_params[:tool].to_h
       attrs[:updated_by] = current_admin_user
       attrs
     end

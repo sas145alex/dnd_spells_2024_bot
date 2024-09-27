@@ -8,27 +8,27 @@ ActiveAdmin.register GlossaryItem do
     column :category
     column :title
     column :original_title
-    column :description do |glossary_item|
-      markdown_to_html(glossary_item.description.first(300))
+    column :description do |resource|
+      markdown_to_html(resource.description, limit: 300)
     end
     column :published_at
     column :created_at
     column :updated_at
-    actions defaults: false do |glossary_item|
+    actions defaults: false do |resource|
       links = []
       links << link_to(
         "Show",
-        admin_glossary_item_path(glossary_item),
+        resource_path(resource),
         class: "btn btn-primary"
       )
       links << link_to(
         "Edit",
-        edit_admin_glossary_item_path(glossary_item),
+        edit_resource_path(resource),
         class: "btn btn-primary"
       )
       links << link_to(
         "Delete",
-        admin_glossary_item_path(glossary_item),
+        resource_path(resource),
         method: :delete,
         data: {confirm: "Are you sure?"},
         class: "btn btn-danger"

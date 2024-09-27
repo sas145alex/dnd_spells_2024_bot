@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_26_154247) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_27_152019) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -162,6 +162,19 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_26_154247) do
     t.index ["last_seen_at"], name: "index_telegram_users_on_last_seen_at"
   end
 
+  create_table "tools", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "original_title"
+    t.text "description", default: "", null: false
+    t.datetime "published_at"
+    t.bigint "created_by_id"
+    t.bigint "updated_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_tools_on_created_by_id"
+    t.index ["updated_by_id"], name: "index_tools_on_updated_by_id"
+  end
+
   create_table "wild_magics", force: :cascade do |t|
     t.int4range "roll", null: false
     t.text "description", null: false
@@ -188,6 +201,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_26_154247) do
   add_foreign_key "spells", "admin_users", column: "created_by_id"
   add_foreign_key "spells", "admin_users", column: "responsible_id"
   add_foreign_key "spells", "admin_users", column: "updated_by_id"
+  add_foreign_key "tools", "admin_users", column: "created_by_id"
+  add_foreign_key "tools", "admin_users", column: "updated_by_id"
   add_foreign_key "wild_magics", "admin_users", column: "created_by_id"
   add_foreign_key "wild_magics", "admin_users", column: "updated_by_id"
 end

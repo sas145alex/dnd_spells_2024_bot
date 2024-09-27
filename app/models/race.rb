@@ -1,15 +1,7 @@
 class Race < ApplicationRecord
   include Publishable
   include Mentionable
-
-  belongs_to :created_by,
-    class_name: "AdminUser",
-    foreign_key: "created_by_id",
-    optional: true
-  belongs_to :updated_by,
-    class_name: "AdminUser",
-    foreign_key: "updated_by_id",
-    optional: true
+  include WhoDidItable
 
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true

@@ -10,21 +10,21 @@ ActiveAdmin.register Feat do
     column :original_title
     column :published_at
     column :created_at
-    actions defaults: false do |feat|
+    actions defaults: false do |resource|
       links = []
       links << link_to(
         "Show",
-        admin_feat_path(feat),
+        resource_path(resource),
         class: "btn btn-primary"
       )
       links << link_to(
         "Edit",
-        edit_admin_feat_path(feat),
+        edit_resource_path(resource),
         class: "btn btn-primary"
       )
       links << link_to(
         "Delete",
-        admin_feat_path(feat),
+        resource_path(resource),
         method: :delete,
         data: {confirm: "Are you sure?"},
         class: "btn btn-danger"

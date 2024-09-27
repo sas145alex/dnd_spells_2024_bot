@@ -6,21 +6,21 @@ ActiveAdmin.register GlossaryCategory do
     column :parent_category
     column :created_at
     column :updated_at
-    actions defaults: false do |glossary_category|
+    actions defaults: false do |resource|
       links = []
       links << link_to(
         "Show",
-        admin_glossary_category_path(glossary_category),
+        resource_path(resource),
         class: "btn btn-primary"
       )
       links << link_to(
         "Edit",
-        edit_admin_glossary_category_path(glossary_category),
+        edit_resource_path(resource),
         class: "btn btn-primary"
       )
       links << link_to(
         "Delete",
-        admin_glossary_category_path(glossary_category),
+        resource_path(resource),
         method: :delete,
         data: {confirm: "Are you sure?"},
         class: "btn btn-danger"

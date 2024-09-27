@@ -7,21 +7,21 @@ ActiveAdmin.register BotCommand do
     column :title
     column :created_at
     column :updated_at
-    actions defaults: false do |bot_command|
+    actions defaults: false do |resource|
       links = []
       links << link_to(
         "Show",
-        admin_bot_command_path(bot_command),
+        resource_path(resource),
         class: "btn btn-primary"
       )
       links << link_to(
         "Edit",
-        edit_admin_bot_command_path(bot_command),
+        edit_resource_path(resource),
         class: "btn btn-primary"
       )
       links << link_to(
         "Delete",
-        admin_bot_command_path(bot_command),
+        resource_path(resource),
         method: :delete,
         data: {confirm: "Are you sure?"},
         class: "btn btn-danger"

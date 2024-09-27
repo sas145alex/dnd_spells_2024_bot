@@ -1,13 +1,7 @@
-class Creature < ApplicationRecord
+class Tool < ApplicationRecord
   include Publishable
   include Mentionable
   include WhoDidItable
-  include PgSearch::Model
-
-  belongs_to :responsible,
-    class_name: "AdminUser",
-    foreign_key: "responsible_id",
-    optional: true
 
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true
@@ -17,14 +11,13 @@ class Creature < ApplicationRecord
     if: :published?,
     allow_blank: true
 
-  pg_search_scope :search_by_title,
-    against: [:title, :original_title],
-    using: :trigram
+  scope :ordered, -> { order(title: :asc) }
 
   before_validation :strip_title
+  before_validation :strip_original_title
 
   def self.ransackable_associations(auth_object = nil)
-    %w[created_by updated_by responsible]
+    %w[created_by updated_by]
   end
 
   def long_description?
@@ -35,5 +28,9 @@ class Creature < ApplicationRecord
 
   def strip_title
     self.title = title&.strip
+  end
+
+  def strip_original_title
+    self.original_title = original_title&.strip
   end
 end

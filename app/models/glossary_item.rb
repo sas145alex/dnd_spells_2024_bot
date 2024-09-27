@@ -1,17 +1,10 @@
 class GlossaryItem < ApplicationRecord
   include Publishable
   include Mentionable
+  include WhoDidItable
 
   belongs_to :category,
     class_name: "GlossaryCategory"
-  belongs_to :created_by,
-    class_name: "AdminUser",
-    foreign_key: "created_by_id",
-    optional: true
-  belongs_to :updated_by,
-    class_name: "AdminUser",
-    foreign_key: "updated_by_id",
-    optional: true
 
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true

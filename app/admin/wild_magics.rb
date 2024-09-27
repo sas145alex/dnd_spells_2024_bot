@@ -4,29 +4,29 @@ ActiveAdmin.register WildMagic do
   index do
     selectable_column
     id_column
-    column :roll do |wild_magic|
-      wild_magic.decorate.title
+    column :roll do |resource|
+      resource.decorate.title
     end
-    column :description do |wild_magic|
-      markdown_to_html(wild_magic.description.first(300))
+    column :description do |resource|
+      markdown_to_html(resource.description, limit: 300)
     end
     column :created_at
     column :updated_at
-    actions defaults: false do |wild_magic|
+    actions defaults: false do |resource|
       links = []
       links << link_to(
         "Show",
-        admin_wild_magic_path(wild_magic),
+        resource_path(resource),
         class: "btn btn-primary"
       )
       links << link_to(
         "Edit",
-        edit_admin_wild_magic_path(wild_magic),
+        edit_resource_path(resource),
         class: "btn btn-primary"
       )
       links << link_to(
         "Delete",
-        admin_wild_magic_path(wild_magic),
+        resource_path(resource),
         method: :delete,
         data: {confirm: "Are you sure?"},
         class: "btn btn-danger"
