@@ -63,6 +63,16 @@ class TelegramController < Telegram::Bot::UpdatesController
     edit_message :text, answer_params
   end
 
+  def tool!(*args)
+    answer_params = BotCommand::Tool.call
+    respond_with :message, answer_params
+  end
+
+  def tool_callback_query(input_value = nil, *args)
+    answer_params = BotCommand::Tool.call(input_value: input_value)
+    edit_message :text, answer_params
+  end
+
   def race!(*args)
     answer_params = BotCommand::Race.call
     respond_with :message, answer_params

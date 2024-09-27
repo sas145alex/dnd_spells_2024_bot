@@ -1,5 +1,6 @@
 class BotCommand < ApplicationRecord
   ABOUT_ID = "about"
+  TOOL_ID = "tool"
 
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true
@@ -8,11 +9,19 @@ class BotCommand < ApplicationRecord
   before_validation :strip_title
 
   def self.about
-    @about ||= find_by(title: ABOUT_ID)
+    @about ||= find_by!(title: ABOUT_ID)
+  end
+
+  def self.tool
+    find_by!(title: TOOL_ID)
   end
 
   def long_description?
     description.size >= DESCRIPTION_LIMIT
+  end
+
+  def tool?
+    title == TOOL_ID
   end
 
   private
