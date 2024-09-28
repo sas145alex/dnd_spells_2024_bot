@@ -38,7 +38,9 @@ ActiveAdmin.register GlossaryItem do
   end
 
   filter :id
-  filter :category, as: :select, collection: -> { GlossaryCategory.ordered }
+  filter :category, as: :select, collection: -> do
+    grouped_categories_for_select(selected: params.dig(:q, :category_id_eq))
+  end
   filter :title
   filter :original_title
   filter :description
@@ -89,15 +91,11 @@ ActiveAdmin.register GlossaryItem do
   end
 
   form do |f|
-    categories = GlossaryCategory.ordered
-    optgroups = categories
-      .group_by { _1.top_level? ? "Top level" : _1.parent_category&.title }
-      .transform_values { _1.pluck(:title, :id) }
     f.semantic_errors
     f.inputs do
       f.input :category,
         as: :select,
-        collection: grouped_options_for_select(optgroups, f.object.category_id)
+        collection: grouped_categories_for_select(selected: f.object.category_id)
       f.input :title
       f.input :original_title
       f.input :description,
