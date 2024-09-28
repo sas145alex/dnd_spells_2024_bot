@@ -23,6 +23,8 @@ class Creature < ApplicationRecord
 
   before_validation :strip_title
 
+  scope :ordered, -> { order(title: :asc) }
+
   def self.ransackable_associations(auth_object = nil)
     %w[created_by updated_by responsible]
   end
