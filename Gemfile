@@ -9,7 +9,7 @@ gem "sprockets-rails"
 gem "importmap-rails"
 # gem "turbo-rails"
 # gem "stimulus-rails"
-gem "jbuilder"
+gem "jbuilder", "~> 2.13"
 gem "redis-rails"
 
 gem "activeadmin"
@@ -32,7 +32,7 @@ gem "httparty"
 
 gem "sentry-ruby"
 gem "sentry-rails"
-gem "stackprof"
+gem "stackprof", "~> 0.2.26"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[windows jruby]
@@ -41,11 +41,11 @@ gem "bootsnap", require: false
 
 group :development, :test do
   gem "rspec-rails", "~> 7.0.0"
-  gem "factory_bot_rails"
+  gem "factory_bot_rails", "~> 6.4"
   gem "ffaker"
   gem "observer" # for ffaker
   gem "timecop"
-  gem "dotenv"
+  gem "dotenv", "~> 3.1"
   gem "debug", platforms: %i[mri windows], require: "debug/prelude"
   gem "brakeman", require: false
   gem "standard"
@@ -58,5 +58,5 @@ end
 group :test do
   gem "database_cleaner-active_record"
   gem "test-prof", "~> 1.0"
-  gem "webmock"
+  gem "webmock", "~> 3.23"
 end
