@@ -55,6 +55,6 @@ end
 
 group :test do
   gem "database_cleaner-active_record"
-  gem "test-prof", "~> 1.0"
+  gem "test-prof", "~> 1.4"
   gem "webmock"
 end
