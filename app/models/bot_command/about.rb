@@ -1,6 +1,4 @@
 class BotCommand::About < ApplicationOperation
-  DEFAULT_TEXT = "Welcome!"
-
   def call
     {
       text: text,
@@ -12,11 +10,10 @@ class BotCommand::About < ApplicationOperation
   private
 
   def text
-    message = command_record&.description || DEFAULT_TEXT
-    FormatChanger.markdown_to_telegram_markdown(message)
+    command_record.description_for_telegram
   end
 
   def command_record
-    ::BotCommand.about
+    ::BotCommand.about.decorate
   end
 end

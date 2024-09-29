@@ -21,6 +21,7 @@ rescue ActiveRecord::PendingMigrationError => e
     abort e.to_s.strip
   end
 end
+
 RSpec.configure do |config|
   config.infer_spec_type_from_file_location!
 
@@ -30,4 +31,8 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.include Devise::Test::IntegrationHelpers, type: :request
   config.include ApiHelpers, type: :request
+
+  config.before(:suite) do
+    Rails.application.load_seed
+  end
 end

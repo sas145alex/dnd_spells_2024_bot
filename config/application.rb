@@ -40,5 +40,9 @@ module TgBotDndSpells2024
     config.telegram_updates_controller.session_store = :file_store, "file_session_store", {expires_in: 20.minutes}
 
     config.active_storage.draw_routes = false
+
+    config.i18n.default_locale = :ru
+    config.i18n.load_path += Dir[Rails.root.join("config", "locales", "**", "*.{rb,yml}")]
+    config.i18n.available_locales = [:ru, :en]
   end
 end
