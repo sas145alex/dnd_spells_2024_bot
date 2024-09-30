@@ -20,10 +20,7 @@ class Spell < ApplicationRecord
   pg_search_scope :search_by_title,
     against: [:title, :original_title],
     using: {
-      tsearch: {dictionary: "english"},
-      trigram: {
-        only: [:title]
-      }
+      tsearch: {dictionary: "russian"}
     }
 
   scope :ordered, -> { order(title: :asc) }
