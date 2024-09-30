@@ -32,6 +32,17 @@ class Spell < ApplicationRecord
     %w[created_by updated_by responsible]
   end
 
+  def self.telegram_bot_search(search_input = "", scope: Spell.published, limit: 10)
+    complex_search_result_ids = scope.search_by_title(search_input).pluck(:id)
+    simple_search_result_ids = scope.where(
+      "replace(lower(title), 'ё', 'е') LIKE ? OR replace(lower(original_title), 'ё', 'е') LIKE ?",
+      "%#{search_input}%",
+      "%#{search_input}%"
+    ).pluck(:id)
+    ids = (complex_search_result_ids + simple_search_result_ids).uniq
+    where(id: ids)
+  end
+
   def long_description?
     description.size >= DESCRIPTION_LIMIT
   end

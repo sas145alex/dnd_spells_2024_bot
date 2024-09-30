@@ -88,10 +88,8 @@ class BotCommand::Spell < ApplicationOperation
 
   def found_spells
     @found_spells ||= Spell
-      .published
+      .telegram_bot_search(payload["text"], limit: MAX_SEARCH_RESULT_COUNT)
       .select(:id, :title, :original_title)
-      .search_by_title(payload["text"])
-      .limit(MAX_SEARCH_RESULT_COUNT)
       .map(&:decorate)
   end
 
