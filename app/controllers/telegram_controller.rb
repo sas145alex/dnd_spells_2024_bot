@@ -111,13 +111,23 @@ class TelegramController < Telegram::Bot::UpdatesController
 
   def pick_mention_callback_query(*args)
     mention = Mention.find(args[0].to_i)
+
     mentionable = mention.another_mentionable.decorate
     text = mentionable.description_for_telegram
     parse_mode = mentionable.parse_mode_for_telegram
 
+    mentions = mentionable.mentions.map do |mention|
+      {
+        text: mention.another_mentionable.decorate.title,
+        callback_data: "pick_mention:#{mention.id}"
+      }
+    end
+    inline_keyboard = mentions.in_groups_of(1, false)
+    reply_markup = {inline_keyboard: inline_keyboard}
+
     respond_with :message,
       text: text,
-      reply_markup: {},
+      reply_markup: reply_markup,
       parse_mode: parse_mode
   end
 
