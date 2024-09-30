@@ -9,7 +9,7 @@ class Telegram::UserMetricsJob < ApplicationJob
       user.username = payload["from"]["username"]
     end
     user.transaction do
-      user.increment(:spells_requested_count)
+      user.increment(:command_requested_count)
       user.last_seen_at = [message_send_at, user.last_seen_at].compact.max
       user.save!
     end

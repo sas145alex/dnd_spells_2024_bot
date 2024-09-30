@@ -1,6 +1,6 @@
 class Telegram::SpellMetricsJob < ApplicationJob
-  def perform(spell_id)
-    spell = Spell.find_by(id: spell_id)
+  def perform(spell_gid:)
+    spell = GlobalID::Locator.locate(spell_gid, only: Spell)
     return unless spell
     spell.transaction do
       spell.increment(:requested_count)

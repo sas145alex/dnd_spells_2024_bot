@@ -1,8 +1,8 @@
 RSpec.describe Telegram::SpellMetricsJob do
-  subject { described_class.perform_now(spell_id) }
+  subject { described_class.perform_now(spell_gid: spell_gid) }
 
   context "when spell does not exist" do
-    let(:spell_id) { 0 }
+    let(:spell_gid) { "bla" }
 
     it "does not raise en error" do
       expect { subject }.not_to raise_error
@@ -10,7 +10,7 @@ RSpec.describe Telegram::SpellMetricsJob do
   end
 
   context "when spell exists" do
-    let(:spell_id) { spell.id }
+    let(:spell_gid) { spell.to_global_id }
     let(:spell) { create(:spell) }
 
     it "changes counter" do

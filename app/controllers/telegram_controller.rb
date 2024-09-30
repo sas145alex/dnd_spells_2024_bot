@@ -3,6 +3,8 @@ class TelegramController < Telegram::Bot::UpdatesController
   include Telegram::Bot::UpdatesController::CallbackQueryContext
   include Telegram::Bot::UpdatesController::Session
 
+  after_action :track_user_activity
+
   def message(*args)
     respond_with :message,
       text: "Вы ввели сообщение, но вы не находитесь ни в одном из режимов"
@@ -100,6 +102,7 @@ class TelegramController < Telegram::Bot::UpdatesController
   def spell_callback_query(spell_gid = nil, *args)
     answer_params = BotCommand::Spell.call(payload: payload, spell_gid: spell_gid)
     respond_with :message, answer_params
+    Telegram::SpellMetricsJob.perform_later(spell_gid: spell_gid)
   end
 
   def callback_query(*args)
@@ -116,5 +119,11 @@ class TelegramController < Telegram::Bot::UpdatesController
       text: text,
       reply_markup: {},
       parse_mode: parse_mode
+  end
+
+  private
+
+  def track_user_activity
+    Telegram::UserMetricsJob.perform_later(payload)
   end
 end

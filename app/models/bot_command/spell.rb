@@ -56,9 +56,6 @@ class BotCommand::Spell < ApplicationOperation
     inline_keyboard = mentions.in_groups_of(4, false)
     reply_markup = {inline_keyboard: inline_keyboard}
 
-    Telegram::UserMetricsJob.perform_later(payload)
-    Telegram::SpellMetricsJob.perform_later(selected_spell.id)
-
     {
       text: text,
       reply_markup: reply_markup,

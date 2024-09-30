@@ -23,8 +23,8 @@ ActiveAdmin.register_page "Dashboard" do
               user.external_id
             end
             t.column :username
-            t.column :last_seen_at
-            t.column :spells_requested_count
+            t.column "Last Seen At (UTC)", :last_seen_at
+            t.column :command_requested_count
           end
         end
       end

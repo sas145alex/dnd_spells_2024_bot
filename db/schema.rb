@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_27_152019) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_30_130015) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -154,7 +154,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_27_152019) do
   create_table "telegram_users", force: :cascade do |t|
     t.bigint "external_id", null: false
     t.datetime "last_seen_at"
-    t.integer "spells_requested_count", default: 0, null: false
+    t.integer "command_requested_count", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "username"
