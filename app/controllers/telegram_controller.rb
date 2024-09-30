@@ -3,9 +3,6 @@ class TelegramController < Telegram::Bot::UpdatesController
   include Telegram::Bot::UpdatesController::CallbackQueryContext
   include Telegram::Bot::UpdatesController::Session
 
-  # MAX_VARIANTS_SIZE = 7
-  # SEARCH_VALUE_MIN_LENGTH = 3
-
   def message(*args)
     respond_with :message,
       text: "Вы ввели сообщение, но вы не находитесь ни в одном из режимов"
@@ -84,8 +81,6 @@ class TelegramController < Telegram::Bot::UpdatesController
   end
 
   def stop_search!(*args)
-    set_last_found_spells!([])
-
     reply_markup = {
       remove_keyboard: true
     }
@@ -98,19 +93,13 @@ class TelegramController < Telegram::Bot::UpdatesController
   def spell!(*args)
     save_context("spell!")
 
-    answer_params = BotCommand::Spell.call(
-      payload: payload,
-      last_found_spell_ids: last_found_spells
-    ) do |found_spells|
-      set_last_found_spells!(found_spells)
-    end
-
+    answer_params = BotCommand::Spell.call(payload: payload)
     respond_with :message, answer_params
   end
 
-  def spell_callback_query(input_value = nil, *args)
-    answer_params = BotCommand::Spell.call(input_value: input_value)
-    edit_message :text, answer_params
+  def spell_callback_query(spell_gid = nil, *args)
+    answer_params = BotCommand::Spell.call(payload: payload, spell_gid: spell_gid)
+    respond_with :message, answer_params
   end
 
   def callback_query(*args)
@@ -127,15 +116,5 @@ class TelegramController < Telegram::Bot::UpdatesController
       text: text,
       reply_markup: {},
       parse_mode: parse_mode
-  end
-
-  private
-
-  def last_found_spells
-    session[:last_found_spells]
-  end
-
-  def set_last_found_spells!(spells)
-    session[:last_found_spells] = spells.pluck(:id)
   end
 end
