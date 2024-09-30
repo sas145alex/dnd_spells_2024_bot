@@ -63,15 +63,7 @@ ActiveAdmin.register GlossaryItem do
         markdown_to_html(resource.description)
       end
       row :published_at do
-        if resource.published?
-          span class: "badge badge-success" do
-            resource.published_at
-          end
-        else
-          span class: "badge badge-danger" do
-            "Empty"
-          end
-        end
+        render partial: "published_badge", locals: {resource: resource}
       end
       row :created_at
       row :updated_at

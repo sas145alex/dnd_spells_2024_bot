@@ -1,7 +1,10 @@
 class BotCommandDecorator < ApplicationDecorator
   def title
-    if tool?
-      "Подробнее о инструментах"
+    case object.title
+    when object.class::TOOL_ID
+      "Подробнее об инструментах"
+    when object.class::CRAFTING_ID
+      "Подробнее о системе создания предметов"
     else
       object.title
     end

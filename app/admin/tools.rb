@@ -52,20 +52,10 @@ ActiveAdmin.register Tool do
         markdown_to_html(resource.description)
       end
       row :length do
-        span class: "badge #{resource.long_description? ? "badge-danger" : "badge-success"}" do
-          "#{resource.description&.size} / #{resource.class::DESCRIPTION_LIMIT}"
-        end
+        render partial: "description_length_badge", locals: {resource: resource}
       end
       row :published_at do
-        if resource.published?
-          span class: "badge badge-success" do
-            resource.published_at
-          end
-        else
-          span class: "badge badge-danger" do
-            "Empty"
-          end
-        end
+        render partial: "published_badge", locals: {resource: resource}
       end
       row :created_at
       row :updated_at

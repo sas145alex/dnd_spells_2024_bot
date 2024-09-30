@@ -1,0 +1,9 @@
+if resource.published?
+  span class: "badge badge-success" do
+    resource.published_at
+  end
+else
+  span class: "badge badge-danger" do
+    "Empty"
+  end
+end

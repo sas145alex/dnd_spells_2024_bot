@@ -21,6 +21,6 @@ module ApplicationHelper
   end
 
   def mention_types_for_select
-    %w[Creature Spell WildMagic GlossaryItem]
+    %w[Creature Spell WildMagic GlossaryItem Tool BotCommand]
   end
 end

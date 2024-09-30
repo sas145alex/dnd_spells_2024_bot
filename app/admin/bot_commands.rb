@@ -38,17 +38,17 @@ ActiveAdmin.register BotCommand do
     attributes_table_for(resource) do
       row :id
       row :title
-      row :description do |bot_command|
-        markdown_to_html(bot_command.description)
+      row :description do
+        markdown_to_html(resource.description)
       end
-      row :length do |bot_command|
-        span class: "badge #{bot_command.long_description? ? "badge-danger" : "badge-success"}" do
-          "#{bot_command.description&.size} / #{resource.class::DESCRIPTION_LIMIT}"
-        end
+      row :length do
+        render partial: "description_length_badge", locals: {resource: resource}
       end
       row :created_at
       row :updated_at
     end
+
+    render "mentions"
   end
 
   form do |f|
@@ -61,6 +61,10 @@ ActiveAdmin.register BotCommand do
         input_html: {rows: 12, style: "height:auto"}
 
       li "Created at #{f.object.created_at}" unless f.object.new_record?
+    end
+
+    panel "Mentions" do
+      render partial: "mentions_form", locals: {f: f}
     end
 
     f.actions do
@@ -113,5 +117,7 @@ ActiveAdmin.register BotCommand do
     end
   end
 
-  permit_params :title, :description
+  permit_params :title,
+    :description,
+    mentions_attributes: [:id, :another_mentionable_type, :another_mentionable_id, :_destroy]
 end

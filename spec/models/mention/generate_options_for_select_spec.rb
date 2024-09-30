@@ -66,6 +66,44 @@ RSpec.describe Mention::GenerateOptionsForSelect do
     end
   end
 
+  context "when mentionable klass is Tool" do
+    let(:mentionable_klass) { Tool }
+
+    let!(:mentionable_entity) { create(:tool) }
+
+    let(:expected_result) do
+      [
+        {
+          id: mentionable_entity.id,
+          text: mentionable_entity.title
+        }
+      ]
+    end
+
+    it "returns an ordered array of specified entities" do
+      expect(subject).to eq(expected_result)
+    end
+  end
+
+  context "when mentionable klass is BotCommand" do
+    let(:mentionable_klass) { BotCommand }
+
+    let!(:mentionable_entity) { create(:bot_command) }
+
+    let(:expected_result) do
+      [
+        {
+          id: mentionable_entity.id,
+          text: mentionable_entity.title
+        }
+      ]
+    end
+
+    it "returns an ordered array of specified entities" do
+      expect(subject).to include(*expected_result)
+    end
+  end
+
   context "when mentionable klas is WildMagic" do
     let(:mentionable_klass) { WildMagic }
 

@@ -23,7 +23,8 @@ class BotCommand::Tool < ApplicationOperation
     variants = tool_scope.all
     options = keyboard_options(variants)
     inline_keyboard = options.in_groups_of(2, false)
-    inline_keyboard.prepend(keyboard_option_of_section)
+    inline_keyboard.prepend(keyboard_option_tool_info)
+    inline_keyboard.prepend(keyboard_option_crafting_info)
     reply_markup = {inline_keyboard: inline_keyboard}
 
     {
@@ -35,9 +36,19 @@ class BotCommand::Tool < ApplicationOperation
 
   def give_detailed_tool_info
     text = selected_object.description_for_telegram
+    mentions = selected_object.mentions.map do |mention|
+      {
+        text: mention.another_mentionable.decorate.title,
+        callback_data: "pick_mention:#{mention.id}"
+      }
+    end
+
+    inline_keyboard = mentions.in_groups_of(1, false)
+    reply_markup = {inline_keyboard: inline_keyboard}
+
     {
       text: text,
-      reply_markup: {},
+      reply_markup: reply_markup,
       parse_mode: parse_mode
     }
   end
@@ -58,8 +69,13 @@ class BotCommand::Tool < ApplicationOperation
     "HTML"
   end
 
-  def keyboard_option_of_section
+  def keyboard_option_tool_info
     variants = [::BotCommand.tool.decorate]
+    keyboard_options(variants)
+  end
+
+  def keyboard_option_crafting_info
+    variants = [::BotCommand.crafting.decorate]
     keyboard_options(variants)
   end
 
