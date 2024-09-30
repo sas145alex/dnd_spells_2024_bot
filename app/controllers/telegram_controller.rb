@@ -3,8 +3,8 @@ class TelegramController < Telegram::Bot::UpdatesController
   include Telegram::Bot::UpdatesController::CallbackQueryContext
   include Telegram::Bot::UpdatesController::Session
 
-  MAX_VARIANTS_SIZE = 7
-  SEARCH_VALUE_MIN_LENGTH = 3
+  # MAX_VARIANTS_SIZE = 7
+  # SEARCH_VALUE_MIN_LENGTH = 3
 
   def message(*args)
     respond_with :message,
@@ -84,7 +84,7 @@ class TelegramController < Telegram::Bot::UpdatesController
   end
 
   def stop_search!(*args)
-    set_last_found_spells([])
+    set_last_found_spells!([])
 
     reply_markup = {
       remove_keyboard: true
@@ -95,60 +95,22 @@ class TelegramController < Telegram::Bot::UpdatesController
       reply_markup: reply_markup
   end
 
-  def start_search_spell!(*args)
-    save_context("provide_search_variants_for")
+  def spell!(*args)
+    save_context("spell!")
 
-    respond_with :message, text: "Введите название искомого заклинания (не менее 3х символов)"
-  end
-
-  def provide_search_variants_for(*args)
-    save_context("provide_search_variants_for")
-
-    return if search_value_invalid?
-
-    if selected_spell.present?
-      text = selected_spell.description_for_telegram
-      parse_mode = selected_spell.parse_mode_for_telegram
-      mentions = selected_spell.mentions.map do |mention|
-        {
-          text: mention.another_mentionable.decorate.title,
-          callback_data: "pick_mention:#{mention.id}"
-        }
-      end
-
-      inline_keyboard = mentions.in_groups_of(4, false)
-      reply_markup = {inline_keyboard: inline_keyboard}
-      respond_with :message,
-        text: text,
-        reply_markup: reply_markup,
-        parse_mode: parse_mode
-
-      Telegram::UserMetricsJob.perform_later(payload)
-      Telegram::SpellMetricsJob.perform_later(selected_spell.id)
-
-      return
-    else
-      fetch_new_variants!
-
-      if found_spells.present?
-        text = "Найдено несколько вариантов. Выбери:\n\n"
-        found_spells.each.with_index(1) do |spell, index|
-          text << "#{index}. #{spell.title}\n"
-        end
-        variants = last_found_spells.keys
-        reply_markup = {
-          keyboard: [variants, %w[/stop_search]],
-          resize_keyboard: true,
-          one_time_keyboard: false,
-          selective: true
-        }
-      else
-        text = "Не найдено никаких вариантов"
-        reply_markup = {}
-      end
+    answer_params = BotCommand::Spell.call(
+      payload: payload,
+      last_found_spell_ids: last_found_spells
+    ) do |found_spells|
+      set_last_found_spells!(found_spells)
     end
 
-    respond_with :message, text: text, reply_markup: reply_markup
+    respond_with :message, answer_params
+  end
+
+  def spell_callback_query(input_value = nil, *args)
+    answer_params = BotCommand::Spell.call(input_value: input_value)
+    edit_message :text, answer_params
   end
 
   def callback_query(*args)
@@ -169,40 +131,11 @@ class TelegramController < Telegram::Bot::UpdatesController
 
   private
 
-  def search_value_invalid?
-    search_value.size < SEARCH_VALUE_MIN_LENGTH && last_found_spells.empty?
-  end
-
-  def search_value
-    @search_value ||= payload["text"].chomp
-  end
-
   def last_found_spells
     session[:last_found_spells]
   end
 
-  def set_last_found_spells(spells)
-    session[:last_found_spells] = spells.map.with_index(1) { |spell, index| [index.to_s, spell.id] }.to_h
-  end
-
-  def selected_spell
-    @selected_spell ||= if last_found_spells.present? && payload["text"].in?(last_found_spells.keys)
-      spell = Spell.find_by(id: last_found_spells[payload["text"]])
-      spell.decorate
-    end
-  end
-
-  def fetch_new_variants!
-    set_last_found_spells(found_spells)
-    found_spells
-  end
-
-  def found_spells
-    @found_spells = Spell
-      .published
-      .select(:id, :title, :original_title)
-      .search_by_title(payload["text"])
-      .limit(MAX_VARIANTS_SIZE)
-      .map(&:decorate)
+  def set_last_found_spells!(spells)
+    session[:last_found_spells] = spells.pluck(:id)
   end
 end
