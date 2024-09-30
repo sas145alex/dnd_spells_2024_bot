@@ -1,4 +1,4 @@
-class BotCommand::Race < ApplicationOperation
+class BotCommand::Species < ApplicationOperation
   def call
     {
       text: text,
@@ -50,7 +50,7 @@ class BotCommand::Race < ApplicationOperation
     variants.map do |variant|
       {
         text: variant.title,
-        callback_data: "race:#{variant.to_global_id}"
+        callback_data: "species:#{variant.to_global_id}"
       }
     end
   end
