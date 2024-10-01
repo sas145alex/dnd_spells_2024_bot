@@ -1,10 +1,12 @@
 class BotCommand::Species < ApplicationOperation
   def call
-    {
-      text: text,
-      reply_markup: reply_markup,
-      parse_mode: parse_mode
-    }
+    if input_value.blank?
+      provide_race_variants
+    elsif selected_object
+      provide_race_details
+    else
+      invalid_input
+    end
   end
 
   def initialize(input_value: nil)
@@ -15,31 +17,48 @@ class BotCommand::Species < ApplicationOperation
 
   attr_reader :input_value
 
-  def text
-    if input_value.blank?
-      "Выберете расу/вид:"
-    elsif selected_object&.is_a?(Race)
-      <<~HTML
-        <b>#{selected_object.title}</b>
-
-        #{selected_object.description_for_telegram}
-      HTML
-    else
-      "Невалидный ввод"
-    end
+  def provide_race_variants
+    variants = Race.published.ordered
+    options = keyboard_options(variants)
+    inline_keyboard = options.in_groups_of(3, false)
+    reply_markup = {inline_keyboard: inline_keyboard}
+    {
+      text: "Выберете расу/вид:",
+      reply_markup: reply_markup,
+      parse_mode: parse_mode
+    }
   end
 
-  def reply_markup
-    if input_value.blank?
-      variants = Race.published.ordered
-      options = keyboard_options(variants)
-      inline_keyboard = options.in_groups_of(3, false)
-      {inline_keyboard: inline_keyboard}
-    elsif selected_object&.is_a?(Race)
-      {}
-    else
-      {}
+  def provide_race_details
+    text = <<~HTML
+      <b>#{selected_object.title}</b>
+
+      #{selected_object.description_for_telegram}
+    HTML
+
+    mentions = selected_object.mentions.map do |mention|
+      {
+        text: mention.another_mentionable.decorate.title,
+        callback_data: "pick_mention:#{mention.id}"
+      }
     end
+
+    inline_keyboard = mentions.in_groups_of(2, false)
+    reply_markup = {inline_keyboard: inline_keyboard}
+
+    {
+      text: text,
+      reply_markup: reply_markup,
+      parse_mode: parse_mode
+    }
+  end
+
+  def invalid_input
+    {
+      text: "Невалидный ввод",
+      reply_markup: {},
+      parse_mode: parse_mode
+    }
   end
 
   def parse_mode
@@ -56,6 +75,6 @@ class BotCommand::Species < ApplicationOperation
   end
 
   def selected_object
-    @selected_object ||= GlobalID::Locator.locate(input_value)&.decorate
+    @selected_object ||= GlobalID::Locator.locate(input_value, only: Race)&.decorate
   end
 end
