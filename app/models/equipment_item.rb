@@ -27,6 +27,14 @@ class EquipmentItem < ApplicationRecord
     shield: "shield"
   }
 
+  def self.weapon_item_types
+    %i[simple_melee martial_melee simple_ranged martial_ranged]
+  end
+
+  def self.armor_item_types
+    %i[light_armor medium_armor heavy_armor shield]
+  end
+
   def self.ransackable_associations(auth_object = nil)
     %w[created_by updated_by]
   end
