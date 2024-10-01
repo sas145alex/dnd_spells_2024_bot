@@ -1,10 +1,16 @@
 class BotCommand::Glossary < ApplicationOperation
   def call
-    {
-      text: text,
-      reply_markup: reply_markup,
-      parse_mode: parse_mode
-    }
+    if input_value.blank?
+      provide_top_level_categories
+    elsif selected_object&.is_a?(GlossaryCategory) && selected_object&.with_items?
+      provide_glossary_category_items
+    elsif selected_object&.is_a?(GlossaryCategory)
+      provide_detailed_glossary_category
+    elsif selected_object&.is_a?(GlossaryItem)
+      provide_detailed_glossary_item
+    else
+      invalid_input
+    end
   end
 
   def initialize(input_value: nil)
@@ -15,61 +21,86 @@ class BotCommand::Glossary < ApplicationOperation
 
   attr_reader :input_value
 
-  def text
-    if input_value.blank?
-      "Выберете категорию:"
-    elsif selected_object&.is_a?(GlossaryCategory) && selected_object&.with_items?
-      parent_category_text = if selected_object.top_level?
-        ""
-      else
-        "<b>Родительская категория:</b> #{selected_object.parent_category.title}>"
-      end
-      <<~HTML
-        "#{parent_category_text}"
-        <b>Категория:</b> #{selected_object.title}
-        <b>Всего терминов:</b> #{selected_object.items.count}
+  def provide_top_level_categories
+    text = "Выберете категорию:"
 
-        Выберите термин:
-      HTML
-    elsif selected_object&.is_a?(GlossaryCategory)
-      <<~HTML
-        <b>Категория:</b> #{selected_object.title}
-        <b>Всего подкатегорий:</b> #{selected_object.subcategories.count}
+    variants = GlossaryCategory.top_level.published.ordered
+    options = keyboard_options(variants)
+    inline_keyboard = options.in_groups_of(2, false)
+    reply_markup = {inline_keyboard: inline_keyboard}
 
-        Выберете категорию:
-      HTML
-    elsif selected_object&.is_a?(GlossaryItem)
-      <<~HTML
-        <b>#{selected_object.title}</b>
-
-        #{selected_object.description_for_telegram}
-      HTML
-    else
-      "Невалидный ввод"
-    end
+    {
+      text: text,
+      reply_markup: reply_markup,
+      parse_mode: parse_mode
+    }
   end
 
-  def reply_markup
-    if input_value.blank?
-      variants = GlossaryCategory.top_level.published.ordered
-      options = keyboard_options(variants)
-      inline_keyboard = options.in_groups_of(2, false)
-      {inline_keyboard: inline_keyboard}
-    elsif selected_object&.is_a?(GlossaryCategory) && selected_object&.with_items?
-      variants = selected_object.items.ordered
-      options = keyboard_options(variants)
-      inline_keyboard = options.in_groups_of(2, false)
-      {inline_keyboard: inline_keyboard}
-    elsif selected_object&.is_a?(GlossaryCategory)
-      variants = selected_object.subcategories.published.ordered
-      options = keyboard_options(variants)
-      inline_keyboard = options.in_groups_of(2, false)
-      {inline_keyboard: inline_keyboard}
-    elsif selected_object&.is_a?(GlossaryItem)
-      {}
+  def provide_glossary_category_items
+    parent_category_text = if selected_object.top_level?
+      ""
     else
-      {}
+      "<b>Родительская категория:</b> #{selected_object.parent_category.title}>"
     end
+    text = <<~HTML
+      "#{parent_category_text}"
+      <b>Категория:</b> #{selected_object.title}
+      <b>Всего терминов:</b> #{selected_object.items.count}
+
+      Выберите термин:
+    HTML
+
+    variants = selected_object.items.ordered
+    options = keyboard_options(variants)
+    inline_keyboard = options.in_groups_of(2, false)
+    reply_markup = {inline_keyboard: inline_keyboard}
+
+    {
+      text: text,
+      reply_markup: reply_markup,
+      parse_mode: parse_mode
+    }
+  end
+
+  def provide_detailed_glossary_category
+    text = <<~HTML
+      <b>Категория:</b> #{selected_object.title}
+      <b>Всего подкатегорий:</b> #{selected_object.subcategories.count}
+
+      Выберете категорию:
+    HTML
+    variants = selected_object.subcategories.published.ordered
+    options = keyboard_options(variants)
+    inline_keyboard = options.in_groups_of(2, false)
+    reply_markup = {inline_keyboard: inline_keyboard}
+
+    {
+      text: text,
+      reply_markup: reply_markup,
+      parse_mode: parse_mode
+    }
+  end
+
+  def provide_detailed_glossary_item
+    text = <<~HTML
+      <b>#{selected_object.title}</b>
+ 
+      #{selected_object.description_for_telegram}
+    HTML
+
+    {
+      text: text,
+      reply_markup: {},
+      parse_mode: parse_mode
+    }
+  end
+
+  def invalid_input
+    {
+      text: "Невалидный ввод",
+      reply_markup: {},
+      parse_mode: parse_mode
+    }
   end
 
   def parse_mode
