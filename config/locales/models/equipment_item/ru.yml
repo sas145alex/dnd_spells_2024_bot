@@ -1,0 +1,13 @@
+ru:
+  activerecord:
+    attributes:
+      equipment_item:
+        item_types:
+          simple_melee: "Простое рукопашное"
+          simple_ranged: "Простое дальнобойное"
+          martial_melee: "Воинское рукопашное"
+          martial_ranged: "Воинское дальнобойное"
+          light_armor: "Легкая броня"
+          medium_armor: "Средняя броня"
+          heavy_armor: "Тяжелая броня"
+          shield: "Щит"

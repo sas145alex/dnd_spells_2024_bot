@@ -1,0 +1,2 @@
+class EquipmentItemDecorator < ApplicationDecorator
+end

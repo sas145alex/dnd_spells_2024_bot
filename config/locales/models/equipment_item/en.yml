@@ -1,0 +1,13 @@
+en:
+  activerecord:
+    attributes:
+      equipment_item:
+        item_types:
+          simple_melee: "Simple Melee"
+          simple_ranged: "Simple Ranged"
+          martial_melee: "Martial Melee"
+          martial_ranged: "Martial Ranged"
+          light_armor: "Light Armor"
+          medium_armor: "Medium Armor"
+          heavy_armor: "Heavy Armor"
+          shield: "Shield"

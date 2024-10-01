@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_30_130015) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_01_173132) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -68,6 +68,20 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_30_130015) do
     t.index ["title"], name: "index_creatures_on_title"
     t.index ["title"], name: "index_creatures_on_title_gin", opclass: :gin_trgm_ops, using: :gin
     t.index ["updated_by_id"], name: "index_creatures_on_updated_by_id"
+  end
+
+  create_table "equipment_items", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "original_title"
+    t.text "description", default: "", null: false
+    t.datetime "published_at"
+    t.string "item_type", null: false, comment: "enum"
+    t.bigint "created_by_id"
+    t.bigint "updated_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_equipment_items_on_created_by_id"
+    t.index ["updated_by_id"], name: "index_equipment_items_on_updated_by_id"
   end
 
   create_table "feats", force: :cascade do |t|
@@ -190,6 +204,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_30_130015) do
   add_foreign_key "creatures", "admin_users", column: "created_by_id"
   add_foreign_key "creatures", "admin_users", column: "responsible_id"
   add_foreign_key "creatures", "admin_users", column: "updated_by_id"
+  add_foreign_key "equipment_items", "admin_users", column: "created_by_id"
+  add_foreign_key "equipment_items", "admin_users", column: "updated_by_id"
   add_foreign_key "feats", "admin_users", column: "created_by_id"
   add_foreign_key "feats", "admin_users", column: "updated_by_id"
   add_foreign_key "glossary_categories", "glossary_categories", column: "parent_category_id"
