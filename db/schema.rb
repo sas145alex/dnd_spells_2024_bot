@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_10_01_173132) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_02_113610) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -50,6 +50,19 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_01_173132) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["title"], name: "index_bot_commands_on_title", unique: true
+  end
+
+  create_table "character_abilities", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "original_title"
+    t.text "description", default: "", null: false
+    t.datetime "published_at"
+    t.bigint "created_by_id"
+    t.bigint "updated_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_character_abilities_on_created_by_id"
+    t.index ["updated_by_id"], name: "index_character_abilities_on_updated_by_id"
   end
 
   create_table "creatures", force: :cascade do |t|
@@ -201,6 +214,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_01_173132) do
     t.index ["updated_by_id"], name: "index_wild_magics_on_updated_by_id"
   end
 
+  add_foreign_key "character_abilities", "admin_users", column: "created_by_id"
+  add_foreign_key "character_abilities", "admin_users", column: "updated_by_id"
   add_foreign_key "creatures", "admin_users", column: "created_by_id"
   add_foreign_key "creatures", "admin_users", column: "responsible_id"
   add_foreign_key "creatures", "admin_users", column: "updated_by_id"
