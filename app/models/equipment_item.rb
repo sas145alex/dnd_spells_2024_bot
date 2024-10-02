@@ -21,6 +21,7 @@ class EquipmentItem < ApplicationRecord
     simple_ranged: "simple_ranged",
     martial_melee: "martial_melee",
     martial_ranged: "martial_ranged",
+    no_armor: "no_armor",
     light_armor: "light_armor",
     medium_armor: "medium_armor",
     heavy_armor: "heavy_armor",
@@ -32,7 +33,7 @@ class EquipmentItem < ApplicationRecord
   end
 
   def self.armor_item_types
-    %i[light_armor medium_armor heavy_armor shield]
+    %i[no_armor light_armor medium_armor heavy_armor shield]
   end
 
   def self.ransackable_associations(auth_object = nil)
