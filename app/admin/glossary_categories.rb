@@ -85,6 +85,7 @@ ActiveAdmin.register GlossaryCategory do
       if resource.update(update_params)
         redirect_to admin_glossary_category_path(resource), notice: "GlossaryCategory was successfully updated."
       else
+        flash.now[:alert] = "Errors happened: " + resource.errors.full_messages.to_sentence
         render(:edit, status: :unprocessable_entity)
       end
     end

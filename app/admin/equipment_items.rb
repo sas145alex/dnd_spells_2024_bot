@@ -159,6 +159,7 @@ ActiveAdmin.register EquipmentItem do
       if resource.update(update_params)
         redirect_to resource_path, notice: "EquipmentItem was successfully updated."
       else
+        flash.now[:alert] = "Errors happened: " + resource.errors.full_messages.to_sentence
         render(:edit, status: :unprocessable_entity)
       end
     end

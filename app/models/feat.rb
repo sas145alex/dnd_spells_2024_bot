@@ -1,6 +1,7 @@
 class Feat < ApplicationRecord
   include Publishable
   include Mentionable
+  include Segmentable
   include WhoDidItable
   include PgSearch::Model
 

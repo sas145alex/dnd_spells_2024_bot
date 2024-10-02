@@ -155,6 +155,7 @@ ActiveAdmin.register Race do
       if resource.update(update_params)
         redirect_to admin_race_path(resource), notice: "Race was successfully updated."
       else
+        flash.now[:alert] = "Errors happened: " + resource.errors.full_messages.to_sentence
         render(:edit, status: :unprocessable_entity)
       end
     end

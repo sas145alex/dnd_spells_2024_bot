@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_10_02_113610) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_02_120248) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -157,6 +157,17 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_02_113610) do
     t.datetime "updated_at", null: false
     t.index ["created_by_id"], name: "index_races_on_created_by_id"
     t.index ["updated_by_id"], name: "index_races_on_updated_by_id"
+  end
+
+  create_table "segments", force: :cascade do |t|
+    t.string "resource_type"
+    t.bigint "resource_id"
+    t.string "attribute_resource_type"
+    t.bigint "attribute_resource_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["attribute_resource_type", "attribute_resource_id"], name: "index_segments_on_attribute_resource"
+    t.index ["resource_id", "resource_type", "attribute_resource_type", "attribute_resource_id"], name: "index_segments_on_resource", unique: true
   end
 
   create_table "spells", force: :cascade do |t|

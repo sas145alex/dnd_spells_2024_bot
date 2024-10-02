@@ -76,16 +76,16 @@ ActiveAdmin.register BotCommand do
 
   controller do
     def create
-      @bot_command = BotCommand.new
+      @resource = BotCommand.new
 
-      if @bot_command.update(create_params)
+      if @resource.update(create_params)
         if params[:create_another] == "on"
           redirect_to new_admin_bot_command_path, notice: "Bot command was successfully created. Create another one."
         else
-          redirect_to admin_bot_command_path(@bot_command), notice: "Bot command was successfully created."
+          redirect_to admin_bot_command_path(@resource), notice: "Bot command was successfully created."
         end
       else
-        flash.now[:alert] = "Errors happened: " + @bot_command.errors.full_messages.to_sentence
+        flash.now[:alert] = "Errors happened: " + @resource.errors.full_messages.to_sentence
         render(:new, status: :unprocessable_entity)
       end
     end
@@ -94,6 +94,7 @@ ActiveAdmin.register BotCommand do
       if resource.update(update_params)
         redirect_to admin_bot_command_path(resource), notice: "Bot command was successfully updated."
       else
+        flash.now[:alert] = "Errors happened: " + resource.errors.full_messages.to_sentence
         render(:edit, status: :unprocessable_entity)
       end
     end

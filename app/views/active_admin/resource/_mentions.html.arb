@@ -1,15 +1,17 @@
-panel "Entity has mentions" do
-  table_for resource.mentions do |_mention|
-    column :mentionable
-    column :another_mentionable
-    column :created_at
+panel "Mentions" do
+  panel "Entity has mentions" do
+    table_for resource.mentions do |_mention|
+      column :mentionable
+      column :another_mentionable
+      column :created_at
+    end
   end
-end
 
-panel "Entity mentioned" do
-  table_for resource.mentioned_mentions do |_mention|
-    column :mentionable
-    column :another_mentionable
-    column :created_at
+  panel "Entity mentioned" do
+    table_for resource.mentioned_mentions do |_mention|
+      column :mentionable
+      column :another_mentionable
+      column :created_at
+    end
   end
 end

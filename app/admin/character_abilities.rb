@@ -66,6 +66,7 @@ ActiveAdmin.register CharacterAbility do
     end
 
     render "mentions"
+    render "segments"
 
     div do
       if resource.published?
@@ -157,6 +158,7 @@ ActiveAdmin.register CharacterAbility do
       if resource.update(update_params)
         redirect_to admin_character_ability_path(resource), notice: "CharacterAbility was successfully updated."
       else
+        flash.now[:alert] = "Errors happened: " + resource.errors.full_messages.to_sentence
         render(:edit, status: :unprocessable_entity)
       end
     end
@@ -187,5 +189,6 @@ ActiveAdmin.register CharacterAbility do
   permit_params :title,
     :original_title,
     :description,
-    mentions_attributes: [:id, :another_mentionable_type, :another_mentionable_id, :_destroy]
+    mentions_attributes: [:id, :another_mentionable_type, :another_mentionable_id, :_destroy],
+    segment_items_attributes: [:id, :attribute_resource_type, :attribute_resource_id, :_destroy]
 end

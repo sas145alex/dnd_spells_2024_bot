@@ -1,6 +1,7 @@
 class CharacterAbility < ApplicationRecord
   include Publishable
   include Mentionable
+  include Segmentable
   include WhoDidItable
 
   validates :title, presence: true

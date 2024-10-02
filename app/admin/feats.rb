@@ -66,6 +66,7 @@ ActiveAdmin.register Feat do
     end
 
     render "mentions"
+    render "segments"
 
     div do
       if resource.published?
@@ -93,6 +94,10 @@ ActiveAdmin.register Feat do
 
     panel "Mentions" do
       render partial: "mentions_form", locals: {f: f}
+    end
+
+    panel "Segments" do
+      render partial: "segments_form", locals: {f: f}
     end
 
     f.actions do
@@ -142,16 +147,16 @@ ActiveAdmin.register Feat do
 
   controller do
     def create
-      @feat = Feat.new
+      @resource = Feat.new
 
-      if @feat.update(create_params)
+      if @resource.update(create_params)
         if params[:create_another] == "on"
           redirect_to new_admin_feat_path, notice: "Feat was successfully created. Create another one."
         else
-          redirect_to admin_feat_path(@feat), notice: "Feat was successfully created."
+          redirect_to admin_feat_path(@resource), notice: "Feat was successfully created."
         end
       else
-        flash.now[:alert] = "Errors happened: " + @feat.errors.full_messages.to_sentence
+        flash.now[:alert] = "Errors happened: " + @resource.errors.full_messages.to_sentence
         render(:new, status: :unprocessable_entity)
       end
     end
@@ -160,6 +165,7 @@ ActiveAdmin.register Feat do
       if resource.update(update_params)
         redirect_to admin_feat_path(resource), notice: "Feat was successfully updated."
       else
+        flash.now[:alert] = "Errors happened: " + resource.errors.full_messages.to_sentence
         render(:edit, status: :unprocessable_entity)
       end
     end
@@ -191,5 +197,6 @@ ActiveAdmin.register Feat do
     :original_title,
     :description,
     :category,
-    mentions_attributes: [:id, :another_mentionable_type, :another_mentionable_id, :_destroy]
+    mentions_attributes: [:id, :another_mentionable_type, :another_mentionable_id, :_destroy],
+    segment_items_attributes: [:id, :attribute_resource_type, :attribute_resource_id, :_destroy]
 end

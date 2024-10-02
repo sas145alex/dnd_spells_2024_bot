@@ -1,0 +1,17 @@
+panel "Segments" do
+  panel "Segmenting" do
+    table_for resource.segment_items do
+      column :resource
+      column :attribute_resource
+      column :created_at
+    end
+  end
+
+  panel "Segmented by" do
+    table_for resource.segment_categories do
+      column :resource
+      column :attribute_resource
+      column :created_at
+    end
+  end
+end

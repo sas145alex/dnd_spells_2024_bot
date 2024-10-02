@@ -170,6 +170,7 @@ ActiveAdmin.register GlossaryItem do
       if resource.update(update_params)
         redirect_to admin_glossary_item_path(resource), notice: "GlossaryItem was successfully updated."
       else
+        flash.now[:alert] = "Errors happened: " + resource.errors.full_messages.to_sentence
         render(:edit, status: :unprocessable_entity)
       end
     end

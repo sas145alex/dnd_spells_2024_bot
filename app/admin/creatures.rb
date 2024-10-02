@@ -140,16 +140,16 @@ ActiveAdmin.register Creature do
 
   controller do
     def create
-      @creature = Creature.new
+      @resource = Creature.new
 
-      if @creature.update(create_params)
+      if @resource.update(create_params)
         if params[:create_another] == "on"
           redirect_to new_admin_creature_path, notice: "Creature was successfully created. Create another one."
         else
-          redirect_to admin_creature_path(@creature), notice: "Creature was successfully created."
+          redirect_to admin_creature_path(@resource), notice: "Creature was successfully created."
         end
       else
-        flash.now[:alert] = "Errors happened: " + @creature.errors.full_messages.to_sentence
+        flash.now[:alert] = "Errors happened: " + @resource.errors.full_messages.to_sentence
         render(:new, status: :unprocessable_entity)
       end
     end
@@ -158,6 +158,7 @@ ActiveAdmin.register Creature do
       if resource.update(update_params)
         redirect_to admin_creature_path(resource), notice: "Creature was successfully updated."
       else
+        flash.now[:alert] = "Errors happened: " + resource.errors.full_messages.to_sentence
         render(:edit, status: :unprocessable_entity)
       end
     end

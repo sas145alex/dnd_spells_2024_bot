@@ -103,6 +103,7 @@ ActiveAdmin.register WildMagic do
       if resource.update(update_params)
         redirect_to admin_wild_magic_path(resource), notice: "WildMagic was successfully updated."
       else
+        flash.now[:alert] = "Errors happened: " + resource.errors.full_messages.to_sentence
         render(:edit, status: :unprocessable_entity)
       end
     end

@@ -140,16 +140,16 @@ ActiveAdmin.register Spell do
 
   controller do
     def create
-      @spell = Spell.new
+      @resource = Spell.new
 
-      if @spell.update(create_params)
+      if @resource.update(create_params)
         if params[:create_another] == "on"
           redirect_to new_admin_spell_path, notice: "Spell was successfully created. Create another one."
         else
-          redirect_to admin_spell_path(@spell), notice: "Spell was successfully created."
+          redirect_to admin_spell_path(@resource), notice: "Spell was successfully created."
         end
       else
-        flash.now[:alert] = "Errors happened: " + @spell.errors.full_messages.to_sentence
+        flash.now[:alert] = "Errors happened: " + @resource.errors.full_messages.to_sentence
         render(:new, status: :unprocessable_entity)
       end
     end
@@ -158,6 +158,7 @@ ActiveAdmin.register Spell do
       if resource.update(update_params)
         redirect_to admin_spell_path(resource), notice: "Spell was successfully updated."
       else
+        flash.now[:alert] = "Errors happened: " + resource.errors.full_messages.to_sentence
         render(:edit, status: :unprocessable_entity)
       end
     end

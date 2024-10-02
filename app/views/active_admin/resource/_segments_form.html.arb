@@ -1,0 +1,15 @@
+f.has_many :segment_items, heading: false, allow_destroy: true, new_record: true do |ff|
+  ff.input :attribute_resource_type,
+    collection: segment_types_for_select,
+    selected: ff.object.attribute_resource_type || segment_types_for_select.first,
+    input_html: {class: "attribute_resource_type_input"}
+  ff.input :attribute_resource_id,
+    as: :select,
+    collection: CharacterAbility.all.ordered,
+    selected: ff.object.attribute_resource_id,
+    input_html: {
+      class: "attribute_resource_id_input",
+      "data-initial-id": ff.object.attribute_resource_id,
+      "data-initial-type": ff.object.attribute_resource_type
+    }
+end
