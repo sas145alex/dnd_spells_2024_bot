@@ -1,7 +1,7 @@
 class BotCommand::Equipment < ApplicationOperation
   TOP_LEVEL_CATEGORIES = {
-    "weapon" => "Оружее",
-    "armor" => "Броня"
+    "weapon" => "Оружие",
+    "armor" => "Доспехи"
   }
 
   def call
