@@ -64,6 +64,7 @@ ActiveAdmin.register Origin do
     end
 
     render "mentions"
+    render "segments"
 
     div do
       if resource.published?
@@ -88,6 +89,10 @@ ActiveAdmin.register Origin do
 
     panel "Mentions" do
       render partial: "mentions_form", locals: {f: f}
+    end
+
+    panel "Segments" do
+      render partial: "segments_form", locals: {f: f}
     end
 
     f.actions do
@@ -186,5 +191,6 @@ ActiveAdmin.register Origin do
   permit_params :title,
     :original_title,
     :description,
-    mentions_attributes: [:id, :another_mentionable_type, :another_mentionable_id, :_destroy]
+    mentions_attributes: [:id, :another_mentionable_type, :another_mentionable_id, :_destroy],
+    segment_items_attributes: [:id, :attribute_resource_type, :attribute_resource_id, :_destroy]
 end

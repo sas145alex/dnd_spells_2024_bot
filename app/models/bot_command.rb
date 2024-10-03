@@ -4,6 +4,7 @@ class BotCommand < ApplicationRecord
   ABOUT_ID = "about"
   TOOL_ID = "tool"
   CRAFTING_ID = "crafting"
+  ORIGIN_ID = "origin"
 
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true
@@ -23,6 +24,10 @@ class BotCommand < ApplicationRecord
 
   def self.crafting
     find_by!(title: CRAFTING_ID)
+  end
+
+  def self.origin
+    find_by!(title: ORIGIN_ID)
   end
 
   def long_description?
