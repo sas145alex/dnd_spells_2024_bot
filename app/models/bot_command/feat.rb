@@ -64,6 +64,7 @@ class BotCommand::Feat < ApplicationOperation
       }
       inline_keyboard.prepend([search_subcommand])
     end
+    inline_keyboard.append([go_back_button])
 
     reply_markup = {inline_keyboard: inline_keyboard}
 
@@ -84,6 +85,7 @@ class BotCommand::Feat < ApplicationOperation
       }
     end
     inline_keyboard = options.in_groups_of(2, false)
+    inline_keyboard.append([go_back_button])
     reply_markup = {inline_keyboard: inline_keyboard}
 
     {
@@ -108,6 +110,7 @@ class BotCommand::Feat < ApplicationOperation
     end
 
     inline_keyboard = mentions.in_groups_of(4, false)
+    inline_keyboard.append([go_back_button])
     reply_markup = {inline_keyboard: inline_keyboard}
 
     {
@@ -126,12 +129,20 @@ class BotCommand::Feat < ApplicationOperation
       }
     end
     inline_keyboard = options.in_groups_of(2, false)
+    inline_keyboard.append([go_back_button])
     reply_markup = {inline_keyboard: inline_keyboard}
 
     {
       text: text,
       reply_markup: reply_markup,
       parse_mode: parse_mode
+    }
+  end
+
+  def go_back_button
+    {
+      text: "Назад",
+      callback_data: "go_back:go_back"
     }
   end
 
