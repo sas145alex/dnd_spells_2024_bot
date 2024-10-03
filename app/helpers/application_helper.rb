@@ -21,7 +21,7 @@ module ApplicationHelper
   end
 
   def mention_types_for_select
-    %w[Creature Spell WildMagic GlossaryItem Tool BotCommand]
+    %w[Creature Spell WildMagic GlossaryItem Tool BotCommand Origin]
   end
 
   def segment_types_for_select

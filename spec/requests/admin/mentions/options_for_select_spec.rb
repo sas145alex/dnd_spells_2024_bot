@@ -64,5 +64,22 @@ RSpec.describe "GET /admin/mentions/options_for_select" do
         expect(operation).to have_received(:call).with(mentionable_klass: Spell)
       end
     end
+
+    context "when mentionable_type can be constantize" do
+      let(:mentionable_type) { "Origin" }
+
+      it "returns and empty array" do
+        make_request
+
+        expect(response.status).to eq(200)
+        expect(json_body).to eq(expected_json)
+      end
+
+      it "calls operation with proper params" do
+        make_request
+
+        expect(operation).to have_received(:call).with(mentionable_klass: Origin)
+      end
+    end
   end
 end
