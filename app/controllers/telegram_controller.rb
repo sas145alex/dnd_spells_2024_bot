@@ -17,15 +17,15 @@ class TelegramController < Telegram::Bot::UpdatesController
     respond_with :message, answer_params
   end
 
-  def give_advice!(*args)
+  def feedback!(*args)
     if args.empty?
-      save_context("give_advice!")
+      save_context("feedback!")
 
       respond_with :message,
         text: "Если вы хотите предложить исправление, то напишите нам об этом в следующем сообщении"
     else
       reply_with :message, text: "Принято"
-      Telegram::ProcessAdviceJob.perform_later(payload["text"], from: from, message_time: payload["date"])
+      Telegram::ProcessFeedbackJob.perform_later(payload["text"], from: from, message_time: payload["date"])
     end
   end
 

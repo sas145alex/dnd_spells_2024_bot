@@ -1,10 +1,10 @@
-class Advice
+class Feedback
   AQUA_COLOR = 1752220
 
   def self.create(text:, author: nil, timestamp: nil)
     formatted_timestamp = (timestamp || Time.current).iso8601
     embed = {
-      title: "Advice",
+      title: "Feedback",
       description: text,
       timestamp: formatted_timestamp,
       color: AQUA_COLOR,

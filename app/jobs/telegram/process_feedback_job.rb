@@ -1,8 +1,8 @@
-class Telegram::ProcessAdviceJob < ApplicationJob
+class Telegram::ProcessFeedbackJob < ApplicationJob
   def perform(text, from: {}, message_time: nil)
     author = build_author(from)
     message_timestamp = timestamp(message_time)
-    Advice.create(text: text, author: author, timestamp: message_timestamp)
+    Feedback.create(text: text, author: author, timestamp: message_timestamp)
   end
 
   private

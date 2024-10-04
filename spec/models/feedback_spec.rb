@@ -1,4 +1,4 @@
-RSpec.describe Advice do
+RSpec.describe Feedback do
   describe ".notification_client" do
     subject(:client) { described_class.notification_client }
 
@@ -51,7 +51,7 @@ RSpec.describe Advice do
       expect(client).to have_received(:send_message).with(
         embeds: [
           {
-            title: "Advice",
+            title: "Feedback",
             description: text,
             timestamp: timestamp,
             color: described_class::AQUA_COLOR,

@@ -1,4 +1,4 @@
-RSpec.describe BotCommand::About do
+RSpec.describe BotCommands::About do
   subject { described_class.call }
 
   let(:bot_command) { BotCommand.about }

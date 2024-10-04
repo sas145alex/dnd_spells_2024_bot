@@ -1,4 +1,4 @@
-RSpec.describe Telegram::ProcessAdviceJob do
+RSpec.describe Telegram::ProcessFeedbackJob do
   subject(:perform) { described_class.perform_now(text, from: from, message_time: message_time) }
 
   around do |example|
@@ -19,13 +19,13 @@ RSpec.describe Telegram::ProcessAdviceJob do
   let(:message_time) { Time.now.to_i }
 
   before do
-    allow(Advice).to receive(:create)
+    allow(Feedback).to receive(:create)
   end
 
   it "creates advice" do
     perform
 
-    expect(Advice).to have_received(:create).with(
+    expect(Feedback).to have_received(:create).with(
       text: text,
       author: "ID: 123 - John - Smith - johnsmith",
       timestamp: Time.at(message_time)
