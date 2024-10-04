@@ -70,12 +70,20 @@ module BotCommands
       inline_keyboard = options.in_groups_of(1, false)
       inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
+      text = subcategory_items_screen_text
 
       {
-        text: "Выберете предмет",
+        text: text,
         reply_markup: reply_markup,
         parse_mode: parse_mode
       }
+    end
+
+    def subcategory_items_screen_text
+      cmd = if input_value.to_sym.in?(EquipmentItem.armor_item_types)
+        BotCommand.find_by(title: "#{input_value}_section_description")&.decorate
+      end
+      cmd ? cmd.description_for_telegram : "Выберете предмет"
     end
 
     def give_detailed_equipment_item
