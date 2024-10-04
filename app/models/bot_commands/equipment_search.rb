@@ -12,7 +12,7 @@ module BotCommands
         give_subcategories
       elsif subcategory_selected?
         give_equipment_items
-      elsif selected_object&.is_a?(::EquipmentItem)
+      elsif equipment_item_selected?
         give_detailed_equipment_item
       else
         invalid_input
@@ -32,7 +32,7 @@ module BotCommands
       options = variants.map do |key, translation|
         {
           text: translation,
-          callback_data: "equipment:#{key}"
+          callback_data: "#{callback_prefix}:#{key}"
         }
       end
       inline_keyboard = options.in_groups_of(2, false)
@@ -50,10 +50,11 @@ module BotCommands
       options = variants.map do |key, translation|
         {
           text: translation,
-          callback_data: "equipment:#{key}"
+          callback_data: "#{callback_prefix}:#{key}"
         }
       end
       inline_keyboard = options.in_groups_of(2, false)
+      inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
@@ -67,6 +68,7 @@ module BotCommands
       variants = EquipmentItem.published.ordered.where(item_type: input_value)
       options = keyboard_options(variants)
       inline_keyboard = options.in_groups_of(1, false)
+      inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
@@ -78,27 +80,14 @@ module BotCommands
 
     def give_detailed_equipment_item
       text = selected_object.description_for_telegram
-      mentions = selected_object.mentions.map do |mention|
-        {
-          text: mention.another_mentionable.decorate.title,
-          callback_data: "pick_mention:#{mention.id}"
-        }
-      end
-
+      mentions = keyboard_mentions_options(selected_object)
       inline_keyboard = mentions.in_groups_of(1, false)
+      inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
         text: text,
         reply_markup: reply_markup,
-        parse_mode: parse_mode
-      }
-    end
-
-    def invalid_input
-      {
-        text: "Невалидный ввод",
-        reply_markup: {},
         parse_mode: parse_mode
       }
     end
@@ -109,6 +98,10 @@ module BotCommands
 
     def subcategory_selected?
       input_value.to_s.in?(EquipmentItem.item_types.keys)
+    end
+
+    def equipment_item_selected?
+      selected_object.is_a?(EquipmentItem)
     end
 
     def equipment_subcategories
@@ -124,21 +117,8 @@ module BotCommands
       end
     end
 
-    def keyboard_options(variants)
-      variants.map do |variant|
-        {
-          text: variant.title,
-          callback_data: "equipment:#{variant.to_global_id}"
-        }
-      end
-    end
-
-    def selected_object
-      @selected_object ||= GlobalID::Locator.locate(input_value)&.decorate
-    end
-
-    def parse_mode
-      "HTML"
+    def callback_prefix
+      "equipment"
     end
   end
 end

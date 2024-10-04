@@ -12,11 +12,7 @@ module BotCommands
       elsif abilities_search_subcommand_selected?
         provide_abilities
       else
-        {
-          text: "Невалидное значение",
-          reply_markup: {},
-          parse_mode: parse_mode
-        }
+        invalid_input
       end
     end
 
@@ -33,7 +29,7 @@ module BotCommands
       options = enums.map do |enum_raw_value, translation|
         {
           text: translation,
-          callback_data: "feat:#{enum_raw_value}"
+          callback_data: "#{callback_prefix}:#{enum_raw_value}"
         }
       end
       inline_keyboard = options.in_groups_of(2, false)
@@ -51,17 +47,13 @@ module BotCommands
       options = feats.map do |item|
         {
           text: item.title,
-          callback_data: "feat:#{item.to_global_id}"
+          callback_data: "#{callback_prefix}:#{item.to_global_id}"
         }
       end
       inline_keyboard = options.in_groups_of(2, false)
 
       if input_value == "general"
-        search_subcommand = {
-          text: SEARCH_BY_ABILITY_SUBCOMMAND[:text],
-          callback_data: "feat:#{SEARCH_BY_ABILITY_SUBCOMMAND[:value]}"
-        }
-        inline_keyboard.prepend([search_subcommand])
+        inline_keyboard.prepend([search_by_ability_subcommand])
       end
       inline_keyboard.append([go_back_button])
 
@@ -80,7 +72,7 @@ module BotCommands
       options = feats.map do |item|
         {
           text: item.title,
-          callback_data: "feat:#{item.to_global_id}"
+          callback_data: "#{callback_prefix}:#{item.to_global_id}"
         }
       end
       inline_keyboard = options.in_groups_of(2, false)
@@ -101,13 +93,7 @@ module BotCommands
 
         #{selected_object.description_for_telegram}
       HTML
-      mentions = selected_object.mentions.map do |mention|
-        {
-          text: mention.another_mentionable.decorate.title,
-          callback_data: "pick_mention:#{mention.id}"
-        }
-      end
-
+      mentions = keyboard_mentions_options(selected_object)
       inline_keyboard = mentions.in_groups_of(4, false)
       inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
@@ -124,7 +110,7 @@ module BotCommands
       options = CharacterAbility.ordered.map do |item|
         {
           text: item.title,
-          callback_data: "feat:#{item.to_global_id}"
+          callback_data: "#{callback_prefix}:#{item.to_global_id}"
         }
       end
       inline_keyboard = options.in_groups_of(2, false)
@@ -136,17 +122,6 @@ module BotCommands
         reply_markup: reply_markup,
         parse_mode: parse_mode
       }
-    end
-
-    def go_back_button
-      {
-        text: "Назад",
-        callback_data: "go_back:go_back"
-      }
-    end
-
-    def parse_mode
-      "HTML"
     end
 
     def abilities_search_subcommand_selected?
@@ -165,16 +140,12 @@ module BotCommands
       selected_object.is_a?(CharacterAbility)
     end
 
-    def selected_object
-      @selected_object ||= GlobalID::Locator.locate(input_value)&.decorate
-    end
-
     def feat_scope
       ::Feat.published.ordered
     end
 
-    def locale
-      "ru"
+    def callback_prefix
+      "feat"
     end
   end
 end

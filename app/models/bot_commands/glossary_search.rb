@@ -3,11 +3,11 @@ module BotCommands
     def call
       if input_value.blank?
         provide_top_level_categories
-      elsif selected_object&.is_a?(GlossaryCategory) && selected_object&.with_items?
+      elsif selected_object.is_a?(GlossaryCategory) && selected_object.with_items?
         provide_glossary_category_items
-      elsif selected_object&.is_a?(GlossaryCategory)
+      elsif selected_object.is_a?(GlossaryCategory)
         provide_detailed_glossary_category
-      elsif selected_object&.is_a?(GlossaryItem)
+      elsif selected_object.is_a?(GlossaryItem)
         provide_detailed_glossary_item
       else
         invalid_input
@@ -54,6 +54,7 @@ module BotCommands
       variants = selected_object.items.ordered
       options = keyboard_options(variants)
       inline_keyboard = options.in_groups_of(2, false)
+      inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
@@ -73,6 +74,7 @@ module BotCommands
       variants = selected_object.subcategories.published.ordered
       options = keyboard_options(variants)
       inline_keyboard = options.in_groups_of(2, false)
+      inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
@@ -89,36 +91,19 @@ module BotCommands
         #{selected_object.description_for_telegram}
       HTML
 
+      inline_keyboard = []
+      inline_keyboard.append([go_back_button])
+      reply_markup = {inline_keyboard: inline_keyboard}
+
       {
         text: text,
-        reply_markup: {},
+        reply_markup: reply_markup,
         parse_mode: parse_mode
       }
     end
 
-    def invalid_input
-      {
-        text: "Невалидный ввод",
-        reply_markup: {},
-        parse_mode: parse_mode
-      }
-    end
-
-    def parse_mode
-      "HTML"
-    end
-
-    def keyboard_options(variants)
-      variants.map do |variant|
-        {
-          text: variant.title,
-          callback_data: "glossary:#{variant.to_global_id}"
-        }
-      end
-    end
-
-    def selected_object
-      @selected_object ||= GlobalID::Locator.locate(input_value)&.decorate
+    def callback_prefix
+      "glossary"
     end
   end
 end

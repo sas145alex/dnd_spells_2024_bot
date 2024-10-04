@@ -3,9 +3,9 @@ module BotCommands
     def call
       if input_value.blank?
         give_tools
-      elsif selected_object&.is_a?(::Tool)
+      elsif selected_object.is_a?(::Tool)
         give_detailed_tool_info
-      elsif selected_object&.is_a?(::BotCommand)
+      elsif selected_object.is_a?(::BotCommand)
         give_general_info_of_section
       else
         invalid_input
@@ -37,14 +37,9 @@ module BotCommands
 
     def give_detailed_tool_info
       text = selected_object.description_for_telegram
-      mentions = selected_object.mentions.map do |mention|
-        {
-          text: mention.another_mentionable.decorate.title,
-          callback_data: "pick_mention:#{mention.id}"
-        }
-      end
-
+      mentions = keyboard_mentions_options(selected_object)
       inline_keyboard = mentions.in_groups_of(1, false)
+      inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
@@ -66,10 +61,6 @@ module BotCommands
       }
     end
 
-    def parse_mode
-      "HTML"
-    end
-
     def keyboard_option_tool_info
       variants = [::BotCommand.tool.decorate]
       keyboard_options(variants)
@@ -80,21 +71,12 @@ module BotCommands
       keyboard_options(variants)
     end
 
-    def keyboard_options(variants)
-      variants.map do |variant|
-        {
-          text: variant.title,
-          callback_data: "tool:#{variant.to_global_id}"
-        }
-      end
-    end
-
     def tool_scope
       ::Tool.published.ordered
     end
 
-    def selected_object
-      @selected_object ||= GlobalID::Locator.locate(input_value)&.decorate
+    def callback_prefix
+      "tool"
     end
   end
 end
