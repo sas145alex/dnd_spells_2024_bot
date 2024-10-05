@@ -1,22 +1,29 @@
-class Origin < ApplicationRecord
+class CharacterKlass < ApplicationRecord
+  include Publishable
   include Mentionable
+  include Segmentable
   include WhoDidItable
+
+  belongs_to :parent_klass,
+    foreign_key: "parent_klass_id",
+    class_name: "CharacterKlass",
+    optional: true
 
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true
-  validates :description, presence: true, if: :published?
+  validates :description, presence: true
   validates :description,
-    length: {minimum: 5, maximum: 5000},
-    if: :published?,
+    length: {minimum: 0, maximum: 5000},
     allow_blank: true
 
   scope :ordered, -> { order(title: :asc) }
+  scope :base_klasses, -> { where(parent_klass: nil) }
 
   before_validation :strip_title
   before_validation :strip_original_title
 
   def self.ransackable_associations(auth_object = nil)
-    %w[created_by updated_by]
+    %w[created_by updated_by parent_klass]
   end
 
   def long_description?

@@ -1,0 +1,2 @@
+class CharacterKlassDecorator < ApplicationDecorator
+end
