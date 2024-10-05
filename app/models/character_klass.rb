@@ -30,6 +30,10 @@ class CharacterKlass < ApplicationRecord
     description.size >= DESCRIPTION_LIMIT
   end
 
+  def base_klass?
+    parent_klass_id.nil? || parent_klass.nil?
+  end
+
   private
 
   def strip_title
