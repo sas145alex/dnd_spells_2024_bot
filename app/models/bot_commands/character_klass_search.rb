@@ -54,11 +54,13 @@ module BotCommands
     def provide_subklass_description
       base_klass = selected_object.base_klass? ? selected_object : selected_object.parent_klass.decorate
       text = <<~HTML
-        <b>#{selected_object.title}</b>
+        <b>Выбрано:</b> #{selected_object.title}
         
         #{base_klass.description_for_telegram}
       HTML
-      inline_keyboard = []
+      mentions = keyboard_mentions_options(selected_object)
+      inline_keyboard = mentions.in_groups_of(2, false)
+      inline_keyboard.append([{text: "Умения", callback_data: "abilities:#{selected_object.to_global_id}"}])
       inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 

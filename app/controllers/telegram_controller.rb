@@ -69,6 +69,11 @@ class TelegramController < Telegram::Bot::UpdatesController
     edit_message :text, answer_params
   end
 
+  def abilities_callback_query(input_value = nil, *args)
+    answer_params = BotCommands::CharacterKlassAbilitiesSearch.call(input_value: input_value)
+    edit_message :text, answer_params
+  end
+
   def origin!(*args)
     answer_params = BotCommands::OriginSearch.call
     respond_with :message, answer_params
