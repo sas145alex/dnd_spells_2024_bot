@@ -18,6 +18,7 @@ class CharacterKlass < ApplicationRecord
 
   scope :ordered, -> { order(title: :asc) }
   scope :base_klasses, -> { where(parent_klass: nil) }
+  scope :subklasses, -> { where.not(parent_klass: nil) }
 
   before_validation :strip_title
   before_validation :strip_original_title

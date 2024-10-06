@@ -1,10 +1,15 @@
 ActiveAdmin.register CharacterKlass do
+  scope :base_klasses, ->(scope) { scope.base_klasses }
+  scope :subklasses, ->(scope) { scope.subklasses }
+
   index do
     selectable_column
     id_column
     column :title
     column :original_title
-    column :parent_klass
+    column :parent_klass_id do |resource|
+      resource.parent_klass
+    end
     column :description do |resource|
       markdown_to_html(resource.description.first(300))
     end
