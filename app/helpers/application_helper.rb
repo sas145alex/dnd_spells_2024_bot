@@ -20,6 +20,17 @@ module ApplicationHelper
     grouped_options_for_select(optgroups, selected)
   end
 
+  def grouped_klasses_for_select(scope: nil, selected: nil)
+    character_klasses = scope || CharacterKlass.ordered
+    optgroups = character_klasses
+      .group_by { _1.base_klass? ? "Base Class" : _1.parent_klass.title }
+      .transform_values { _1.pluck(:title, :id) }
+    base_klasses = optgroups.delete("Base Class")
+    optgroups = optgroups.sort_by { |key, _value| key }.to_h
+    optgroups = {"Base Class" => base_klasses}.merge(optgroups) # put base classes first
+    grouped_options_for_select(optgroups, selected)
+  end
+
   def mention_types_for_select
     %w[Creature Spell GlossaryItem Feat Tool Origin WildMagic BotCommand]
   end
