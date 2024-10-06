@@ -5,7 +5,7 @@ class TelegramController < Telegram::Bot::UpdatesController
 
   before_action :initialize_session
   after_action :track_user_activity
-  after_action :remember_history!, except: [:go_back_callback_query]
+  after_action :remember_history!, except: [:go_back_callback_query, :pick_mention_callback_query]
 
   def message(*args)
     respond_with :message,
