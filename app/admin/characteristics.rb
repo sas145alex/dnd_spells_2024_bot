@@ -1,4 +1,4 @@
-ActiveAdmin.register CharacterAbility do
+ActiveAdmin.register Characteristic do
   menu false
 
   index do
@@ -70,9 +70,9 @@ ActiveAdmin.register CharacterAbility do
 
     div do
       if resource.published?
-        link_to "Unpublish", unpublish_admin_character_ability_path(resource), class: "btn btn-primary"
+        link_to "Unpublish", unpublish_admin_characteristic_path(resource), class: "btn btn-primary"
       else
-        link_to "Publish", publish_admin_character_ability_path(resource), class: "btn btn-primary"
+        link_to "Publish", publish_admin_characteristic_path(resource), class: "btn btn-primary"
       end
     end
   end
@@ -83,7 +83,7 @@ ActiveAdmin.register CharacterAbility do
       f.input :title
       f.input :original_title
       f.input :description,
-        label: "Description (#{CharacterAbility::DESCRIPTION_FORMAT})",
+        label: "Description (#{Characteristic::DESCRIPTION_FORMAT})",
         as: :simplemde_editor,
         input_html: {rows: 12, style: "height:auto"}
       li "Created at #{f.object.created_at}" unless f.object.new_record?
@@ -103,11 +103,11 @@ ActiveAdmin.register CharacterAbility do
       f.actions do
         if f.object.published?
           li class: "action" do
-            link_to "Unpublish", unpublish_admin_character_ability_path(f.object)
+            link_to "Unpublish", unpublish_admin_characteristic_path(f.object)
           end
         else
           li class: "action" do
-            link_to "Publish", publish_admin_character_ability_path(f.object)
+            link_to "Publish", publish_admin_characteristic_path(f.object)
           end
         end
       end
@@ -140,13 +140,13 @@ ActiveAdmin.register CharacterAbility do
 
   controller do
     def create
-      @resource = CharacterAbility.new
+      @resource = Characteristic.new
 
       if @resource.update(create_params)
         if params[:create_another] == "on"
-          redirect_to new_admin_character_ability_path, notice: "CharacterAbility was successfully created. Create another one."
+          redirect_to new_admin_characteristic_path, notice: "Characteristic was successfully created. Create another one."
         else
-          redirect_to admin_character_ability_path(@resource), notice: "CharacterAbility was successfully created."
+          redirect_to resource_path(@resource), notice: "Characteristic was successfully created."
         end
       else
         flash.now[:alert] = "Errors happened: " + @resource.errors.full_messages.to_sentence
@@ -156,7 +156,7 @@ ActiveAdmin.register CharacterAbility do
 
     def update
       if resource.update(update_params)
-        redirect_to admin_character_ability_path(resource), notice: "CharacterAbility was successfully updated."
+        redirect_to resource_path(resource), notice: "Characteristic was successfully updated."
       else
         flash.now[:alert] = "Errors happened: " + resource.errors.full_messages.to_sentence
         render(:edit, status: :unprocessable_entity)
@@ -165,7 +165,7 @@ ActiveAdmin.register CharacterAbility do
 
     def destroy
       if resource.destroy
-        redirect_to collection_path, notice: "The character_ability has been deleted."
+        redirect_to collection_path, notice: "The characteristic has been deleted."
       else
         redirect_to collection_path, alert: "Errors happened: " + resource.errors.full_messages.to_sentence
       end
@@ -174,13 +174,13 @@ ActiveAdmin.register CharacterAbility do
     private
 
     def create_params
-      attrs = permitted_params[:character_ability].to_h
+      attrs = permitted_params[:characteristic].to_h
       attrs[:created_by] = current_admin_user
       attrs
     end
 
     def update_params
-      attrs = permitted_params[:character_ability].to_h
+      attrs = permitted_params[:characteristic].to_h
       attrs[:updated_by] = current_admin_user
       attrs
     end

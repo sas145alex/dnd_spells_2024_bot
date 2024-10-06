@@ -1,6 +1,6 @@
 module BotCommands
   class BaseCommand < ApplicationOperation
-    SEARCH_BY_ABILITY_SUBCOMMAND = {text: "Поиск по хар-ке", value: "search_by_ability"}.freeze
+    SEARCH_BY_CHARACTERISTIC_SUBCOMMAND = {text: "Поиск по хар-ке", value: "search_by_characteristic"}.freeze
 
     private
 
@@ -42,15 +42,15 @@ module BotCommands
       raise NotImplementedError
     end
 
-    def search_by_ability_subcommand
+    def search_by_characteristic_subcommand
       {
-        text: SEARCH_BY_ABILITY_SUBCOMMAND[:text],
-        callback_data: "#{callback_prefix}:#{SEARCH_BY_ABILITY_SUBCOMMAND[:value]}"
+        text: SEARCH_BY_CHARACTERISTIC_SUBCOMMAND[:text],
+        callback_data: "#{callback_prefix}:#{SEARCH_BY_CHARACTERISTIC_SUBCOMMAND[:value]}"
       }
     end
 
-    def abilities_search_subcommand_selected?
-      input_value == SEARCH_BY_ABILITY_SUBCOMMAND[:value]
+    def characteristic_search_selected?
+      input_value == SEARCH_BY_CHARACTERISTIC_SUBCOMMAND[:value]
     end
 
     def selected_object

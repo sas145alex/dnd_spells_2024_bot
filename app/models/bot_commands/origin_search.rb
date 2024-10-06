@@ -7,10 +7,10 @@ module BotCommands
         give_detailed_selected_object
       elsif descriptive_subcommand_selected?
         give_general_info_of_section
-      elsif ability_selected?
-        give_origins_by_ability
-      elsif abilities_search_subcommand_selected?
-        provide_abilities
+      elsif characteristic_selected?
+        give_origins_by_characteristic
+      elsif characteristic_search_selected?
+        provide_characteristics
       else
         invalid_input
       end
@@ -28,7 +28,7 @@ module BotCommands
       variants = origin_scope.all
       options = keyboard_options(variants)
       inline_keyboard = options.in_groups_of(2, false)
-      inline_keyboard.prepend([search_by_ability_subcommand])
+      inline_keyboard.prepend([search_by_characteristic_subcommand])
       inline_keyboard.prepend(keyboard_option_section_info)
       reply_markup = {inline_keyboard: inline_keyboard}
 
@@ -39,7 +39,7 @@ module BotCommands
       }
     end
 
-    def give_origins_by_ability
+    def give_origins_by_characteristic
       ids = Segment.where(attribute_resource: selected_object, resource_type: "Origin").pluck(:resource_id)
       resources = origin_scope.where(id: ids)
       variants = resources.all
@@ -85,9 +85,9 @@ module BotCommands
       }
     end
 
-    def provide_abilities
+    def provide_characteristics
       text = "Выбере характеристиру, которую хотите улучшить"
-      options = CharacterAbility.ordered.map do |item|
+      options = Characteristic.ordered.map do |item|
         {
           text: item.title,
           callback_data: "#{callback_prefix}:#{item.to_global_id}"
@@ -116,8 +116,8 @@ module BotCommands
       selected_object.is_a?(BotCommand)
     end
 
-    def ability_selected?
-      selected_object.is_a?(CharacterAbility)
+    def characteristic_selected?
+      selected_object.is_a?(Characteristic)
     end
 
     def origin_scope

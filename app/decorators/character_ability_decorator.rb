@@ -1,2 +1,2 @@
-class CharacterAbilityDecorator < ApplicationDecorator
+class CharacteristicDecorator < ApplicationDecorator
 end

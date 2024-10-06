@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_10_05_055616) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_06_055115) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -52,19 +52,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_05_055616) do
     t.index ["title"], name: "index_bot_commands_on_title", unique: true
   end
 
-  create_table "character_abilities", force: :cascade do |t|
-    t.string "title", null: false
-    t.string "original_title"
-    t.text "description", default: "", null: false
-    t.datetime "published_at"
-    t.bigint "created_by_id"
-    t.bigint "updated_by_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["created_by_id"], name: "index_character_abilities_on_created_by_id"
-    t.index ["updated_by_id"], name: "index_character_abilities_on_updated_by_id"
-  end
-
   create_table "character_klasses", force: :cascade do |t|
     t.string "title", null: false
     t.string "original_title"
@@ -77,6 +64,19 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_05_055616) do
     t.index ["created_by_id"], name: "index_character_klasses_on_created_by_id"
     t.index ["parent_klass_id"], name: "index_character_klasses_on_parent_klass_id"
     t.index ["updated_by_id"], name: "index_character_klasses_on_updated_by_id"
+  end
+
+  create_table "characteristics", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "original_title"
+    t.text "description", default: "", null: false
+    t.datetime "published_at"
+    t.bigint "created_by_id"
+    t.bigint "updated_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_characteristics_on_created_by_id"
+    t.index ["updated_by_id"], name: "index_characteristics_on_updated_by_id"
   end
 
   create_table "creatures", force: :cascade do |t|
@@ -252,11 +252,11 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_05_055616) do
     t.index ["updated_by_id"], name: "index_wild_magics_on_updated_by_id"
   end
 
-  add_foreign_key "character_abilities", "admin_users", column: "created_by_id"
-  add_foreign_key "character_abilities", "admin_users", column: "updated_by_id"
   add_foreign_key "character_klasses", "admin_users", column: "created_by_id"
   add_foreign_key "character_klasses", "admin_users", column: "updated_by_id"
   add_foreign_key "character_klasses", "character_klasses", column: "parent_klass_id"
+  add_foreign_key "characteristics", "admin_users", column: "created_by_id"
+  add_foreign_key "characteristics", "admin_users", column: "updated_by_id"
   add_foreign_key "creatures", "admin_users", column: "created_by_id"
   add_foreign_key "creatures", "admin_users", column: "responsible_id"
   add_foreign_key "creatures", "admin_users", column: "updated_by_id"

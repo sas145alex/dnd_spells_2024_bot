@@ -25,6 +25,6 @@ module ApplicationHelper
   end
 
   def segment_types_for_select
-    %w[CharacterAbility]
+    %w[Characteristic]
   end
 end

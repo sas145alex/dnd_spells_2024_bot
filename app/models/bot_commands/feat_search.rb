@@ -5,12 +5,12 @@ module BotCommands
         provide_top_level_categories
       elsif category_selected?
         provide_feats_by_category
-      elsif ability_selected?
-        provide_feats_by_ability
+      elsif characteristic_selected?
+        provide_feats_by_characteristic
       elsif feat_selected?
         provide_detailed_feat_info
-      elsif abilities_search_subcommand_selected?
-        provide_abilities
+      elsif characteristic_search_selected?
+        provide_characteristics
       else
         invalid_input
       end
@@ -53,7 +53,7 @@ module BotCommands
       inline_keyboard = options.in_groups_of(2, false)
 
       if input_value == "general"
-        inline_keyboard.prepend([search_by_ability_subcommand])
+        inline_keyboard.prepend([search_by_characteristic_subcommand])
       end
       inline_keyboard.append([go_back_button])
 
@@ -66,7 +66,7 @@ module BotCommands
       }
     end
 
-    def provide_feats_by_ability
+    def provide_feats_by_characteristic
       ids = Segment.where(attribute_resource: selected_object, resource_type: "Feat").pluck(:resource_id)
       feats = feat_scope.where(id: ids)
       options = feats.map do |item|
@@ -105,9 +105,9 @@ module BotCommands
       }
     end
 
-    def provide_abilities
+    def provide_characteristics
       text = "Выбере характеристиру, которую хотите улучшить"
-      options = CharacterAbility.ordered.map do |item|
+      options = Characteristic.ordered.map do |item|
         {
           text: item.title,
           callback_data: "#{callback_prefix}:#{item.to_global_id}"
@@ -124,10 +124,6 @@ module BotCommands
       }
     end
 
-    def abilities_search_subcommand_selected?
-      input_value == SEARCH_BY_ABILITY_SUBCOMMAND[:value]
-    end
-
     def category_selected?
       input_value.to_s.in?(::Feat.categories.keys)
     end
@@ -136,8 +132,8 @@ module BotCommands
       selected_object.is_a?(::Feat)
     end
 
-    def ability_selected?
-      selected_object.is_a?(CharacterAbility)
+    def characteristic_selected?
+      selected_object.is_a?(Characteristic)
     end
 
     def feat_scope

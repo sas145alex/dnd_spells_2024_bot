@@ -1,4 +1,4 @@
-class CharacterAbility < ApplicationRecord
+class Characteristic < ApplicationRecord
   include Publishable
   include Mentionable
   include Segmentable
