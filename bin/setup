@@ -2,7 +2,7 @@
 require "fileutils"
 
 APP_ROOT = File.expand_path("..", __dir__)
-APP_NAME = "tg-bot-dnd-spells-2024"
+APP_NAME = "spells-bot"
 
 def system!(*args)
   system(*args, exception: true)

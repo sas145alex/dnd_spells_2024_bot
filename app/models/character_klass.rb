@@ -32,7 +32,7 @@ class CharacterKlass < ApplicationRecord
   end
 
   def base_klass?
-    parent_klass_id.nil? || parent_klass.nil?
+    parent_klass_id.nil?
   end
 
   private

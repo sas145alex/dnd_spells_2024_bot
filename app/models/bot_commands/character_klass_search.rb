@@ -59,6 +59,7 @@ module BotCommands
         #{base_klass.description_for_telegram}
       HTML
       inline_keyboard = []
+      inline_keyboard.append([{text: "Умения", callback_data: "abilities:#{selected_object.to_global_id}"}])
       inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
