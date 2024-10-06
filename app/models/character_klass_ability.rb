@@ -17,6 +17,7 @@ class CharacterKlassAbility < ApplicationRecord
 
   scope :ordered, -> { order(title: :asc) }
 
+  before_validation :normalize_levels
   before_validation :strip_title
   before_validation :strip_original_title
 
@@ -29,6 +30,10 @@ class CharacterKlassAbility < ApplicationRecord
   end
 
   private
+
+  def normalize_levels
+    self.levels = levels&.compact
+  end
 
   def strip_title
     self.title = title&.strip

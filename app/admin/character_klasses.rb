@@ -45,8 +45,8 @@ ActiveAdmin.register CharacterKlass do
   filter :description
   filter :created_at
   filter :updated_at
-  filter :created_by, as: :select, collection: AdminUser.all.pluck(:email, :id)
-  filter :updated_by, as: :select, collection: AdminUser.all.pluck(:email, :id)
+  filter :created_by, as: :select, collection: -> { admins_for_select }
+  filter :updated_by, as: :select, collection: -> { admins_for_select }
 
   show do
     attributes_table_for(resource) do
@@ -94,6 +94,10 @@ ActiveAdmin.register CharacterKlass do
   end
 
   controller do
+    def scoped_collection
+      super.includes :parent_klass
+    end
+
     def create
       @resource = CharacterKlass.new
 

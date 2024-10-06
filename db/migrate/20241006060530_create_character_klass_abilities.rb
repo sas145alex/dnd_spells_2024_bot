@@ -4,7 +4,7 @@ class CreateCharacterKlassAbilities < ActiveRecord::Migration[7.2]
       t.string :title, null: false
       t.string :original_title
       t.text :description, null: false, default: ""
-      t.integer :levels, null: false, default: 0
+      t.integer :levels, array: true, null: false, default: []
       t.datetime :published_at
 
       t.references :character_klass, null: false, foreign_key: {to_table: :character_klasses}

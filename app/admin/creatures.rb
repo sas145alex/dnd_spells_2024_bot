@@ -37,11 +37,11 @@ ActiveAdmin.register Creature do
   filter :title
   filter :original_title
   filter :description
-  filter :responsible, as: :select, collection: AdminUser.all.pluck(:email, :id)
+  filter :responsible, as: :select, collection: -> { admins_for_select }
   filter :published_at
   filter :created_at
-  filter :created_by, as: :select, collection: AdminUser.all.pluck(:email, :id)
-  filter :updated_by, as: :select, collection: AdminUser.all.pluck(:email, :id)
+  filter :created_by, as: :select, collection: -> { admins_for_select }
+  filter :updated_by, as: :select, collection: -> { admins_for_select }
 
   show do
     attributes_table_for(resource) do

@@ -56,7 +56,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_06_060530) do
     t.string "title", null: false
     t.string "original_title"
     t.text "description", default: "", null: false
-    t.integer "levels", default: 0, null: false
+    t.integer "levels", default: [], null: false, array: true
     t.datetime "published_at"
     t.bigint "character_klass_id", null: false
     t.bigint "created_by_id"

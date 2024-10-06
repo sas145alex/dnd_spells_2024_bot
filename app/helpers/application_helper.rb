@@ -21,14 +21,30 @@ module ApplicationHelper
   end
 
   def grouped_klasses_for_select(scope: nil, selected: nil)
-    character_klasses = scope || CharacterKlass.ordered
+    character_klasses = scope || CharacterKlass.all
+    character_klasses = character_klasses
+      .left_joins(:parent_klass)
+      .select(
+        :id,
+        :parent_klass_id,
+        "character_klasses.title as title",
+        "coalesce(parent_klasses_character_klasses.title, 'Base Class') as parent_title"
+      )
     optgroups = character_klasses
-      .group_by { _1.base_klass? ? "Base Class" : _1.parent_klass.title }
+      .group_by { _1["parent_title"] }
       .transform_values { _1.pluck(:title, :id) }
     base_klasses = optgroups.delete("Base Class")
     optgroups = optgroups.sort_by { |key, _value| key }.to_h
     optgroups = {"Base Class" => base_klasses}.merge(optgroups) # put base classes first
     grouped_options_for_select(optgroups, selected)
+  end
+
+  def admins_for_select
+    @admin_for_select ||= AdminUser.all.pluck(:email, :id)
+  end
+
+  def levels_for_select
+    (1..20).to_a
   end
 
   def mention_types_for_select

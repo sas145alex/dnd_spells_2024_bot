@@ -5,7 +5,9 @@ ActiveAdmin.register GlossaryItem do
   index do
     selectable_column
     id_column
-    column :category
+    column :category_id do |resource|
+      resource.category
+    end
     column :title
     column :original_title
     column :description do |resource|
@@ -47,8 +49,8 @@ ActiveAdmin.register GlossaryItem do
   filter :published_at
   filter :created_at
   filter :updated_at
-  filter :created_by, as: :select, collection: AdminUser.all.pluck(:email, :id)
-  filter :updated_by, as: :select, collection: AdminUser.all.pluck(:email, :id)
+  filter :created_by, as: :select, collection: -> { admins_for_select }
+  filter :updated_by, as: :select, collection: -> { admins_for_select }
 
   show do
     attributes_table_for(resource) do

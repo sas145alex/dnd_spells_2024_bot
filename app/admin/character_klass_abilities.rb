@@ -6,7 +6,9 @@ ActiveAdmin.register CharacterKlassAbility do
     selectable_column
     id_column
     column :levels
-    column :character_klass
+    column :character_klass_id do |resource|
+      resource.character_klass
+    end
     column :title
     column :original_title
     column :description do |resource|
@@ -49,8 +51,8 @@ ActiveAdmin.register CharacterKlassAbility do
   filter :published_at
   filter :created_at
   filter :updated_at
-  filter :created_by, as: :select, collection: AdminUser.all.pluck(:email, :id)
-  filter :updated_by, as: :select, collection: AdminUser.all.pluck(:email, :id)
+  filter :created_by, as: :select, collection: -> { admins_for_select }
+  filter :updated_by, as: :select, collection: -> { admins_for_select }
 
   show do
     attributes_table_for(resource) do
@@ -88,7 +90,11 @@ ActiveAdmin.register CharacterKlassAbility do
   form do |f|
     f.semantic_errors
     f.inputs do
-      f.input :levels
+      f.input :levels,
+        as: :select,
+        input_html: {multiple: true},
+        include_blank: false,
+        collection: levels_for_select
       f.input :character_klass,
         as: :select,
         collection: grouped_klasses_for_select(selected: f.object.character_klass_id)
@@ -151,6 +157,10 @@ ActiveAdmin.register CharacterKlassAbility do
   end
 
   controller do
+    def scoped_collection
+      super.includes :character_klass
+    end
+
     def create
       @resource = CharacterKlassAbility.new
 
@@ -201,7 +211,7 @@ ActiveAdmin.register CharacterKlassAbility do
   permit_params :title,
     :original_title,
     :description,
-    :levels,
     :character_klass_id,
+    levels: [],
     mentions_attributes: [:id, :another_mentionable_type, :another_mentionable_id, :_destroy]
 end
