@@ -35,6 +35,11 @@ class CharacterKlass < ApplicationRecord
     parent_klass_id.nil?
   end
 
+  def use_invocations?
+    record = base_klass? ? self : parent_klass
+    record.title == "Колдун" || record.original_title == "Warlock"
+  end
+
   private
 
   def strip_title

@@ -60,6 +60,9 @@ module BotCommands
       HTML
       mentions = keyboard_mentions_options(selected_object)
       inline_keyboard = mentions.in_groups_of(2, false)
+      if selected_object.use_invocations?
+        inline_keyboard.append([{text: "Воззвания", callback_data: "invocations:"}])
+      end
       inline_keyboard.append([{text: "Умения", callback_data: "abilities:#{selected_object.to_global_id}"}])
       inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
