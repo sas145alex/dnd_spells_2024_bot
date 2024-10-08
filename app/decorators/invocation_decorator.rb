@@ -1,0 +1,2 @@
+class InvocationDecorator < ApplicationDecorator
+end

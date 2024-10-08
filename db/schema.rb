@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_10_06_060530) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_08_103214) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -165,6 +165,20 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_06_060530) do
     t.index ["updated_by_id"], name: "index_glossary_items_on_updated_by_id"
   end
 
+  create_table "invocations", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "original_title"
+    t.text "description", default: "", null: false
+    t.integer "level", default: 1, null: false
+    t.datetime "published_at"
+    t.bigint "created_by_id"
+    t.bigint "updated_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_invocations_on_created_by_id"
+    t.index ["updated_by_id"], name: "index_invocations_on_updated_by_id"
+  end
+
   create_table "mentions", force: :cascade do |t|
     t.string "mentionable_type"
     t.bigint "mentionable_id"
@@ -287,6 +301,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_06_060530) do
   add_foreign_key "glossary_items", "admin_users", column: "created_by_id"
   add_foreign_key "glossary_items", "admin_users", column: "updated_by_id"
   add_foreign_key "glossary_items", "glossary_categories", column: "category_id"
+  add_foreign_key "invocations", "admin_users", column: "created_by_id"
+  add_foreign_key "invocations", "admin_users", column: "updated_by_id"
   add_foreign_key "origins", "admin_users", column: "created_by_id"
   add_foreign_key "origins", "admin_users", column: "updated_by_id"
   add_foreign_key "races", "admin_users", column: "created_by_id"
