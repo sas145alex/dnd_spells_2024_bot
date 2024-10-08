@@ -34,14 +34,40 @@ class TelegramController < Telegram::Bot::UpdatesController
     respond_with :message, answer_params
   end
 
-  def roll!(roll_formula = nil, *args)
-    answer_params = BotCommands::Roll.call(roll_formula: roll_formula)
-    respond_with :message, answer_params
+  def roll!(input_value = nil, *args)
+    answer_messages = BotCommands::Roll.call(input_value: input_value)
+    answer_messages.each do |message|
+      case message[:type]
+      when :edit
+        edit_message :text, message[:answer]
+      else
+        respond_with :message, message[:answer]
+      end
+    end
   end
 
-  def roll_formula_callback_query(roll_formula = nil, *args)
-    answer_params = BotCommands::Roll.call(roll_formula: roll_formula)
-    edit_message :text, answer_params
+  def roll_callback_query(input_value = nil, *args)
+    answer_messages = BotCommands::Roll.call(input_value: input_value)
+    answer_messages.each do |message|
+      case message[:type]
+      when :edit
+        edit_message :text, message[:answer]
+      else
+        respond_with :message, message[:answer]
+      end
+    end
+  end
+
+  def roll_page_callback_query(page = nil, *args)
+    answer_messages = BotCommands::Roll.call(input_value: nil, page: page.to_i)
+    answer_messages.each do |message|
+      case message[:type]
+      when :edit
+        edit_message :text, message[:answer]
+      else
+        respond_with :message, message[:answer]
+      end
+    end
   end
 
   def feat!(*args)
@@ -156,7 +182,7 @@ class TelegramController < Telegram::Bot::UpdatesController
     respond_with :message, text: "default callback answer", reply_markup: {}
   end
 
-  def go_back_callback_query(*args)
+  def go_back_callback_query(step = nil, *args)
     history_item = pop_history_item!
     if history_item.present?
       send(history_item[:action], history_item[:input_value])

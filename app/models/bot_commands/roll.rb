@@ -1,8 +1,39 @@
 module BotCommands
   class Roll < BaseCommand
-    ROLL_FORMULA_REGEXP = /^(?<dice_count>\d+)(?<second_part>\w(?<dice_value>\d+))?$/
+    PAGES = (1..10).to_a.freeze
+    DICE_PER_PAGE = 5
+    BASE_ROLL_REGEXP = /^(?<dice_count>\d+)(?<second_part>\w(?<dice_value>\d+))/
+    MOD_ROLL_REGEXP = /(?<mod_sign>[\+\-])?(?<mod_value>\d+)?/
+    ROLL_FORMULA_REGEXP = Regexp.new(BASE_ROLL_REGEXP.source + MOD_ROLL_REGEXP.source)
 
     def call
+      if invalid_input?
+        [{type: :message, answer: invalid_input}]
+      elsif full_roll_formula?
+        [{type: :message, answer: calculate_roll}, {type: :message, answer: provide_dices}]
+      elsif is_page_scrolled
+        [{type: :edit, answer: provide_dices}]
+      else
+        [{type: :message, answer: provide_dices}]
+      end
+    end
+
+    def initialize(input_value: nil, page: nil)
+      @input_value = input_value || ""
+      @is_page_scrolled = !page.nil?
+      @page = page || 1
+    end
+
+    private
+
+    attr_reader :input_value
+    attr_reader :page
+    attr_reader :is_page_scrolled
+
+    def invalid_input
+      text = "Неправильный формат формулы для броска"
+      reply_markup = {}
+
       {
         text: text,
         reply_markup: reply_markup,
@@ -10,92 +41,108 @@ module BotCommands
       }
     end
 
-    def initialize(roll_formula: nil)
-      @roll_formula = roll_formula
+    def calculate_roll
+      rolls = (1..dice_count).to_a.map { rand(1..dice_value) }
+      sum = rolls.sum
+      mod_sum = (mod_sign == :+) ? sum + mod_value : sum - mod_value
+      text = <<~HTML
+        <b>Бросок:</b> #{input_value}
+        <b>Все результаты:</b> #{rolls.sort.join(", ")}
+        <b>Модификатор:</b> #{mod_sign}#{mod_value}
+        <b>Сумма:</b> #{sum}
+        <b>Сумма с модификатором:</b> #{mod_sum}
+      HTML
+      reply_markup = {}
+
+      {
+        text: text,
+        reply_markup: reply_markup,
+        parse_mode: parse_mode
+      }
     end
 
-    private
+    def provide_dices
+      text = "Выберете кость для броска:"
+      reply_markup = {inline_keyboard: keyboard_dices_options}
 
-    attr_reader :roll_formula
+      {
+        text: text,
+        reply_markup: reply_markup,
+        parse_mode: parse_mode
+      }
+    end
 
-    def text
-      if invalid_input?
-        "Неправильный формат формулы для броска"
-      elsif full_roll_formula?
-        rolls = (1..dice_count).to_a.map { rand(1..dice_value) }
-        <<~HTML
-          <b>Бросок:</b> #{dice_count}d#{dice_value}
-          <b>Все результаты:</b> #{rolls.sort.join(", ")}
-          <b>Сумма:</b> #{rolls.sum}
-        HTML
-      elsif partial_roll_formula?
-        "<b>Количество костей: #{dice_count}</b>\n\nВыбери номинал костей:"
-      else
-        "Выберете количество костей:"
+    def keyboard_dices_options
+      keyboard = []
+      keyboard << [build_variant_for(1, 20)]
+
+      dice_nominals.each do |nominal|
+        row = dice_counts.map do |dice_count|
+          build_variant_for(dice_count, nominal)
+        end
+        keyboard << row
       end
+      keyboard << [build_variant_for(1, 100)]
+      keyboard << links_to_pages
+      keyboard
     end
 
-    def reply_markup
-      if invalid_input?
-        {}
-      elsif full_roll_formula?
-        {}
-      elsif partial_roll_formula?
-        {inline_keyboard: keyboard_dice_value_options}
-      else
-        {inline_keyboard: keyboard_dice_count_options}
-      end
+    def build_variant_for(nominal, value)
+      {text: "#{nominal}d#{value}", callback_data: "roll:#{nominal}d#{value}"}
     end
 
-    def parse_mode
-      "HTML"
+    def dice_counts
+      options = (1..DICE_PER_PAGE).to_a
+      options.map! { _1 + DICE_PER_PAGE * (page - 1) }
     end
 
-    def keyboard_dice_value_options
-      option_builder = ->(num, val) { {text: "#{num}d#{val}", callback_data: "roll_formula:#{num}d#{val}"} }
-      option_lines = []
-      option_lines << [option_builder.call(dice_count, 20)]
-      option_lines << [4, 6, 8, 10, 12].map do |dice_val|
-        option_builder.call(dice_count, dice_val)
-      end
-      option_lines << [option_builder.call(dice_count, 100)]
-      option_lines
+    def dice_nominals
+      [20, 12, 10, 8, 6, 4]
     end
 
-    def keyboard_dice_count_options
-      options = (1..25).map do |dice|
-        {
-          text: dice.to_s,
-          callback_data: "roll_formula:#{dice}"
-        }
-      end
-      options.in_groups_of(5, false)
+    def links_to_pages
+      links = []
+      links << {text: "Предыдущая страница", callback_data: "roll_page:#{page - 1}"} unless first_page?
+      links << {text: "Следующая страница", callback_data: "roll_page:#{page + 1}"} unless last_page?
+      links
     end
 
     def invalid_input?
-      is_invalid = roll_formula.present? && parsed_dice_formula.nil?
-      return true if is_invalid
-      parsed_dice_formula.present? && (dice_count.to_i > 100 || dice_value.to_i > 100)
+      is_invalid_formula = input_value.present? && roll_formula.nil?
+      return true if is_invalid_formula
+      roll_formula.present? && (dice_count.to_i > 100 || dice_value.to_i > 100)
+    end
+
+    def first_page?
+      page == PAGES.first
+    end
+
+    def last_page?
+      page == PAGES.last
     end
 
     def full_roll_formula?
       dice_value && dice_count
     end
 
-    def partial_roll_formula?
-      dice_count && dice_value.nil?
-    end
-
     def dice_count
-      parsed_dice_formula.try(:[], :dice_count).nil? ? nil : parsed_dice_formula[:dice_count].to_i
+      roll_formula.try(:[], :dice_count).nil? ? nil : roll_formula[:dice_count].to_i
     end
 
     def dice_value
-      parsed_dice_formula.try(:[], :dice_value).nil? ? nil : parsed_dice_formula[:dice_value].to_i
+      roll_formula.try(:[], :dice_value).nil? ? nil : roll_formula[:dice_value].to_i
     end
 
-    def parsed_dice_formula
-      @parsed_dice_formula ||= roll_formula&.match(ROLL_FORMULA_REGEXP)
+    def mod_value
+      roll_formula[:mod_value].to_i
+    end
+
+    def mod_sign
+      (roll_formula[:mod_sign] || "+").to_s.to_sym
+    end
+
+    def roll_formula
+      @roll_formula ||= input_value.match(ROLL_FORMULA_REGEXP)
     end
   end
 end
