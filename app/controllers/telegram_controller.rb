@@ -37,6 +37,7 @@ class TelegramController < Telegram::Bot::UpdatesController
   def roll!(input_value = nil, *args)
     answer_messages = BotCommands::Roll.call(input_value: input_value)
     answer_messages.each do |message|
+      sleep(0.1)
       case message[:type]
       when :edit
         edit_message :text, message[:answer]
@@ -49,6 +50,7 @@ class TelegramController < Telegram::Bot::UpdatesController
   def roll_callback_query(input_value = nil, *args)
     answer_messages = BotCommands::Roll.call(input_value: input_value)
     answer_messages.each do |message|
+      sleep(0.1)
       case message[:type]
       when :edit
         edit_message :text, message[:answer]
@@ -61,6 +63,7 @@ class TelegramController < Telegram::Bot::UpdatesController
   def roll_page_callback_query(page = nil, *args)
     answer_messages = BotCommands::Roll.call(input_value: nil, page: page.to_i)
     answer_messages.each do |message|
+      sleep(0.1)
       case message[:type]
       when :edit
         edit_message :text, message[:answer]
