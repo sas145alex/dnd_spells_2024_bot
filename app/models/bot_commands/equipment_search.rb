@@ -67,7 +67,8 @@ module BotCommands
     def give_equipment_items
       variants = EquipmentItem.published.ordered.where(item_type: input_value)
       options = keyboard_options(variants)
-      inline_keyboard = options.in_groups_of(1, false)
+      group_size = (options.size > 6) ? 2 : 1
+      inline_keyboard = options.in_groups_of(group_size, false)
       inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
       text = subcategory_items_screen_text
