@@ -135,16 +135,6 @@ class TelegramController < Telegram::Bot::UpdatesController
     edit_message :text, answer_params
   end
 
-  def stop_search!(*_args)
-    reply_markup = {
-      remove_keyboard: true
-    }
-
-    respond_with :message,
-      text: "Поиск окончен",
-      reply_markup: reply_markup
-  end
-
   def spell!(*_args)
     save_context("spell!")
 
