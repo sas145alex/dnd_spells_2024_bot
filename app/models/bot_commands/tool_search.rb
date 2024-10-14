@@ -26,6 +26,7 @@ module BotCommands
       inline_keyboard = options.in_groups_of(2, false)
       inline_keyboard.prepend(keyboard_option_tool_info)
       inline_keyboard.prepend(keyboard_option_crafting_info)
+      inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {

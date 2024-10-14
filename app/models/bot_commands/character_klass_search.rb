@@ -1,7 +1,7 @@
 module BotCommands
   class CharacterKlassSearch < BaseCommand
     def call
-      if input_value.nil? && subklass_gid.nil?
+      if input_value.blank? && subklass_gid.nil?
         provide_top_level_klasses
       elsif base_klass_selected?
         provide_subklasses
@@ -26,6 +26,7 @@ module BotCommands
       variants = character_klass_scope.base_klasses
       options = keyboard_options(variants)
       inline_keyboard = options.in_groups_of(2, false)
+      inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {

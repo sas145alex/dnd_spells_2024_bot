@@ -1,6 +1,19 @@
 class TelegramController < BaseTelegramController
   after_action :remember_history!, except: [:go_back_callback_query, :pick_mention_callback_query]
 
+  def spell!(*_args)
+    save_context("spell!")
+
+    answer_params = BotCommands::SpellSearch.call(payload: payload)
+    respond_with :message, answer_params
+  end
+
+  def spell_callback_query(spell_gid = nil, *_args)
+    answer_params = BotCommands::SpellSearch.call(payload: payload, spell_gid: spell_gid)
+    respond_with :message, answer_params
+    Telegram::SpellMetricsJob.perform_later(spell_gid: spell_gid)
+  end
+
   def about!
     answer_params = BotCommands::About.call
     respond_with :message, answer_params
@@ -14,7 +27,7 @@ class TelegramController < BaseTelegramController
       save_context("feedback!")
 
       respond_with :message,
-        text: "Если вы хотите предложить исправление, то напишите нам об этом в следующем сообщении (файлы не поддерживаются)"
+        text: "Если вы хотите предложить исправление или связаться с нами, то напишите нам об этом в следующем сообщении (файлы не поддерживаются)"
     end
   end
 
@@ -33,24 +46,19 @@ class TelegramController < BaseTelegramController
     process_answer_messages(answer_messages)
   end
 
+  def sections!(*_args)
+    answer_messages = BotCommands::Sections.call(input_value: nil)
+    process_answer_messages(answer_messages)
+  end
+
   def roll_page_callback_query(page = nil, *_args)
     answer_messages = BotCommands::Roll.call(input_value: nil, page: page.to_i)
     process_answer_messages(answer_messages)
   end
 
-  def feat!(*_args)
-    answer_params = BotCommands::FeatSearch.call
-    respond_with :message, answer_params
-  end
-
   def feat_callback_query(input_value = nil, *_args)
     answer_params = BotCommands::FeatSearch.call(input_value: input_value)
     edit_message :text, answer_params
-  end
-
-  def class!(*_args)
-    answer_params = BotCommands::CharacterKlassSearch.call(input_value: nil)
-    respond_with :message, answer_params
   end
 
   def class_callback_query(input_value = nil, *_args)
@@ -73,19 +81,9 @@ class TelegramController < BaseTelegramController
     edit_message :text, answer_params
   end
 
-  def origin!(*_args)
-    answer_params = BotCommands::OriginSearch.call
-    respond_with :message, answer_params
-  end
-
   def origin_callback_query(input_value = nil, *_args)
     answer_params = BotCommands::OriginSearch.call(input_value: input_value)
     edit_message :text, answer_params
-  end
-
-  def glossary!(*_args)
-    answer_params = BotCommands::GlossarySearch.call
-    respond_with :message, answer_params
   end
 
   def glossary_callback_query(input_value = nil, *_args)
@@ -93,19 +91,9 @@ class TelegramController < BaseTelegramController
     edit_message :text, answer_params
   end
 
-  def tool!(*_args)
-    answer_params = BotCommands::ToolSearch.call
-    respond_with :message, answer_params
-  end
-
   def tool_callback_query(input_value = nil, *_args)
     answer_params = BotCommands::ToolSearch.call(input_value: input_value)
     edit_message :text, answer_params
-  end
-
-  def equipment!(*_args)
-    answer_params = BotCommands::EquipmentSearch.call
-    respond_with :message, answer_params
   end
 
   def equipment_callback_query(input_value = nil, *_args)
@@ -113,27 +101,9 @@ class TelegramController < BaseTelegramController
     edit_message :text, answer_params
   end
 
-  def species!(*_args)
-    answer_params = BotCommands::SpeciesSearch.call
-    respond_with :message, answer_params
-  end
-
   def species_callback_query(input_value = nil, *_args)
     answer_params = BotCommands::SpeciesSearch.call(input_value: input_value)
     edit_message :text, answer_params
-  end
-
-  def spell!(*_args)
-    save_context("spell!")
-
-    answer_params = BotCommands::SpellSearch.call(payload: payload)
-    respond_with :message, answer_params
-  end
-
-  def spell_callback_query(spell_gid = nil, *_args)
-    answer_params = BotCommands::SpellSearch.call(payload: payload, spell_gid: spell_gid)
-    respond_with :message, answer_params
-    Telegram::SpellMetricsJob.perform_later(spell_gid: spell_gid)
   end
 
   def go_back_callback_query(_step = nil, *_args)

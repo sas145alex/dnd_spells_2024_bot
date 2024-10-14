@@ -30,6 +30,7 @@ module BotCommands
       inline_keyboard = options.in_groups_of(2, false)
       inline_keyboard.prepend([search_by_characteristic_subcommand])
       inline_keyboard.prepend(keyboard_option_section_info)
+      inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
@@ -46,6 +47,7 @@ module BotCommands
       options = keyboard_options(variants)
       inline_keyboard = options.in_groups_of(2, false)
       inline_keyboard.prepend(keyboard_option_section_info)
+      inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
@@ -63,6 +65,7 @@ module BotCommands
       HTML
       mentions = keyboard_mentions_options(selected_object)
       inline_keyboard = mentions.in_groups_of(1, false)
+      inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
@@ -76,6 +79,7 @@ module BotCommands
       text = selected_object.description_for_telegram
       mentions = keyboard_mentions_options(selected_object)
       inline_keyboard = mentions.in_groups_of(1, false)
+      inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
@@ -94,6 +98,7 @@ module BotCommands
         }
       end
       inline_keyboard = options.in_groups_of(2, false)
+      inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {

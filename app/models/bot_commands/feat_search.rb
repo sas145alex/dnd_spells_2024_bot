@@ -1,7 +1,7 @@
 module BotCommands
   class FeatSearch < BaseCommand
     def call
-      if input_value.nil?
+      if input_value.blank?
         provide_top_level_categories
       elsif category_selected?
         provide_feats_by_category
@@ -33,6 +33,7 @@ module BotCommands
         }
       end
       inline_keyboard = options.in_groups_of(2, false)
+      inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {

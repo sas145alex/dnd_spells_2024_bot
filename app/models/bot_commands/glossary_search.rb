@@ -28,6 +28,7 @@ module BotCommands
       variants = GlossaryCategory.top_level.published.ordered
       options = keyboard_options(variants)
       inline_keyboard = options.in_groups_of(2, false)
+      inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {

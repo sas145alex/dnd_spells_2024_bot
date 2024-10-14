@@ -22,6 +22,7 @@ module BotCommands
       variants = ::Race.published.ordered
       options = keyboard_options(variants)
       inline_keyboard = options.in_groups_of(3, false)
+      inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
       {
         text: "Выберете расу/вид:",
