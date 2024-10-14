@@ -41,7 +41,7 @@ module BotCommands
       parent_category_text = if selected_object.top_level?
         ""
       else
-        "<b>Родительская категория:</b> #{selected_object.parent_category.title}>"
+        "<b>Родительская категория:</b> #{selected_object.parent_category.title}"
       end
       text = <<~HTML
         "#{parent_category_text}"
@@ -91,7 +91,8 @@ module BotCommands
         #{selected_object.description_for_telegram}
       HTML
 
-      inline_keyboard = []
+      mentions = keyboard_mentions_options(selected_object)
+      inline_keyboard = mentions.in_groups_of(2, false)
       inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
