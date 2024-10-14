@@ -2,12 +2,13 @@ class TelegramController < Telegram::Bot::UpdatesController
   include Telegram::Bot::UpdatesController::MessageContext
   include Telegram::Bot::UpdatesController::CallbackQueryContext
   include Telegram::Bot::UpdatesController::Session
+  include AnswerProcessor
 
   before_action :initialize_session
   after_action :track_user_activity
   after_action :remember_history!, except: [:go_back_callback_query, :pick_mention_callback_query]
 
-  def message(*args)
+  def message(*_args)
     respond_with :message,
       text: "Вы ввели сообщение, но вы не находитесь ни в одном из режимов"
   end
@@ -29,136 +30,112 @@ class TelegramController < Telegram::Bot::UpdatesController
     end
   end
 
-  def wild_magic!(rand_value = nil, *args)
+  def wild_magic!(rand_value = nil, *_args)
     answer_params = BotCommands::WildMagicSearch.call(rand_value: rand_value)
     respond_with :message, answer_params
   end
 
-  def roll!(input_value = nil, *args)
-    answer_messages = BotCommands::Roll.call(input_value: input_value)
-    answer_messages.each do |message|
-      sleep(0.1)
-      case message[:type]
-      when :edit
-        edit_message :text, message[:answer]
-      else
-        respond_with :message, message[:answer]
-      end
-    end
+  def roll!(input_value = nil, *_args)
+    answer_messages = BotCommands::Roll.call(input_value: input_value, manual_input: true)
+    process_answer_messages(answer_messages)
   end
 
-  def roll_callback_query(input_value = nil, *args)
+  def roll_callback_query(input_value = nil, *_args)
     answer_messages = BotCommands::Roll.call(input_value: input_value)
-    answer_messages.each do |message|
-      sleep(0.1)
-      case message[:type]
-      when :edit
-        edit_message :text, message[:answer]
-      else
-        respond_with :message, message[:answer]
-      end
-    end
+    process_answer_messages(answer_messages)
   end
 
-  def roll_page_callback_query(page = nil, *args)
+  def roll_page_callback_query(page = nil, *_args)
     answer_messages = BotCommands::Roll.call(input_value: nil, page: page.to_i)
-    answer_messages.each do |message|
-      sleep(0.1)
-      case message[:type]
-      when :edit
-        edit_message :text, message[:answer]
-      else
-        respond_with :message, message[:answer]
-      end
-    end
+    process_answer_messages(answer_messages)
   end
 
-  def feat!(*args)
+  def feat!(*_args)
     answer_params = BotCommands::FeatSearch.call
     respond_with :message, answer_params
   end
 
-  def feat_callback_query(input_value = nil, *args)
+  def feat_callback_query(input_value = nil, *_args)
     answer_params = BotCommands::FeatSearch.call(input_value: input_value)
     edit_message :text, answer_params
   end
 
-  def class!(*args)
+  def class!(*_args)
     answer_params = BotCommands::CharacterKlassSearch.call(input_value: nil)
     respond_with :message, answer_params
   end
 
-  def class_callback_query(input_value = nil, *args)
+  def class_callback_query(input_value = nil, *_args)
     answer_params = BotCommands::CharacterKlassSearch.call(input_value: input_value)
     edit_message :text, answer_params
   end
 
-  def subclass_callback_query(subklass_gid = nil, *args)
+  def subclass_callback_query(subklass_gid = nil, *_args)
     answer_params = BotCommands::CharacterKlassSearch.call(subklass_gid: subklass_gid)
     edit_message :text, answer_params
   end
 
-  def abilities_callback_query(input_value = nil, *args)
+  def abilities_callback_query(input_value = nil, *_args)
     answer_params = BotCommands::CharacterKlassAbilitiesSearch.call(input_value: input_value)
     edit_message :text, answer_params
   end
 
-  def invocations_callback_query(input_value = nil, *args)
+  def invocations_callback_query(input_value = nil, *_args)
     answer_params = BotCommands::InvocationsSearch.call(input_value: input_value)
     edit_message :text, answer_params
   end
 
-  def origin!(*args)
+  def origin!(*_args)
     answer_params = BotCommands::OriginSearch.call
     respond_with :message, answer_params
   end
 
-  def origin_callback_query(input_value = nil, *args)
+  def origin_callback_query(input_value = nil, *_args)
     answer_params = BotCommands::OriginSearch.call(input_value: input_value)
     edit_message :text, answer_params
   end
 
-  def glossary!(*args)
+  def glossary!(*_args)
     answer_params = BotCommands::GlossarySearch.call
     respond_with :message, answer_params
   end
 
-  def glossary_callback_query(input_value = nil, *args)
+  def glossary_callback_query(input_value = nil, *_args)
     answer_params = BotCommands::GlossarySearch.call(input_value: input_value)
     edit_message :text, answer_params
   end
 
-  def tool!(*args)
+  def tool!(*_args)
     answer_params = BotCommands::ToolSearch.call
     respond_with :message, answer_params
   end
 
-  def tool_callback_query(input_value = nil, *args)
+  def tool_callback_query(input_value = nil, *_args)
     answer_params = BotCommands::ToolSearch.call(input_value: input_value)
     edit_message :text, answer_params
   end
 
-  def equipment!(*args)
+  def equipment!(*_args)
     answer_params = BotCommands::EquipmentSearch.call
     respond_with :message, answer_params
   end
 
-  def equipment_callback_query(input_value = nil, *args)
+  def equipment_callback_query(input_value = nil, *_args)
     answer_params = BotCommands::EquipmentSearch.call(input_value: input_value)
     edit_message :text, answer_params
   end
 
-  def species!(*args)
+  def species!(*_args)
     answer_params = BotCommands::SpeciesSearch.call
     respond_with :message, answer_params
   end
 
-  def species_callback_query(input_value = nil, *args)
+  def species_callback_query(input_value = nil, *_args)
     answer_params = BotCommands::SpeciesSearch.call(input_value: input_value)
     edit_message :text, answer_params
   end
 
-  def stop_search!(*args)
+  def stop_search!(*_args)
     reply_markup = {
       remove_keyboard: true
     }
@@ -168,24 +145,24 @@ class TelegramController < Telegram::Bot::UpdatesController
       reply_markup: reply_markup
   end
 
-  def spell!(*args)
+  def spell!(*_args)
     save_context("spell!")
 
     answer_params = BotCommands::SpellSearch.call(payload: payload)
     respond_with :message, answer_params
   end
 
-  def spell_callback_query(spell_gid = nil, *args)
+  def spell_callback_query(spell_gid = nil, *_args)
     answer_params = BotCommands::SpellSearch.call(payload: payload, spell_gid: spell_gid)
     respond_with :message, answer_params
     Telegram::SpellMetricsJob.perform_later(spell_gid: spell_gid)
   end
 
-  def callback_query(*args)
+  def callback_query(*_args)
     respond_with :message, text: "default callback answer", reply_markup: {}
   end
 
-  def go_back_callback_query(step = nil, *args)
+  def go_back_callback_query(_step = nil, *_args)
     history_item = pop_history_item!
     if history_item.present?
       send(history_item[:action], history_item[:input_value])
@@ -195,9 +172,9 @@ class TelegramController < Telegram::Bot::UpdatesController
   end
 
   def pick_mention_callback_query(*args)
-    mention = Mention.find(args[0].to_i)
+    selected_object = Mention.find(args[0].to_i)
 
-    mentionable = mention.another_mentionable.decorate
+    mentionable = selected_object.another_mentionable.decorate
     text = mentionable.description_for_telegram
     parse_mode = mentionable.parse_mode_for_telegram
 

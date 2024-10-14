@@ -2,15 +2,14 @@ module BotCommands
   class Roll < BaseCommand
     PAGES = (1..10).to_a.freeze
     DICE_PER_PAGE = 5
-    BASE_ROLL_REGEXP = /^(?<dice_count>\d+)(?<second_part>\w(?<dice_value>\d+))/
-    MOD_ROLL_REGEXP = /(?<mod_sign>[\+\-])?(?<mod_value>\d+)?/
-    ROLL_FORMULA_REGEXP = Regexp.new(BASE_ROLL_REGEXP.source + MOD_ROLL_REGEXP.source)
 
     def call
       if invalid_input?
         [{type: :message, answer: invalid_input}]
-      elsif full_roll_formula?
-        [{type: :message, answer: calculate_roll}, {type: :message, answer: provide_dices}]
+      elsif can_roll_the_dice? && manual_input
+        [{type: :reply, answer: calculate_roll}, {type: :message, answer: provide_dices}]
+      elsif can_roll_the_dice?
+        [{type: :edit, answer: calculate_roll}, {type: :message, answer: provide_dices}]
       elsif is_page_scrolled
         [{type: :edit, answer: provide_dices}]
       else
@@ -18,17 +17,25 @@ module BotCommands
       end
     end
 
-    def initialize(input_value: nil, page: nil)
+    def initialize(input_value: nil, page: nil, manual_input: false)
       @input_value = input_value || ""
       @is_page_scrolled = !page.nil?
       @page = page || 1
+      @manual_input = manual_input
     end
 
     private
 
     attr_reader :input_value
-    attr_reader :page
     attr_reader :is_page_scrolled
+    attr_reader :page
+    attr_reader :manual_input
+
+    delegate :dice_count,
+      :dice_value,
+      :mod_value,
+      :mod_sign,
+      to: :roll_formula
 
     def invalid_input
       text = "Неправильный формат формулы для броска"
@@ -45,12 +52,20 @@ module BotCommands
       rolls = (1..dice_count).to_a.map { rand(1..dice_value) }
       sum = rolls.sum
       mod_sum = (mod_sign == :+) ? sum + mod_value : sum - mod_value
-      text = <<~HTML
-        <b>Бросок:</b> #{input_value}
+      mod_text = if mod_value.zero?
+        ""
+      else
+        <<~HTML
+          <b>Сумма без модификатора:</b> #{sum}
+          <b>Модификатор:</b> #{mod_sign}#{mod_value}
+        HTML
+      end
+      text = <<~HTML.chomp
+        <b>Бросок:</b> 🎲 #{input_value}
         <b>Все результаты:</b> #{rolls.sort.join(", ")}
-        <b>Модификатор:</b> #{mod_sign}#{mod_value}
-        <b>Сумма:</b> #{sum}
-        <b>Сумма с модификатором:</b> #{mod_sum}
+        #{mod_text}
+
+        <b>Итог:</b> #{mod_sum}
       HTML
       reply_markup = {}
 
@@ -108,9 +123,7 @@ module BotCommands
     end
 
     def invalid_input?
-      is_invalid_formula = input_value.present? && roll_formula.nil?
-      return true if is_invalid_formula
-      roll_formula.present? && (dice_count.to_i > 100 || dice_value.to_i > 100)
+      input_value.present? && roll_formula.invalid?
     end
 
     def first_page?
@@ -121,28 +134,12 @@ module BotCommands
       page == PAGES.last
     end
 
-    def full_roll_formula?
-      dice_value && dice_count
-    end
-
-    def dice_count
-      roll_formula.try(:[], :dice_count).nil? ? nil : roll_formula[:dice_count].to_i
-    end
-
-    def dice_value
-      roll_formula.try(:[], :dice_value).nil? ? nil : roll_formula[:dice_value].to_i
-    end
-
-    def mod_value
-      roll_formula[:mod_value].to_i
-    end
-
-    def mod_sign
-      (roll_formula[:mod_sign] || "+").to_s.to_sym
+    def can_roll_the_dice?
+      input_value.present? && roll_formula.valid?
     end
 
     def roll_formula
-      @roll_formula ||= input_value.match(ROLL_FORMULA_REGEXP)
+      @roll_formula ||= RollFormula.new(input_value)
     end
   end
 end
