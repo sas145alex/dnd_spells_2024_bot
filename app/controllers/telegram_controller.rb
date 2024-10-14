@@ -18,15 +18,15 @@ class TelegramController < Telegram::Bot::UpdatesController
     respond_with :message, answer_params
   end
 
-  def feedback!(*args)
-    if args.empty?
+  def feedback!(*_args)
+    if Feedback.payload_can_be_accepted?(payload)
+      reply_with :message, text: "Принято"
+      Feedback.create_later(payload)
+    else
       save_context("feedback!")
 
       respond_with :message,
-        text: "Если вы хотите предложить исправление, то напишите нам об этом в следующем сообщении"
-    else
-      reply_with :message, text: "Принято"
-      Telegram::ProcessFeedbackJob.perform_later(payload["text"], from: from, message_time: payload["date"])
+        text: "Если вы хотите предложить исправление, то напишите нам об этом в следующем сообщении (файлы не поддерживаются)"
     end
   end
 
