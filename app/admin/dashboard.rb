@@ -22,6 +22,7 @@ ActiveAdmin.register_page "Dashboard" do
             t.column :id do |user|
               user.external_id
             end
+            t.column :chat_id
             t.column :username
             t.column "Last Seen At (UTC)", :last_seen_at
             t.column :command_requested_count

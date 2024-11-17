@@ -45,7 +45,8 @@ RSpec.describe Telegram::UserMetricsJob do
       expect { subject }.to change { TelegramUser.count }.from(0).to(1)
       expect(TelegramUser.last).to have_attributes(
         last_seen_at: date,
-        username: "UserName"
+        username: "UserName",
+        chat_id: 1350564680
       )
     end
 
@@ -54,6 +55,7 @@ RSpec.describe Telegram::UserMetricsJob do
         create(
           :telegram_user,
           username: "previous_username",
+          chat_id: 123123,
           external_id: external_user_id,
           command_requested_count: 13,
           last_seen_at: last_seen_at
@@ -96,6 +98,12 @@ RSpec.describe Telegram::UserMetricsJob do
           it "changes username" do
             expect { subject }.not_to change { user.reload.username }
           end
+        end
+      end
+
+      context "when previous chat_id differs from current chat_id" do
+        it "changes chat_id" do
+          expect { subject }.to change { user.reload.chat_id }.from(123123).to(1350564680)
         end
       end
     end
