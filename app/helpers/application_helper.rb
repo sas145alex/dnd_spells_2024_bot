@@ -54,4 +54,10 @@ module ApplicationHelper
   def segment_types_for_select
     %w[Characteristic]
   end
+
+  def telegram_users_for_select
+    label_expr = Arel.sql("coalesce(username, external_id::text)")
+    value_expr = Arel.sql("coalesce(external_id)")
+    TelegramUser.pluck(label_expr, value_expr)
+  end
 end

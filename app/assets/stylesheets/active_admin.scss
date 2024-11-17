@@ -1,4 +1,5 @@
 @import 'activeadmin_addons/all';
+
 // Sass variable overrides must be declared before loading up Active Admin's styles.
 //
 // To view the variables that Active Admin provides, take a look at
@@ -29,4 +30,8 @@
 
 .badge.badge-success {
   background-color: green;
+}
+
+.date-time-picker-input {
+  min-width: 170px;
 }

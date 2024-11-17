@@ -53,6 +53,10 @@ ActiveAdmin.register MessageDistribution do
       row :created_by
       row :updated_by
     end
+
+    div do
+      link_to "Prepare sending", prepare_sending_admin_message_distribution_path(resource), class: "btn btn-primary"
+    end
   end
 
   form do |f|
@@ -69,6 +73,20 @@ ActiveAdmin.register MessageDistribution do
     f.actions do
       f.action :submit
       f.cancel_link
+    end
+  end
+
+  member_action :prepare_sending do
+  end
+
+  member_action :submit_sending, method: :post do
+    options = params[:message_distribution_sending_form].permit!.to_h
+    operation = MessageDistribution::Send.new(distribution: resource, options: options)
+
+    if operation.call
+      redirect_to resource_path(resource), notice: "Distribution is scheduled"
+    else
+      redirect_to resource_path(resource), alert: "Errors happened: " + operation.errors.full_messages.to_sentence
     end
   end
 

@@ -1,0 +1,23 @@
+<%= semantic_form_for MessageDistribution::SendingForm.new, :url => submit_sending_admin_message_distribution_path(resource) do |f| %>
+  <%= f.inputs :name => 'Filters', :class => 'inputs' do %>
+
+    <span>Ничего не выбрано = все пользователи</span>
+    <%= f.input :telegram_user_ids,
+                as: :select,
+                collection: telegram_users_for_select,
+                input_html: { multiple: true } %>
+
+    <%= f.input :active_since,
+                as: :date_time_picker,
+                picker_options: { timepicker: true },
+                input_html: { size: 500 } %>
+
+    <span>Тестовая отправка не заполняет дату last_sent_at</span>
+    <%= f.input :test_sending, as: :boolean %>
+  <% end %>
+
+  <fieldset class="actions">
+    <%= f.submit "Отправить", class: "btn btn-success" %>
+    <%= link_to 'Cancel', resource_path(resource), class: "action btn btn-danger" %>
+  </fieldset>
+<% end %>
