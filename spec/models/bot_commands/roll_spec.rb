@@ -1,79 +1,101 @@
 RSpec.describe BotCommands::Roll do
-  subject { described_class.call(roll_formula: roll_formula) }
+  subject { described_class.call(input_value: input_value) }
 
-  context "when roll formula is blank" do
-    let(:roll_formula) { nil }
-
-    it "asc user of dice count" do
-      expect(subject).to match(
-        {
-          text: "Выберете количество костей:",
-          parse_mode: "HTML",
-          reply_markup: {
-            inline_keyboard: instance_of(Array)
-          }
-        }
-      )
-    end
-
-    it "shows keyboard with some options" do
-      expect(subject[:reply_markup][:inline_keyboard].size).not_to eq(0)
-    end
+  let(:expected_roll_grid_answer) do
+    {
+      parse_mode: "HTML",
+      reply_markup: expected_reply_markup,
+      text: "Выберете кость для броска:"
+    }
+  end
+  let(:expected_reply_markup) do
+    {inline_keyboard: [
+      [{callback_data: "roll:1d20", text: "1d20"}],
+      [{callback_data: "roll:1d20", text: "1d20"},
+        {callback_data: "roll:2d20", text: "2d20"},
+        {callback_data: "roll:3d20", text: "3d20"},
+        {callback_data: "roll:4d20", text: "4d20"},
+        {callback_data: "roll:5d20", text: "5d20"}],
+      [{callback_data: "roll:1d12", text: "1d12"},
+        {callback_data: "roll:2d12", text: "2d12"},
+        {callback_data: "roll:3d12", text: "3d12"},
+        {callback_data: "roll:4d12", text: "4d12"},
+        {callback_data: "roll:5d12", text: "5d12"}],
+      [{callback_data: "roll:1d10", text: "1d10"},
+        {callback_data: "roll:2d10", text: "2d10"},
+        {callback_data: "roll:3d10", text: "3d10"},
+        {callback_data: "roll:4d10", text: "4d10"},
+        {callback_data: "roll:5d10", text: "5d10"}],
+      [{callback_data: "roll:1d8", text: "1d8"},
+        {callback_data: "roll:2d8", text: "2d8"},
+        {callback_data: "roll:3d8", text: "3d8"},
+        {callback_data: "roll:4d8", text: "4d8"},
+        {callback_data: "roll:5d8", text: "5d8"}],
+      [{callback_data: "roll:1d6", text: "1d6"},
+        {callback_data: "roll:2d6", text: "2d6"},
+        {callback_data: "roll:3d6", text: "3d6"},
+        {callback_data: "roll:4d6", text: "4d6"},
+        {callback_data: "roll:5d6", text: "5d6"}],
+      [{callback_data: "roll:1d4", text: "1d4"},
+        {callback_data: "roll:2d4", text: "2d4"},
+        {callback_data: "roll:3d4", text: "3d4"},
+        {callback_data: "roll:4d4", text: "4d4"},
+        {callback_data: "roll:5d4", text: "5d4"}],
+      [{callback_data: "roll:1d100", text: "1d100"}],
+      [{callback_data: "roll_page:2", text: "Следующая страница"}]
+    ]}
   end
 
-  context "when roll formula consist of only dice count" do
-    let(:roll_formula) { "4" }
+  context "when roll formula is blank" do
+    let(:input_value) { nil }
 
-    it "asc user of dice value" do
-      expect(subject).to match(
-        {
-          text: "<b>Количество костей: 4</b>\n\nВыбери номинал костей:",
-          parse_mode: "HTML",
-          reply_markup: {
-            inline_keyboard: instance_of(Array)
-          }
-        }
+    it "gives roll grid to choose from" do
+      expect(subject).to eq(
+        [
+          {answer: expected_roll_grid_answer, type: :message}
+        ]
       )
-    end
-
-    it "shows keyboard with some options" do
-      expect(subject[:reply_markup][:inline_keyboard].size).not_to eq(0)
     end
   end
 
   context "when roll formula has all required data" do
-    let(:roll_formula) { "1d1" }
+    let(:input_value) { "1d1" }
 
-    it "rolls the roll" do
-      expect(subject).to match(
-        {
-          text: "<b>Бросок:</b> 1d1\n<b>Все результаты:</b> 1\n<b>Сумма:</b> 1\n",
-          parse_mode: "HTML",
-          reply_markup: {}
-        }
-      )
+    let(:expected_roll_result) do
+      {
+        parse_mode: "HTML",
+        reply_markup: {},
+        text: "<b>Бросок:</b> 🎲 1d1\n<b>Все результаты:</b> 1\n\n\n<b>Итог:</b> 1"
+      }
     end
 
-    it "does not shows keyboard" do
-      expect(subject[:reply_markup].key?(:inline_keyboard)).to eq(false)
+    it "rolls the roll" do
+      expect(subject).to eq(
+        [
+          {answer: expected_roll_result, type: :edit},
+          {answer: expected_roll_grid_answer, type: :message}
+        ]
+      )
     end
   end
 
   context "when roll formula is invalid" do
-    let(:roll_formula) { "-" }
+    let(:input_value) { "-" }
 
-    it "does not process the command" do
-      expect(subject).to match(
-        {
-          text: "Неправильный формат формулы для броска",
-          parse_mode: "HTML",
-          reply_markup: {}
-        }
-      )
+    let(:invalid_formula_answer) do
+      {
+        parse_mode: "HTML",
+        reply_markup: {},
+        text: "Неправильный формат формулы для броска"
+      }
     end
 
-    it "does not shows keyboard" do
-      expect(subject[:reply_markup].key?(:inline_keyboard)).to eq(false)
+    it "does not process the command" do
+      expect(subject).to eq(
+        [
+          {answer: invalid_formula_answer, type: :message}
+        ]
+      )
     end
   end
 end

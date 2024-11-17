@@ -53,6 +53,7 @@ RSpec.describe Telegram::UserMetricsJob do
       let!(:user) do
         create(
           :telegram_user,
+          username: "previous_username",
           external_id: external_user_id,
           command_requested_count: 13,
           last_seen_at: last_seen_at
@@ -77,6 +78,24 @@ RSpec.describe Telegram::UserMetricsJob do
 
         it "does not update last_seen_at" do
           expect { subject }.not_to change { user.reload.last_seen_at }
+        end
+      end
+
+      context "when previous username differs from current username" do
+        it "changes username" do
+          expect { subject }.to change { user.reload.username }.from("previous_username").to("UserName")
+        end
+
+        context "when user currently hided theirs name" do
+          let(:payload) do
+            super().deep_dup.tap do |hash|
+              hash["from"]["username"] = nil
+            end
+          end
+
+          it "changes username" do
+            expect { subject }.not_to change { user.reload.username }
+          end
         end
       end
     end
