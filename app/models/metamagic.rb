@@ -10,7 +10,7 @@ class Metamagic < ApplicationRecord
     length: {minimum: 0, maximum: 5000},
     allow_blank: true
 
-  scope :ordered, -> { order(title: :asc, sorcery_id: :asc) }
+  scope :ordered, -> { order(title: :asc, sorcery_points: :asc) }
 
   before_validation :strip_title
   before_validation :strip_original_title

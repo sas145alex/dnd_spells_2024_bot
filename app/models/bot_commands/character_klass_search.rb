@@ -63,6 +63,8 @@ module BotCommands
       inline_keyboard = mentions.in_groups_of(2, false)
       if selected_object.use_invocations?
         inline_keyboard.append([{text: "Воззвания", callback_data: "invocations:"}])
+      elsif selected_object.use_metamagic?
+        inline_keyboard.append([{text: "Метамагия", callback_data: "metamagics:"}])
       end
       inline_keyboard.append([{text: "Умения", callback_data: "abilities:#{selected_object.to_global_id}"}])
       inline_keyboard.append([go_back_button])

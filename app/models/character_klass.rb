@@ -40,6 +40,11 @@ class CharacterKlass < ApplicationRecord
     record.title == "Колдун" || record.original_title == "Warlock"
   end
 
+  def use_metamagic?
+    record = base_klass? ? self : parent_klass
+    record.title == "Чародей" || record.original_title == "Sorcerer"
+  end
+
   private
 
   def strip_title

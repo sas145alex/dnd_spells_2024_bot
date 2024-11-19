@@ -81,6 +81,11 @@ class TelegramController < BaseTelegramController
     edit_message :text, answer_params
   end
 
+  def metamagics_callback_query(input_value = nil, *_args)
+    answer_params = BotCommands::MetamagicsSearch.call(input_value: input_value)
+    edit_message :text, answer_params
+  end
+
   def origin_callback_query(input_value = nil, *_args)
     answer_params = BotCommands::OriginSearch.call(input_value: input_value)
     edit_message :text, answer_params
