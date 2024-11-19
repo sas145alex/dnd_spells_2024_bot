@@ -17,7 +17,7 @@ class Importers::ImportManeuvers < ApplicationOperation
     true
   end
 
-  def initialize(file_path: "db/seeds/data/metamagics.csv", created_by: AdminUser.system_user)
+  def initialize(file_path: "db/seeds/data/maneuvers.csv", created_by: AdminUser.system_user)
     @file_path = file_path
     @created_by = created_by
   end

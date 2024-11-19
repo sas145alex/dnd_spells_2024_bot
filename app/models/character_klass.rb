@@ -45,6 +45,10 @@ class CharacterKlass < ApplicationRecord
     record.title == "Чародей" || record.original_title == "Sorcerer"
   end
 
+  def use_maneuvers?
+    title == "Мастер боевых искусств" || original_title == "Battle Master"
+  end
+
   private
 
   def strip_title
