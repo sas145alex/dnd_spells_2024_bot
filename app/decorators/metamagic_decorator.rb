@@ -1,0 +1,2 @@
+class MetamagicDecorator < ApplicationDecorator
+end
