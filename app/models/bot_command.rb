@@ -1,6 +1,7 @@
 class BotCommand < ApplicationRecord
   include Mentionable
 
+  START_ID = "start"
   ABOUT_ID = "about"
   TOOL_ID = "tool"
   CRAFTING_ID = "crafting"
@@ -14,8 +15,12 @@ class BotCommand < ApplicationRecord
 
   scope :ordered, -> { order(title: :asc) }
 
+  def self.start
+    find_by!(title: START_ID)
+  end
+
   def self.about
-    @about ||= find_by!(title: ABOUT_ID)
+    find_by!(title: ABOUT_ID)
   end
 
   def self.tool

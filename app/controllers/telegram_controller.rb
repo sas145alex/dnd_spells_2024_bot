@@ -1,6 +1,11 @@
 class TelegramController < BaseTelegramController
   after_action :remember_history!, except: [:go_back_callback_query, :pick_mention_callback_query]
 
+  def start!(*_args)
+    answer_params = BotCommands::Start.call
+    respond_with :message, answer_params
+  end
+
   def spell!(*_args)
     save_context("spell!")
 
@@ -26,8 +31,8 @@ class TelegramController < BaseTelegramController
     else
       save_context("feedback!")
 
-      respond_with :message,
-        text: "Если вы хотите предложить исправление или связаться с нами, то напишите нам об этом в следующем сообщении (файлы не поддерживаются)"
+      text = "Если ты хочешь предложить как меня улучшить или ты столкнулся с ошибкой в моем функционале, то отправь ответное сообщение. Я распознаю только текст. Спасибо!"
+      respond_with :message, text: text
     end
   end
 

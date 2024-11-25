@@ -2,6 +2,10 @@ pp "Performing - #{__FILE__}"
 
 pp "Before count = #{BotCommand.count}"
 
+BotCommand.find_or_create_by!(title: BotCommand::START_ID) do |command|
+  command.description = "about command"
+end
+
 BotCommand.find_or_create_by!(title: BotCommand::ABOUT_ID) do |command|
   command.description = "about command"
 end

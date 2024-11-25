@@ -77,7 +77,7 @@ module BotCommands
     end
 
     def provide_dices
-      text = "Выберете кость для броска:"
+      text = "Выбери кость для броска или пришли команду в формате '/roll ХdY+Z', к примеру '/roll 2d20', '/roll 3d4+3':"
       reply_markup = {inline_keyboard: keyboard_dices_options}
 
       {

@@ -24,7 +24,7 @@ module BotCommands
 
     def all_sections
       text = <<~HTML
-        Выберете основной раздел
+        Выбери интересующий раздел
       HTML
 
       options = keyboard_options

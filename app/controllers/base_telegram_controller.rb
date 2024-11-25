@@ -8,8 +8,8 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
   after_action :track_user_activity
 
   def message(*_args)
-    respond_with :message,
-      text: "Вы ввели сообщение, но вы не находитесь ни в одном из режимов"
+    text = "Ты ввел сообщение, но я не понимаю твою команду. Пожалуйста, проверь команду или выбери ее в меню слева внизу."
+    respond_with :message, text: text
   end
 
   def callback_query(*_args)
