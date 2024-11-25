@@ -1,4 +1,4 @@
-RSpec.fdescribe MessageDistribution::Send do
+RSpec.describe MessageDistribution::Send do
   subject { described_class.call(distribution: distribution, options: options) }
 
   around do |example|
