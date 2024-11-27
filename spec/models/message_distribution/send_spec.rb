@@ -27,8 +27,16 @@ RSpec.describe MessageDistribution::Send do
   it "sends text to all users" do
     expect(subject).to eq(true)
 
-    expect(Telegram.bot).to have_received(:send_message).with(chat_id: user1.external_id, text: instance_of(String))
-    expect(Telegram.bot).to have_received(:send_message).with(chat_id: user2.external_id, text: instance_of(String))
+    expect(Telegram.bot).to have_received(:send_message).with(
+      chat_id: user1.external_id,
+      parse_mode: "HTML",
+      text: instance_of(String)
+    )
+    expect(Telegram.bot).to have_received(:send_message).with(
+      chat_id: user2.external_id,
+      parse_mode: "HTML",
+      text: instance_of(String)
+    )
   end
 
   context "when user ids specified" do
@@ -41,8 +49,16 @@ RSpec.describe MessageDistribution::Send do
     it "sends text to specified user" do
       expect(subject).to eq(true)
 
-      expect(Telegram.bot).not_to have_received(:send_message).with(chat_id: user1.external_id, text: instance_of(String))
-      expect(Telegram.bot).to have_received(:send_message).with(chat_id: user2.external_id, text: instance_of(String))
+      expect(Telegram.bot).not_to have_received(:send_message).with(
+        chat_id: user1.external_id,
+        parse_mode: "HTML",
+        text: instance_of(String)
+      )
+      expect(Telegram.bot).to have_received(:send_message).with(
+        chat_id: user2.external_id,
+        parse_mode: "HTML",
+        text: instance_of(String)
+      )
     end
   end
 
@@ -56,8 +72,16 @@ RSpec.describe MessageDistribution::Send do
     it "sends text to all users" do
       expect(subject).to eq(true)
 
-      expect(Telegram.bot).to have_received(:send_message).with(chat_id: user1.external_id, text: instance_of(String))
-      expect(Telegram.bot).to have_received(:send_message).with(chat_id: user2.external_id, text: instance_of(String))
+      expect(Telegram.bot).to have_received(:send_message).with(
+        chat_id: user1.external_id,
+        parse_mode: "HTML",
+        text: instance_of(String)
+      )
+      expect(Telegram.bot).to have_received(:send_message).with(
+        chat_id: user2.external_id,
+        parse_mode: "HTML",
+        text: instance_of(String)
+      )
     end
 
     it "updates last_sent_at attribute" do

@@ -19,7 +19,7 @@ module BotCommands
     attr_reader :input_value
 
     def provide_list
-      text = "Выберете"
+      text = "Выбери"
       variants = maneuver_scope
       options = keyboard_options(variants)
       inline_keyboard = options.in_groups_of(2, false)

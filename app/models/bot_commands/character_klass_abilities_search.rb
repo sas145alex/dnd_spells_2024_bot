@@ -21,7 +21,7 @@ module BotCommands
     def provide_abilities
       text = <<~HTML
         Выбрано: <b>#{selected_object.title}</b>
-        Выберете умение:
+        Выбери умение:
       HTML
       variants = abilities_variants
       options = keyboard_options(variants)

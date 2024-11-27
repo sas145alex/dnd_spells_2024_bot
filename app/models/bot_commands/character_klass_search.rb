@@ -30,7 +30,7 @@ module BotCommands
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
-        text: "Выберете класс",
+        text: "Выбери класс",
         reply_markup: reply_markup,
         parse_mode: parse_mode
       }
@@ -46,7 +46,7 @@ module BotCommands
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
-        text: "Выберете подкласс",
+        text: "Выбери подкласс",
         reply_markup: reply_markup,
         parse_mode: parse_mode
       }

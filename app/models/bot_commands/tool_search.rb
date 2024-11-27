@@ -30,7 +30,7 @@ module BotCommands
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
-        text: "Выберете набор инстументов",
+        text: "Выбери набор инстументов",
         reply_markup: reply_markup,
         parse_mode: parse_mode
       }

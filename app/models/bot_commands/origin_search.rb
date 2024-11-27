@@ -34,7 +34,7 @@ module BotCommands
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
-        text: "Выберете происхождение",
+        text: "Выбери происхождение",
         reply_markup: reply_markup,
         parse_mode: parse_mode
       }
@@ -51,7 +51,7 @@ module BotCommands
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
-        text: "Выберете происхождение",
+        text: "Выбери происхождение",
         reply_markup: reply_markup,
         parse_mode: parse_mode
       }

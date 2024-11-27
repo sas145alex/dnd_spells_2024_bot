@@ -5,7 +5,7 @@ RSpec.describe BotCommands::Roll do
     {
       parse_mode: "HTML",
       reply_markup: expected_reply_markup,
-      text: "Выберете кость для броска:"
+      text: "Выбери кость для броска или пришли команду в формате '/roll ХdY+Z', к примеру '/roll 2d20', '/roll 3d4+3':"
     }
   end
   let(:expected_reply_markup) do

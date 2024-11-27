@@ -25,7 +25,7 @@ module BotCommands
       inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
       {
-        text: "Выберете расу/вид:",
+        text: "Выбери расу/вид:",
         reply_markup: reply_markup,
         parse_mode: parse_mode
       }

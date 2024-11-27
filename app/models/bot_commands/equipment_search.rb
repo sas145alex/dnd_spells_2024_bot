@@ -40,7 +40,7 @@ module BotCommands
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
-        text: "Выберете категорию",
+        text: "Выбери категорию",
         reply_markup: reply_markup,
         parse_mode: parse_mode
       }
@@ -59,7 +59,7 @@ module BotCommands
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
-        text: "Выберете подкатегорию",
+        text: "Выбери подкатегорию",
         reply_markup: reply_markup,
         parse_mode: parse_mode
       }
@@ -85,7 +85,7 @@ module BotCommands
       cmd = if input_value.to_sym.in?(EquipmentItem.armor_item_types)
         BotCommand.find_by(title: "#{input_value}_section_description")&.decorate
       end
-      cmd ? cmd.description_for_telegram : "Выберете предмет"
+      cmd ? cmd.description_for_telegram : "Выбери предмет"
     end
 
     def give_detailed_equipment_item

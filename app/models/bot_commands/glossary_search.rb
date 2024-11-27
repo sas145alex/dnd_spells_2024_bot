@@ -23,7 +23,7 @@ module BotCommands
     attr_reader :input_value
 
     def provide_top_level_categories
-      text = "Выберете категорию:"
+      text = "Выбери категорию:"
 
       variants = GlossaryCategory.top_level.published.ordered
       options = keyboard_options(variants)
@@ -70,7 +70,7 @@ module BotCommands
         <b>Категория:</b> #{selected_object.title}
         <b>Всего подкатегорий:</b> #{selected_object.subcategories.count}
 
-        Выберете категорию:
+        Выбери категорию:
       HTML
       variants = selected_object.subcategories.published.ordered
       options = keyboard_options(variants)
