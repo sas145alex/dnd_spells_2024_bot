@@ -4,6 +4,8 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
   include Telegram::Bot::UpdatesController::Session
   include AnswerProcessor
 
+  HISTORY_STACK_SIZE = 30
+
   before_action :initialize_session
   after_action :track_user_activity
 
@@ -35,7 +37,7 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
     input_value = data || payload["text"] || ""
     new_item = {action: action_name, input_value: input_value}
     old_value << new_item
-    new_value = old_value.last(10)
+    new_value = old_value.last(HISTORY_STACK_SIZE)
     session[:history_stack] = new_value
   end
 
