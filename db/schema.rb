@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_19_141442) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_27_121700) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -292,7 +292,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_19_141442) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "username"
-    t.integer "chat_id"
+    t.bigint "chat_id"
     t.index ["chat_id"], name: "index_telegram_users_on_chat_id"
     t.index ["external_id"], name: "index_telegram_users_on_external_id", unique: true
     t.index ["last_seen_at"], name: "index_telegram_users_on_last_seen_at"

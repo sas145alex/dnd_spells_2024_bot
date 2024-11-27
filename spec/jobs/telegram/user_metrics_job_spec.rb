@@ -50,6 +50,19 @@ RSpec.describe Telegram::UserMetricsJob do
       )
     end
 
+    context "when external_id does not fit in integer" do
+      let(:external_user_id) { 5264655146 }
+
+      it "creates new user with proper attributes" do
+        expect { subject }.to change { TelegramUser.count }.from(0).to(1)
+        expect(TelegramUser.last).to have_attributes(
+          last_seen_at: date,
+          username: "UserName",
+          chat_id: 1350564680
+        )
+      end
+    end
+
     context "when uses has has already been created" do
       let!(:user) do
         create(
