@@ -36,8 +36,8 @@ class TelegramController < BaseTelegramController
     end
   end
 
-  def wild_magic!(rand_value = nil, *_args)
-    answer_params = BotCommands::WildMagicSearch.call(rand_value: rand_value)
+  def wild_magic!(input_value = nil, *_args)
+    answer_params = BotCommands::WildMagicSearch.call(input_value: input_value)
     respond_with :message, answer_params
   end
 

@@ -16,13 +16,13 @@ module BotCommands
       end
     end
 
-    def initialize(rand_value: nil)
-      @rand_value = rand_value || rand(::WildMagic::MIN_ROLL..::WildMagic::MAX_ROLL)
+    def initialize(input_value: nil)
+      @input_value = input_value
     end
 
     private
 
-    attr_reader :rand_value
+    attr_reader :input_value
 
     def text
       wild_magic.description_for_telegram
@@ -42,6 +42,13 @@ module BotCommands
 
     def parse_mode
       wild_magic.parse_mode_for_telegram
+    end
+
+    def rand_value
+      @rand_value ||= begin
+        sanitized_value = input_value.to_s.strip.match?(/^\d+$/) ? input_value.to_i : nil
+        sanitized_value || rand(::WildMagic::MIN_ROLL..::WildMagic::MAX_ROLL)
+      end
     end
 
     def wild_magic
