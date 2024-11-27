@@ -8,6 +8,7 @@ ActiveAdmin.register Spell do
     id_column
     column :title
     column :original_title
+    column :level
     column :published_at
     column :created_at
     actions defaults: false do |resource|
@@ -36,6 +37,8 @@ ActiveAdmin.register Spell do
   filter :id
   filter :title
   filter :original_title
+  filter :level
+  filter :school
   filter :description
   filter :responsible, as: :select, collection: -> { admins_for_select }
   filter :published_at
@@ -46,6 +49,14 @@ ActiveAdmin.register Spell do
   show do
     attributes_table_for(resource) do
       row :id
+      row :level
+      row :school do
+        if resource.school.present?
+          "#{resource.school} - #{resource.human_enum_name(:school)}"
+        else
+          "-"
+        end
+      end
       row :title
       row :original_title
       row :description do
@@ -78,6 +89,8 @@ ActiveAdmin.register Spell do
   form do |f|
     f.semantic_errors
     f.inputs do
+      f.input :level
+      f.input :school, as: :select, collection: schools_for_select
       f.input :title
       f.input :original_title
       f.input :description,
@@ -187,6 +200,8 @@ ActiveAdmin.register Spell do
   end
 
   permit_params :title,
+    :level,
+    :school,
     :original_title,
     :description,
     mentions_attributes: [:id, :another_mentionable_type, :another_mentionable_id, :_destroy]

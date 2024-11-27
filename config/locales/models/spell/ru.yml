@@ -1,0 +1,13 @@
+ru:
+  activerecord:
+    attributes:
+      spell:
+        schools:
+          abjuration: "Ограждение"
+          conjuration: "Вызов"
+          divination: "Прорицание"
+          enchantment: "Очарование"
+          evocation: "Воплощение"
+          illusion: "Иллюзия"
+          necromancy: "Некромантия"
+          transmutation: "Преобразование"

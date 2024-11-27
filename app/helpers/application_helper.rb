@@ -60,4 +60,9 @@ module ApplicationHelper
     value_expr = Arel.sql("coalesce(external_id)")
     TelegramUser.pluck(label_expr, value_expr)
   end
+
+  def schools_for_select
+    translations = Spell.human_enum_names(:schools)
+    translations.map { |key, translation| ["#{key} - #{translation}", key] }
+  end
 end

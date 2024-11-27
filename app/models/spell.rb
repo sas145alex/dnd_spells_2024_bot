@@ -28,6 +28,17 @@ class Spell < ApplicationRecord
   before_validation :strip_title
   before_validation :strip_original_title
 
+  enum :school, {
+    abjuration: "abjuration",
+    conjuration: "conjuration",
+    divination: "divination",
+    enchantment: "enchantment",
+    evocation: "evocation",
+    illusion: "illusion",
+    necromancy: "necromancy",
+    transmutation: "transmutation"
+  }
+
   def self.ransackable_associations(auth_object = nil)
     %w[created_by updated_by responsible]
   end
