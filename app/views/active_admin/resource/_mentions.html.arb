@@ -1,5 +1,5 @@
 panel "Mentions" do
-  panel "Entity has mentions" do
+  panel "Entity has mentions (#{resource.mentions.size})" do
     table_for resource.mentions do |_mention|
       column :mentionable
       column :another_mentionable
@@ -7,7 +7,7 @@ panel "Mentions" do
     end
   end
 
-  panel "Entity mentioned" do
+  panel "Entity mentioned (#{resource.mentioned_mentions.size})" do
     table_for resource.mentioned_mentions do |_mention|
       column :mentionable
       column :another_mentionable

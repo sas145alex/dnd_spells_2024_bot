@@ -15,6 +15,8 @@ class Spell < ApplicationRecord
     class_name: "CharacterKlass",
     through: :spells_character_klasses
 
+  accepts_nested_attributes_for :spells_character_klasses, allow_destroy: true
+
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true
   validates :description, presence: true, if: :published?
@@ -46,7 +48,7 @@ class Spell < ApplicationRecord
   }
 
   def self.ransackable_associations(auth_object = nil)
-    %w[created_by updated_by responsible]
+    %w[created_by updated_by responsible character_klasses]
   end
 
   def self.telegram_bot_search(search_input = "", scope: Spell.published, limit: 10)

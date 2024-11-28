@@ -40,6 +40,11 @@ ActiveAdmin.register Spell do
   filter :level
   filter :school
   filter :description
+  filter :character_klasses_id_in,
+    label: "Character Klass",
+    as: :select,
+    collection: CharacterKlass.all.order(parent_klass_id: :desc),
+    multiple: true
   filter :responsible, as: :select, collection: -> { admins_for_select }
   filter :published_at
   filter :created_at
@@ -75,6 +80,15 @@ ActiveAdmin.register Spell do
       row :updated_by
     end
 
+    panel "Character Klasses (#{resource.character_klasses.size})" do
+      table_for resource.character_klasses do
+        column :title do |klass|
+          link_to klass.title, admin_character_klass_path(klass)
+        end
+        column :created_at
+      end
+    end
+
     render "mentions"
 
     div do
@@ -100,6 +114,15 @@ ActiveAdmin.register Spell do
 
       li "Published at #{f.object.published_at}" if f.object.published?
       li "Created at #{f.object.created_at}" unless f.object.new_record?
+    end
+
+    panel "Character Klasses" do
+      f.has_many :spells_character_klasses, heading: false, allow_destroy: true do |nf|
+        nf.input :character_klass,
+          as: :select,
+          collection: CharacterKlass.all,
+          selected: nf.object.character_klass_id
+      end
     end
 
     panel "Mentions" do
@@ -204,5 +227,6 @@ ActiveAdmin.register Spell do
     :school,
     :original_title,
     :description,
+    spells_character_klasses_attributes: [:id, :character_klass_id, :_destroy],
     mentions_attributes: [:id, :another_mentionable_type, :another_mentionable_id, :_destroy]
 end
