@@ -1,6 +1,7 @@
 module BotCommands
   class Sections < BaseCommand
     AVAILABLE_SECTIONS = {
+      "all_spells" => "Заклинания",
       "class" => "Классы",
       "feat" => "Черты",
       "species" => "Виды и расы",

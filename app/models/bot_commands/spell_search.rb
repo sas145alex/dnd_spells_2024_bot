@@ -92,7 +92,7 @@ module BotCommands
     def found_spells
       @found_spells ||= ::Spell
         .telegram_bot_search(payload["text"], limit: MAX_SEARCH_RESULT_COUNT)
-        .select(:id, :title, :original_title)
+        .select(:id, :title, :original_title, :level)
         .map(&:decorate)
     end
 
