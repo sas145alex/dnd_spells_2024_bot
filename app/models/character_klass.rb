@@ -9,6 +9,13 @@ class CharacterKlass < ApplicationRecord
     class_name: "CharacterKlass",
     optional: true
 
+  has_many :spells_character_klasses,
+    class_name: "SpellsCharacterKlass",
+    foreign_key: "character_klass_id"
+  has_many :spells,
+    class_name: "Spell",
+    through: :spells_character_klasses
+
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true
   validates :description, presence: true

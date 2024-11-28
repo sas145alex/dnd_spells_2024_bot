@@ -8,6 +8,12 @@ class Spell < ApplicationRecord
     class_name: "AdminUser",
     foreign_key: "responsible_id",
     optional: true
+  has_many :spells_character_klasses,
+    class_name: "SpellsCharacterKlass",
+    foreign_key: "spell_id"
+  has_many :character_klasses,
+    class_name: "CharacterKlass",
+    through: :spells_character_klasses
 
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true
