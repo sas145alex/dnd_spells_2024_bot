@@ -1,5 +1,8 @@
 module BotCommands
   class AllSpellsFilters < BaseCommand
+    SELECTED_SYMBOL = "✅".freeze
+    RESET_SYMBOL = "🚫".freeze
+    SESSION_KEY = :all_spells_filters
     FILTER_CATEGORIES = {
       "klasses" => "Классы",
       "levels" => "Уровень",
@@ -9,12 +12,13 @@ module BotCommands
     def call
       if invalid_input?
         [{type: :message, answer: invalid_input}]
-      elsif step == :set_filters
-        raise NotImplementedError
+      elsif step == :set_filter
+        update_session_filters
+        [{type: :edit, answer: provide_categories}]
       elsif filter_category_selected?
-        [{type: :edit, answer: provide_category_filters}]
+        [{type: :edit, answer: provide_specific_filters}]
       else
-        [{type: :edit, answer: provide_filter_categories}]
+        [{type: :edit, answer: provide_categories}]
       end
     end
 
@@ -30,25 +34,45 @@ module BotCommands
     attr_reader :session
     attr_reader :step
 
-    def provide_category_filters
-      FetchCategoryFilters.call(current_filter_category)
+    def update_session_filters
+      filter_type, new_value = input_value.split("_")
+
+      if filter_type == "reset"
+        session.delete(SESSION_KEY)
+        return
+      end
+
+      return unless filter_type.in?(FILTER_CATEGORIES.keys)
+
+      session[SESSION_KEY] ||= {}
+      if session[SESSION_KEY][filter_type] == new_value
+        session[SESSION_KEY].delete(filter_type)
+      else
+        session[SESSION_KEY][filter_type] = new_value
+      end
     end
 
-    def provide_filter_categories
-      options = FILTER_CATEGORIES.map do |category, text|
+    def provide_specific_filters
+      FetchCategoryFilters.call(current_filter_category, current_filters: current_filters)
+    end
+
+    def provide_categories
+      options = FILTER_CATEGORIES.map do |category, title|
+        text = current_filters.key?(category) ? "#{title} #{SELECTED_SYMBOL}" : title
         {
           text: text,
           callback_data: "#{callback_prefix}:#{category}"
         }
       end
 
-      text = <<~HTML
-        <b>Текущие фильтры:</b>
+      text = <<~HTML.chomp
+        #{display_current_filters}
 
-        Выбери фильтр:
+        Выбери категорию фильтра:
       HTML
 
       inline_keyboard = options.in_groups_of(2, false)
+      inline_keyboard.append([reset_filters_button]) if session.key?(SESSION_KEY)
       inline_keyboard.append([link_to_all_spells])
       reply_markup = {inline_keyboard: inline_keyboard}
 
@@ -56,6 +80,17 @@ module BotCommands
         text: text,
         reply_markup: reply_markup,
         parse_mode: parse_mode
+      }
+    end
+
+    def display_current_filters
+      DisplayFilters.call(current_filters)
+    end
+
+    def reset_filters_button
+      {
+        text: "Сбросить фильтры #{RESET_SYMBOL}",
+        callback_data: "all_spells_set_filters:reset"
       }
     end
 
@@ -71,7 +106,11 @@ module BotCommands
     end
 
     def current_filter_category
-      @current_filter_category ||= FILTER_CATEGORIES.keys.find { |category| category == input_value.to_s }
+      @current_filter_category ||= FILTER_CATEGORIES.keys.find { |category| input_value.to_s.match?(category) }
+    end
+
+    def current_filters
+      session[SESSION_KEY] || {}
     end
 
     def invalid_input?
