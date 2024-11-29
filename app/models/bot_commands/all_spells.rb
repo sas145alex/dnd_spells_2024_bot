@@ -3,6 +3,7 @@ module BotCommands
     SPELLS_PER_PAGE = 10
     PREVIOUS_PAGE_SYMBOL = "⬅️".freeze
     NEXT_PAGE_SYMBOL = "➡️".freeze
+    FILTERS_PAGE_SYMBOL = "📃".freeze
 
     def call
       if invalid_input?
@@ -64,6 +65,7 @@ module BotCommands
 
       inline_keyboard = options.in_groups_of(1, false)
       inline_keyboard.append(links_to_pages)
+      inline_keyboard.append([link_to_filters])
       inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
@@ -71,6 +73,13 @@ module BotCommands
         text: text,
         reply_markup: reply_markup,
         parse_mode: parse_mode
+      }
+    end
+
+    def link_to_filters
+      {
+        text: "Фильтры #{FILTERS_PAGE_SYMBOL}",
+        callback_data: "all_spells_filters:"
       }
     end
 
