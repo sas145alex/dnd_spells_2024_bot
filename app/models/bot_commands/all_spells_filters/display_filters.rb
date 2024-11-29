@@ -34,6 +34,8 @@ module BotCommands
           "Класс"
         when "schools"
           "Школа заклинания"
+        when "ritual"
+          "Ритуал"
         else
           filter_type
         end
@@ -47,6 +49,9 @@ module BotCommands
           Spell.human_enum_names(:schools).fetch(value.to_sym)
         when "levels"
           value.to_i.zero? ? "Заговор" : value
+        when "ritual"
+          boolean = ActiveRecord::Type::Boolean.new.serialize(value)
+          boolean ? "Да" : "Нет"
         else
           value
         end

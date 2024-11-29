@@ -39,6 +39,7 @@ ActiveAdmin.register Spell do
   filter :original_title
   filter :level
   filter :school
+  filter :ritual
   filter :description
   filter :character_klasses_id_in,
     label: "Character Klass",
@@ -62,6 +63,7 @@ ActiveAdmin.register Spell do
           "-"
         end
       end
+      row :ritual
       row :title
       row :original_title
       row :description do
@@ -105,6 +107,7 @@ ActiveAdmin.register Spell do
     f.inputs do
       f.input :level
       f.input :school, as: :select, collection: schools_for_select
+      f.input :ritual
       f.input :title
       f.input :original_title
       f.input :description,
@@ -225,6 +228,7 @@ ActiveAdmin.register Spell do
   permit_params :title,
     :level,
     :school,
+    :ritual,
     :original_title,
     :description,
     spells_character_klasses_attributes: [:id, :character_klass_id, :_destroy],

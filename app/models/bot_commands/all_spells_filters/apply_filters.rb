@@ -29,6 +29,9 @@ module BotCommands
           modified_scope
             .includes(:spells_character_klasses)
             .where(spells_character_klasses: {character_klass_id: value.to_i})
+        when "ritual"
+          boolean = ActiveRecord::Type::Boolean.new.serialize(value)
+          modified_scope.where(ritual: boolean)
         else
           modified_scope
         end

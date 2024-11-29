@@ -16,6 +16,8 @@ module BotCommands
           provide_levels
         when "schools"
           provide_schools
+        when "ritual"
+          provide_ritual
         else
           {
             text: "Невалидный ввод при выборе фильтра - #{category}",
@@ -96,6 +98,34 @@ module BotCommands
           <b>Фильтрация заклинаний</b>
           
           Выбери школу заклинаний
+        HTML
+
+        {
+          text: text,
+          reply_markup: reply_markup,
+          parse_mode: "HTML"
+        }
+      end
+
+      def provide_ritual
+        options = [
+          {
+            text: "Да",
+            callback_data: "#{callback_prefix}:ritual_1"
+          },
+          {
+            text: "Нет",
+            callback_data: "#{callback_prefix}:ritual_0"
+          }
+        ]
+        inline_keyboard = options.in_groups_of(2, false)
+        inline_keyboard.append([return_button])
+        reply_markup = {inline_keyboard: inline_keyboard}
+
+        text = <<~HTML
+          <b>Фильтрация заклинаний</b>
+          
+          Можно ли применять заклинание как ритуал
         HTML
 
         {

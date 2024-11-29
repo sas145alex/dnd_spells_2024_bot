@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_28_143529) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_29_164430) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -279,6 +279,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_28_143529) do
     t.integer "requested_count", default: 0, null: false
     t.integer "level", default: 0, null: false
     t.string "school", comment: "enum"
+    t.boolean "ritual", default: false
     t.index ["created_by_id"], name: "index_spells_on_created_by_id"
     t.index ["published_at"], name: "index_spells_on_published_at", where: "(published_at IS NOT NULL)"
     t.index ["responsible_id"], name: "index_spells_on_responsible_id"

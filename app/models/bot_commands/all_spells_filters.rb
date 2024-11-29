@@ -7,6 +7,7 @@ module BotCommands
     FILTER_CATEGORIES = {
       "klasses" => "Классы",
       "levels" => "Уровень",
+      "ritual" => "Ритуал",
       "schools" => "Школа"
     }
 
