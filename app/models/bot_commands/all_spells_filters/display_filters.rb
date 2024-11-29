@@ -8,7 +8,6 @@ module BotCommands
       def call
         <<~HTML.chomp
           <b>Фильтров выбрано: #{store.keys.size}</b>
-
           #{filter_info}
         HTML
       end

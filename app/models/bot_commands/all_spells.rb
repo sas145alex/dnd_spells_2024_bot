@@ -15,10 +15,11 @@ module BotCommands
       end
     end
 
-    def initialize(input_value: nil, page: nil)
+    def initialize(session:, input_value: nil, page: nil)
       @input_value = input_value || ""
       @is_page_scrolled = !page.nil?
       @page = page.blank? ? 1 : page.to_i
+      @session = session
     end
 
     private
@@ -26,6 +27,7 @@ module BotCommands
     attr_reader :input_value
     attr_reader :is_page_scrolled
     attr_reader :page
+    attr_reader :session
 
     def render_spell_info
       text = selected_object.description_for_telegram
@@ -56,9 +58,10 @@ module BotCommands
         }
       end
 
-      text = <<~HTML
+      text = <<~HTML.chomp
         <b>Подходящих заклинаний:</b> #{spells_scope.count}
         <b>Страница:</b> #{paged_spells.current_page} / #{paged_spells.total_pages}
+        #{display_current_filters}
 
         Выбери заклинание:
       HTML
@@ -74,6 +77,10 @@ module BotCommands
         reply_markup: reply_markup,
         parse_mode: parse_mode
       }
+    end
+
+    def display_current_filters
+      BotCommands::AllSpellsFilters::DisplayFilters.call(current_filters)
     end
 
     def link_to_filters
@@ -111,11 +118,19 @@ module BotCommands
     end
 
     def spells_scope
-      Spell.published.order(:level, :title)
+      @spells_scope ||= begin
+        scope = Spell.published.order(:level, :title)
+        scope = BotCommands::AllSpellsFilters::ApplyFilters.call(scope: scope, filters: current_filters)
+        scope
+      end
     end
 
     def callback_prefix
       "all_spells"
+    end
+
+    def current_filters
+      session[BotCommands::AllSpellsFilters::SESSION_KEY] || {}
     end
   end
 end

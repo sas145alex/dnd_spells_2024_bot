@@ -2,6 +2,7 @@ module BotCommands
   class AllSpellsFilters < BaseCommand
     SELECTED_SYMBOL = "✅".freeze
     RESET_SYMBOL = "🚫".freeze
+    SPELL_SYMBOL = "✨".freeze
     SESSION_KEY = :all_spells_filters
     FILTER_CATEGORIES = {
       "klasses" => "Классы",
@@ -96,7 +97,7 @@ module BotCommands
 
     def link_to_all_spells
       {
-        text: "К заклинаниям",
+        text: "Поиск заклинаний #{SPELL_SYMBOL}",
         callback_data: "all_spells:"
       }
     end

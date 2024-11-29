@@ -1,9 +1,10 @@
 class TelegramController < BaseTelegramController
-  after_action :remember_history!, except: [
-    :go_back_callback_query,
-    :pick_mention_callback_query,
-    :all_spells_page_callback_query,
-    :all_spells_filters_callback_query
+  after_action :remember_history!, except: %i[
+    go_back_callback_query
+    pick_mention_callback_query
+    all_spells_page_callback_query
+    all_spells_filters_callback_query
+    all_spells_set_filters_callback_query
   ]
 
   def start!(*_args)
@@ -127,12 +128,12 @@ class TelegramController < BaseTelegramController
   end
 
   def all_spells_callback_query(input_value = nil, *_args)
-    answer_messages = BotCommands::AllSpells.call(input_value: input_value)
+    answer_messages = BotCommands::AllSpells.call(input_value: input_value, session: session)
     process_answer_messages(answer_messages)
   end
 
   def all_spells_page_callback_query(page = nil, *_args)
-    answer_messages = BotCommands::AllSpells.call(input_value: nil, page: page.to_i)
+    answer_messages = BotCommands::AllSpells.call(input_value: nil, page: page.to_i, session: session)
     process_answer_messages(answer_messages)
   end
 
