@@ -68,6 +68,13 @@ module BotCommands
       elsif selected_object.use_maneuvers?
         inline_keyboard.append([{text: "Маневры", callback_data: "maneuvers:"}])
       end
+      if selected_object.has_spells?
+        linked_spells_button = {
+          text: "Доступные заклинания",
+          callback_data: "prefill_klass_spells:#{selected_object.to_global_id}"
+        }
+        inline_keyboard.append([linked_spells_button])
+      end
       inline_keyboard.append([{text: "Умения", callback_data: "abilities:#{selected_object.to_global_id}"}])
       inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}

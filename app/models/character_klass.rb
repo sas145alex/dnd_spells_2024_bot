@@ -43,17 +43,24 @@ class CharacterKlass < ApplicationRecord
   end
 
   def use_invocations?
-    record = base_klass? ? self : parent_klass
-    record.title == "Колдун" || record.original_title == "Warlock"
+    main_character_klass.title == "Колдун" || main_character_klass.original_title == "Warlock"
   end
 
   def use_metamagic?
-    record = base_klass? ? self : parent_klass
-    record.title == "Чародей" || record.original_title == "Sorcerer"
+    main_character_klass.title == "Чародей" || main_character_klass.original_title == "Sorcerer"
   end
 
   def use_maneuvers?
     title == "Мастер боевых искусств" || original_title == "Battle Master"
+  end
+
+  def has_spells?
+    klass_ids = base_klass? ? [id] : [id, parent_klass_id]
+    SpellsCharacterKlass.where(character_klass_id: klass_ids).exists?
+  end
+
+  def main_character_klass
+    @main_character_klass ||= base_klass? ? self : parent_klass
   end
 
   private

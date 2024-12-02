@@ -147,6 +147,11 @@ class TelegramController < BaseTelegramController
     process_answer_messages(answer_messages)
   end
 
+  def prefill_klass_spells_callback_query(input_value = nil, *_args)
+    answer_messages = BotCommands::AllSpells::PrefillKlass.call(input_value: input_value, session: session)
+    process_answer_messages(answer_messages)
+  end
+
   def go_back_callback_query(_step = nil, *_args)
     history_item = pop_history_item!
     if history_item.present?
