@@ -280,6 +280,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_29_164430) do
     t.integer "level", default: 0, null: false
     t.string "school", comment: "enum"
     t.boolean "ritual", default: false
+    t.boolean "concentration", default: false
+    t.string "casting_time", default: "action", null: false
     t.index ["created_by_id"], name: "index_spells_on_created_by_id"
     t.index ["published_at"], name: "index_spells_on_published_at", where: "(published_at IS NOT NULL)"
     t.index ["responsible_id"], name: "index_spells_on_responsible_id"

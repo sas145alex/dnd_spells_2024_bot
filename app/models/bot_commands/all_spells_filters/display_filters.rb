@@ -27,29 +27,19 @@ module BotCommands
       end
 
       def print_filter_type(filter_type)
-        case filter_type
-        when "levels"
-          "Уровень заклинания"
-        when "klasses"
-          "Класс"
-        when "schools"
-          "Школа заклинания"
-        when "ritual"
-          "Ритуал"
-        else
-          filter_type
-        end
+        i18n_store = BotCommands::AllSpellsFilters::FILTER_CATEGORIES
+        i18n_store.fetch(filter_type.to_s)
       end
 
       def print_value(filter_type, value)
         case filter_type
         when "klasses"
           CharacterKlass.find(value.to_i).decorate.title
-        when "schools"
-          Spell.human_enum_names(:schools).fetch(value.to_sym)
+        when "schools", "casting_times"
+          Spell.human_enum_names(filter_type.to_sym, value.to_sym)
         when "levels"
           value.to_i.zero? ? "Заговор" : value
-        when "ritual"
+        when "ritual", "concentration"
           boolean = ActiveRecord::Type::Boolean.new.serialize(value)
           boolean ? "Да" : "Нет"
         else

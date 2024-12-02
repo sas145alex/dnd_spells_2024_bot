@@ -8,12 +8,14 @@ class ApplicationRecord < ActiveRecord::Base
     column_names
   end
 
-  def self.human_enum_names(enum_name, enum_value = nil, locale: nil)
+  def self.human_enum_names(enum_name, enum_value = nil, locale: nil, only: nil)
     enum_i18n_key = enum_name.to_s.pluralize
     if enum_value
-      I18n.t("activerecord.attributes.#{model_name.i18n_key}.#{enum_i18n_key}.#{enum_value}", locale: locale)
+      I18n.t!("activerecord.attributes.#{model_name.i18n_key}.#{enum_i18n_key}.#{enum_value}", locale: locale)
     else
-      I18n.t("activerecord.attributes.#{model_name.i18n_key}.#{enum_i18n_key}", locale: locale)
+      collection = I18n.t!("activerecord.attributes.#{model_name.i18n_key}.#{enum_i18n_key}", locale: locale)
+      collection = collection.slice(*only) if only.present?
+      collection.invert
     end
   end
 

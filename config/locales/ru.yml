@@ -1,0 +1,5 @@
+ru:
+  types:
+    boolean:
+      "true": "Да"
+      "false": "Нет"

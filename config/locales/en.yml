@@ -1,0 +1,5 @@
+en:
+  types:
+    boolean:
+      "true": "Yes"
+      "false": "No"

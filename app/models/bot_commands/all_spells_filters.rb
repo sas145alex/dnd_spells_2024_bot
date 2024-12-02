@@ -1,5 +1,6 @@
 module BotCommands
   class AllSpellsFilters < BaseCommand
+    FILTER_VALUE_SEPARATOR = "__"
     SELECTED_SYMBOL = "✅".freeze
     RESET_SYMBOL = "🚫".freeze
     SPELL_SYMBOL = "✨".freeze
@@ -8,7 +9,9 @@ module BotCommands
       "klasses" => "Классы",
       "levels" => "Уровень",
       "ritual" => "Ритуал",
-      "schools" => "Школа"
+      "schools" => "Школа",
+      "concentration" => "Концентрация",
+      "casting_times" => "Время накладывания"
     }
 
     def call
@@ -37,7 +40,7 @@ module BotCommands
     attr_reader :step
 
     def update_session_filters
-      filter_type, new_value = input_value.split("_")
+      filter_type, new_value = input_value.split(FILTER_VALUE_SEPARATOR)
 
       if filter_type == "reset"
         session.delete(SESSION_KEY)
@@ -49,13 +52,15 @@ module BotCommands
       session[SESSION_KEY] ||= {}
       if session[SESSION_KEY][filter_type] == new_value
         session[SESSION_KEY].delete(filter_type)
+        session.delete(SESSION_KEY) if session[SESSION_KEY].blank?
       else
         session[SESSION_KEY][filter_type] = new_value
       end
     end
 
     def provide_specific_filters
-      FetchCategoryFilters.call(current_filter_category, current_filters: current_filters)
+      selected_filter_value = current_filters[current_filter_category]
+      FetchCategoryFilters.call(current_filter_category, selected_filter_value, separator: FILTER_VALUE_SEPARATOR)
     end
 
     def provide_categories

@@ -11,3 +11,7 @@ en:
           illusion: "Illusion"
           necromancy: "Necromancy"
           transmutation: "Transmutation"
+        casting_times:
+          action: "Action"
+          bonus_action: "Bonus Action"
+          reaction: "Reaction"

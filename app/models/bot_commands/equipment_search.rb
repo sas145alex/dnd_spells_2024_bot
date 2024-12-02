@@ -48,7 +48,7 @@ module BotCommands
 
     def give_subcategories
       variants = equipment_subcategories
-      options = variants.map do |key, translation|
+      options = variants.map do |translation, key|
         {
           text: translation,
           callback_data: "#{callback_prefix}:#{key}"
@@ -118,10 +118,10 @@ module BotCommands
       case input_value
       when "weapon"
         types = EquipmentItem.weapon_item_types
-        EquipmentItem.human_enum_names(:item_type).slice(*types)
+        EquipmentItem.human_enum_names(:item_type, only: types)
       when "armor"
         types = EquipmentItem.armor_item_types
-        EquipmentItem.human_enum_names(:item_type).slice(*types)
+        EquipmentItem.human_enum_names(:item_type, only: types)
       else
         {}
       end

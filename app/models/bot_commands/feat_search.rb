@@ -26,7 +26,7 @@ module BotCommands
 
     def provide_top_level_categories
       enums = ::Feat.human_enum_names(:category, locale: locale)
-      options = enums.map do |enum_raw_value, translation|
+      options = enums.map do |translation, enum_raw_value|
         {
           text: translation,
           callback_data: "#{callback_prefix}:#{enum_raw_value}"

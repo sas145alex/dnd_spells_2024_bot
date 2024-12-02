@@ -26,6 +26,7 @@ class Spell < ApplicationRecord
     length: {minimum: 5, maximum: 5000},
     if: :published?,
     allow_blank: true
+  validates :level, inclusion: {in: LEVELS}
 
   pg_search_scope :search_by_title,
     against: [:title, :original_title],
@@ -47,6 +48,12 @@ class Spell < ApplicationRecord
     illusion: "illusion",
     necromancy: "necromancy",
     transmutation: "transmutation"
+  }
+
+  enum :casting_time, {
+    action: "action",
+    bonus_action: "bonus_action",
+    reaction: "reaction"
   }
 
   def self.ransackable_associations(auth_object = nil)

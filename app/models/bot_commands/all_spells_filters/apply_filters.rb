@@ -23,15 +23,15 @@ module BotCommands
         case filter_type
         when "levels"
           modified_scope.where(level: value.to_i)
-        when "schools"
-          modified_scope.where(school: value.to_sym)
+        when "schools", "casting_times"
+          modified_scope.where(filter_type.singularize.to_sym => value.to_sym)
         when "klasses"
           modified_scope
             .includes(:spells_character_klasses)
             .where(spells_character_klasses: {character_klass_id: value.to_i})
-        when "ritual"
+        when "ritual", "concentration"
           boolean = ActiveRecord::Type::Boolean.new.serialize(value)
-          modified_scope.where(ritual: boolean)
+          modified_scope.where(filter_type.to_sym => boolean)
         else
           modified_scope
         end

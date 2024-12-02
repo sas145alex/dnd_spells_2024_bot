@@ -11,3 +11,7 @@ ru:
           illusion: "Иллюзия"
           necromancy: "Некромантия"
           transmutation: "Преобразование"
+        casting_times:
+          action: "Действие"
+          bonus_action: "Бонусное Действие"
+          reaction: "Реакция"

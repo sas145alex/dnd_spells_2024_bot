@@ -63,6 +63,6 @@ module ApplicationHelper
 
   def schools_for_select
     translations = Spell.human_enum_names(:schools)
-    translations.map { |key, translation| ["#{key} - #{translation}", key] }
+    translations.map { |translation, key| ["#{key} - #{translation}", key] }
   end
 end
