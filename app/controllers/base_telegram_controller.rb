@@ -36,6 +36,9 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
     data = payload.key?("data") ? payload["data"].split(":")[1..].join(":") : nil
     input_value = data || payload["text"] || ""
     new_item = {action: action_name, input_value: input_value}
+
+    return if new_item == history.last
+
     old_value << new_item
     new_value = old_value.last(HISTORY_STACK_SIZE)
     session[:history_stack] = new_value
