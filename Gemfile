@@ -23,7 +23,6 @@ gem "active_bootstrap_skin"
 gem "font-awesome-rails"
 gem "rails-i18n"
 
-gem "jwt"
 gem "dry-initializer"
 gem "telegram-bot"
 gem "mutex_m"
