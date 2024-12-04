@@ -41,7 +41,7 @@ gem "tzinfo-data", platforms: %i[windows jruby]
 gem "bootsnap", require: false
 
 group :development, :test do
-  gem "rspec-rails", "~> 7.0.0"
+  gem "rspec-rails", "~> 7.1.0"
   gem "factory_bot_rails", "~> 6.4"
   gem "ffaker"
   gem "observer" # for ffaker
