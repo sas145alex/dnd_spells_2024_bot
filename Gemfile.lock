@@ -486,7 +486,7 @@ DEPENDENCIES
   jbuilder (~> 2.13)
   mutex_m
   observer
-  pg (~> 1.1)
+  pg (~> 1.5)
   pg_search
   puma (>= 5.0)
   rails (~> 7.2.1)
