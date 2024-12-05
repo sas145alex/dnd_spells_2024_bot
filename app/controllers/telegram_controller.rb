@@ -57,7 +57,13 @@ class TelegramController < BaseTelegramController
   end
 
   def sections!(*_args)
+    @history_action_name = "sections_callback_query"
     answer_messages = BotCommands::Sections.call(input_value: nil)
+    process_answer_messages(answer_messages)
+  end
+
+  def sections_callback_query(*_args)
+    answer_messages = BotCommands::Sections.call(input_value: nil, response_type: :edit)
     process_answer_messages(answer_messages)
   end
 

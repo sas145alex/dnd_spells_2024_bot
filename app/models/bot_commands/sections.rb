@@ -12,16 +12,18 @@ module BotCommands
     }.freeze
 
     def call
-      [{type: :message, answer: all_sections}]
+      [{type: response_type, answer: all_sections}]
     end
 
-    def initialize(input_value: nil)
+    def initialize(input_value: nil, response_type: :message)
       @input_value = input_value || ""
+      @response_type = response_type
     end
 
     private
 
     attr_reader :input_value
+    attr_reader :response_type
 
     def all_sections
       text = <<~HTML

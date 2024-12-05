@@ -46,7 +46,8 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
     old_value = history
     data = payload.key?("data") ? payload["data"].split(":")[1..].join(":") : nil
     input_value = data || payload["text"] || ""
-    new_item = {action: action_name, input_value: input_value}
+    action_to_remember = @history_action_name || action_name
+    new_item = {action: action_to_remember, input_value: input_value}
 
     return if new_item == history.last
 

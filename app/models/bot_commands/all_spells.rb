@@ -69,6 +69,7 @@ module BotCommands
       inline_keyboard = options.in_groups_of(1, false)
       inline_keyboard.append(links_to_pages)
       inline_keyboard.append([link_to_filters])
+      inline_keyboard.append([link_to_sections])
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
@@ -98,6 +99,10 @@ module BotCommands
         links << {text: "Следующая страница #{NEXT_PAGE_SYMBOL}", callback_data: "#{callback_prefix}_page:#{page + 1}"}
       end
       links
+    end
+
+    def link_to_sections
+      {text: "Ко всем разделам", callback_data: "sections:"}
     end
 
     def invalid_input?
