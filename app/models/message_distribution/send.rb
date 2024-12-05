@@ -1,5 +1,7 @@
 class MessageDistribution
   class Send < ApplicationOperation
+    BATCH_SIZE = 200
+
     include ActiveModel::Validations
 
     validate :check_users
@@ -13,12 +15,15 @@ class MessageDistribution
     def call
       return false if invalid?
 
-      users.each do |user|
-        Telegram.bot.send_message(
-          chat_id: user.chat_id || user.external_id,
-          text: text,
-          parse_mode: "HTML"
-        )
+      users.in_batches(of: BATCH_SIZE).each do |user_batch|
+        user_batch.each do |user|
+          Telegram.bot.send_message(
+            chat_id: user.chat_id || user.external_id,
+            text: text,
+            parse_mode: "HTML"
+          )
+        end
+        sleep(2) if Rails.env.production?
       end
 
       distribution.update(last_sent_at: Time.current) unless test_sending?
