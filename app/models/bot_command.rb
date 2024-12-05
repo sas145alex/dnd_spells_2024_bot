@@ -15,24 +15,37 @@ class BotCommand < ApplicationRecord
 
   scope :ordered, -> { order(title: :asc) }
 
+  def self._memoized_commands
+    @memoized_commands ||= all.to_a
+  end
+
+  def self._reset_memoized_commands
+    return unless defined?(@memoized_commands)
+    remove_instance_variable(:@memoized_commands)
+  end
+
+  def self.memoized_search(title:)
+    _memoized_commands.find { _1.title == title }
+  end
+
   def self.start
-    find_by!(title: START_ID)
+    memoized_search(title: START_ID)
   end
 
   def self.about
-    find_by!(title: ABOUT_ID)
+    memoized_search(title: ABOUT_ID)
   end
 
   def self.tool
-    find_by!(title: TOOL_ID)
+    memoized_search(title: TOOL_ID)
   end
 
   def self.crafting
-    find_by!(title: CRAFTING_ID)
+    memoized_search(title: CRAFTING_ID)
   end
 
   def self.origin
-    find_by!(title: ORIGIN_ID)
+    memoized_search(title: ORIGIN_ID)
   end
 
   def long_description?

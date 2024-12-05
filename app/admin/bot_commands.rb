@@ -1,6 +1,19 @@
 ActiveAdmin.register BotCommand do
   menu false
 
+  collection_action :reset_memoized_commands, method: :post do
+    BotCommand._reset_memoized_commands
+
+    redirect_to admin_bot_commands_path, notice: "The memoized commands have been reset."
+  end
+
+  action_item only: :index do
+    link_to "Reset memoized commands",
+      reset_memoized_commands_admin_bot_commands_path,
+      method: :post,
+      data: {confirm: "Are you sure?"}
+  end
+
   index do
     selectable_column
     id_column

@@ -83,7 +83,7 @@ module BotCommands
 
     def subcategory_items_screen_text
       cmd = if input_value.to_sym.in?(EquipmentItem.armor_item_types)
-        BotCommand.find_by(title: "#{input_value}_section_description")&.decorate
+        BotCommand.memoized_search(title: "#{input_value}_section_description")&.decorate
       end
       cmd ? cmd.description_for_telegram : "Выбери предмет"
     end
