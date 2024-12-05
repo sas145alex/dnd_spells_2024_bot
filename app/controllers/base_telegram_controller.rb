@@ -7,6 +7,7 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
   HISTORY_STACK_SIZE = 30
 
   before_action :initialize_session
+  before_action :add_sentry_context
   after_action :track_user_activity
 
   def message(*_args)
@@ -22,6 +23,13 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
 
   def initialize_session
     session[:_last_activity_at] = Time.current.to_i
+  end
+
+  def add_sentry_context
+    Sentry.configure_scope do |scope|
+      scope.set_context("session", session.to_hash)
+      scope.set_context("payload", payload)
+    end
   end
 
   def pop_history_item!
