@@ -2,7 +2,6 @@ class TelegramController < BaseTelegramController
   after_action :remember_history!, except: %i[
     go_back_callback_query
     pick_mention_callback_query
-    all_spells_page_callback_query
     all_spells_filters_callback_query
     all_spells_set_filters_callback_query
   ]

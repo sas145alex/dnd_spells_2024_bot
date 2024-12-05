@@ -69,7 +69,6 @@ module BotCommands
       inline_keyboard = options.in_groups_of(1, false)
       inline_keyboard.append(links_to_pages)
       inline_keyboard.append([link_to_filters])
-      inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
