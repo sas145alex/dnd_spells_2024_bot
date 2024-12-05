@@ -9,7 +9,8 @@ class RollFormula
   end
 
   def valid?
-    return false if dice_value.blank? || dice_count.blank?
+    return false if dice_count.blank? || dice_count < 1
+    return false if dice_value.blank? || dice_value < 1
     return false if dice_count > MAX_VALUE || dice_value > MAX_VALUE
 
     true
