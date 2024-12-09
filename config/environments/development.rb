@@ -80,6 +80,7 @@ Rails.application.configure do
   # config.generators.apply_rubocop_autocorrect_after_generate!
 
   Rails.application.routes.default_url_options[:host] = "localhost:3000"
+  config.asset_host = "http://localhost:3000"
 
   config.active_job.queue_adapter = :inline
 end
