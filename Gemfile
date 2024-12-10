@@ -35,8 +35,8 @@ gem "sentry-ruby"
 gem "sentry-rails"
 gem "stackprof", "~> 0.2.26"
 
-gem "carrierwave", "~> 3.0"
 gem "cloudinary"
+gem "active_storage_validations"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[windows jruby]

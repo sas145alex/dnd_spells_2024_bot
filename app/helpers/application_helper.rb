@@ -65,10 +65,4 @@ module ApplicationHelper
     translations = Spell.human_enum_names(:schools)
     translations.map { |translation, key| ["#{key} - #{translation}", key] }
   end
-
-  def whitelisted_extensions_for(record, attachment_name)
-    uploaders = record.class.uploaders
-    uploader = uploaders.fetch(attachment_name.to_sym)
-    uploader.whitelisted_extensions
-  end
 end

@@ -168,6 +168,9 @@ ActiveAdmin.setup do |config|
   # Active Admin resources and pages from here.
   #
   # config.before_action :do_something_awesome
+  config.before_action -> do
+    ActiveStorage::Current.url_options = {protocol: request.protocol, host: request.host, port: request.port}
+  end
 
   # == Attribute Filters
   #
