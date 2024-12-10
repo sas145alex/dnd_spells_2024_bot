@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_29_164430) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_10_124131) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -93,6 +93,13 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_29_164430) do
     t.datetime "updated_at", null: false
     t.index ["created_by_id"], name: "index_characteristics_on_created_by_id"
     t.index ["updated_by_id"], name: "index_characteristics_on_updated_by_id"
+  end
+
+  create_table "common_files", force: :cascade do |t|
+    t.string "title", null: false
+    t.jsonb "attachment", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "creatures", force: :cascade do |t|

@@ -120,6 +120,18 @@ GEM
     brakeman (6.2.2)
       racc
     builder (3.3.0)
+    carrierwave (3.0.7)
+      activemodel (>= 6.0.0)
+      activesupport (>= 6.0.0)
+      addressable (~> 2.6)
+      image_processing (~> 1.1)
+      marcel (~> 1.0.0)
+      ssrf_filter (~> 1.0)
+    cloudinary (2.2.0)
+      faraday (>= 2.0.1, < 3.0.0)
+      faraday-follow_redirects (~> 0.3.0)
+      faraday-multipart (~> 1.0, >= 1.0.4)
+      ostruct
     concurrent-ruby (1.3.4)
     connection_pool (2.4.1)
     crack (1.0.0)
@@ -161,6 +173,16 @@ GEM
     factory_bot_rails (6.4.4)
       factory_bot (~> 6.5)
       railties (>= 5.0.0)
+    faraday (2.12.2)
+      faraday-net_http (>= 2.0, < 3.5)
+      json
+      logger
+    faraday-follow_redirects (0.3.0)
+      faraday (>= 1, < 3)
+    faraday-multipart (1.0.4)
+      multipart-post (~> 2)
+    faraday-net_http (3.4.0)
+      net-http (>= 0.5.0)
     ffaker (2.23.0)
     ffi (1.17.0-aarch64-linux-gnu)
     ffi (1.17.0-arm-linux-gnu)
@@ -186,6 +208,9 @@ GEM
     httpclient (2.8.3)
     i18n (1.14.6)
       concurrent-ruby (~> 1.0)
+    image_processing (1.13.0)
+      mini_magick (>= 4.9.5, < 5)
+      ruby-vips (>= 2.0.17, < 3)
     importmap-rails (2.0.3)
       actionpack (>= 6.0.0)
       activesupport (>= 6.0.0)
@@ -231,12 +256,16 @@ GEM
       net-pop
       net-smtp
     marcel (1.0.4)
+    mini_magick (4.13.2)
     mini_mime (1.1.5)
     minitest (5.25.2)
     msgpack (1.7.5)
     multi_xml (0.7.1)
       bigdecimal (~> 3.1)
+    multipart-post (2.4.1)
     mutex_m (0.3.0)
+    net-http (0.6.0)
+      uri
     net-imap (0.5.1)
       date
       net-protocol
@@ -261,6 +290,7 @@ GEM
       racc (~> 1.4)
     observer (0.1.2)
     orm_adapter (0.5.0)
+    ostruct (0.6.1)
     parallel (1.26.3)
     parser (3.3.6.0)
       ast (~> 2.4.1)
@@ -386,6 +416,9 @@ GEM
       rubocop (>= 1.48.1, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
     ruby-progressbar (1.13.0)
+    ruby-vips (2.2.2)
+      ffi (~> 1.12)
+      logger
     ruby2_keywords (0.0.5)
     sassc (2.4.0)
       ffi (~> 1.9)
@@ -409,6 +442,7 @@ GEM
       actionpack (>= 6.1)
       activesupport (>= 6.1)
       sprockets (>= 3.0.0)
+    ssrf_filter (1.2.0)
     stackprof (0.2.26)
     standard (1.42.1)
       language_server-protocol (~> 3.17.0.2)
@@ -435,6 +469,7 @@ GEM
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.6.0)
+    uri (1.0.2)
     useragent (0.16.10)
     warden (1.2.9)
       rack (>= 2.0.9)
@@ -471,6 +506,8 @@ DEPENDENCIES
   bootsnap
   bootstrap-sass
   brakeman
+  carrierwave (~> 3.0)
+  cloudinary
   database_cleaner-active_record
   debug
   devise
