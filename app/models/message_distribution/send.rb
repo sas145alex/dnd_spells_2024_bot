@@ -17,11 +17,7 @@ class MessageDistribution
 
       users.in_batches(of: BATCH_SIZE).each do |user_batch|
         user_batch.each do |user|
-          Telegram.bot.send_message(
-            chat_id: user.chat_id || user.external_id,
-            text: text,
-            parse_mode: "HTML"
-          )
+          process_user(user)
         end
         sleep(2) if Rails.env.production?
       end
@@ -35,6 +31,16 @@ class MessageDistribution
 
     attr_reader :distribution
     attr_reader :options
+
+    def process_user(user)
+      Telegram.bot.send_message(
+        chat_id: user.chat_id || user.external_id,
+        text: text,
+        parse_mode: "HTML"
+      )
+    rescue Telegram::Bot::Error, Telegram::Bot::Forbidden => _e
+      nil
+    end
 
     def text
       @text ||= FormatChanger.markdown_to_telegram_markdown(distribution.content)

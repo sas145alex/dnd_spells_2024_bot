@@ -56,7 +56,6 @@ ActiveAdmin.register CharacterKlass do
       row :original_title
       row :use_parent_description do
         value = resource.use_parent_description?
-        # binding.irb
         span class: "badge #{value ? "badge-success" : "badge-danger"}" do
           I18n.t("types.boolean.#{value}")
         end
