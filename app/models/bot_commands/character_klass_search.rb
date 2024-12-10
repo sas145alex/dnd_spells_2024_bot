@@ -53,11 +53,12 @@ module BotCommands
     end
 
     def provide_subklass_description
-      base_klass = selected_object.base_klass? ? selected_object : selected_object.parent_klass.decorate
+      klass_record = selected_object.use_parent_description? ? selected_object.parent_klass : selected_object
+      klass_record = klass_record.decorate
       text = <<~HTML
         <b>Выбрано:</b> #{selected_object.title}
         
-        #{base_klass.description_for_telegram}
+        #{klass_record.description_for_telegram}
       HTML
       mentions = keyboard_mentions_options(selected_object)
       inline_keyboard = mentions.in_groups_of(2, false)

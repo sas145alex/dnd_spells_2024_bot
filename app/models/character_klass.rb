@@ -18,7 +18,7 @@ class CharacterKlass < ApplicationRecord
 
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true
-  validates :description, presence: true
+  validates :description, presence: true, allow_blank: true
   validates :description,
     length: {minimum: 0, maximum: 5000},
     allow_blank: true
@@ -29,6 +29,7 @@ class CharacterKlass < ApplicationRecord
 
   before_validation :strip_title
   before_validation :strip_original_title
+  before_validation :strip_description
 
   def self.ransackable_associations(auth_object = nil)
     %w[created_by updated_by parent_klass]
@@ -59,6 +60,12 @@ class CharacterKlass < ApplicationRecord
     SpellsCharacterKlass.where(character_klass_id: klass_ids).exists?
   end
 
+  def use_parent_description?
+    return false if base_klass?
+
+    description.size == 0
+  end
+
   def main_character_klass
     @main_character_klass ||= base_klass? ? self : parent_klass
   end
@@ -71,5 +78,9 @@ class CharacterKlass < ApplicationRecord
 
   def strip_original_title
     self.original_title = original_title&.strip
+  end
+
+  def strip_description
+    self.description = description.to_s.strip
   end
 end
