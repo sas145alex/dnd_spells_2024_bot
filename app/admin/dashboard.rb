@@ -7,11 +7,27 @@ ActiveAdmin.register_page "Dashboard" do
     div class: "row" do
       div class: "col-sm-6" do
         panel "Most requested spells" do
+          i = 0
           table_for Spell.order(requested_count: :desc).limit(10) do |t|
+            t.column :index do
+              i += 1
+            end
             t.column :title do |spell|
               link_to(spell.title, admin_spell_path(spell))
             end
             t.column :requested_count
+          end
+        end
+      end
+
+      div class: "col-sm-6" do
+        panel "Users statistic" do
+          ol do
+            li "Пользователей всего: #{TelegramUser.count}"
+            li "Пользователей с 10+ комманд: #{TelegramUser.where("command_requested_count >= ?", 10).count}"
+            li "Пользователей с 50+ комманд: #{TelegramUser.where("command_requested_count >= ?", 50).count}"
+            li "Пользователей с 100+ комманд: #{TelegramUser.where("command_requested_count >= ?", 100).count}"
+            li "Пользователей активных за последние 2 недели: #{TelegramUser.where("last_seen_at >= ?", 2.weeks.ago).count}"
           end
         end
       end
