@@ -10,7 +10,8 @@ RSpec.describe BotCommands::Roll do
   end
   let(:expected_reply_markup) do
     {inline_keyboard: [
-      [{callback_data: "roll:1d20", text: "1d20"}],
+      [{callback_data: "roll:1d20", text: "🎲 1d20"}],
+      [{callback_data: "roll:2d20", text: "Помеха / Преимущество"}],
       [{callback_data: "roll:1d20", text: "1d20"},
         {callback_data: "roll:2d20", text: "2d20"},
         {callback_data: "roll:3d20", text: "3d20"},
@@ -77,7 +78,7 @@ RSpec.describe BotCommands::Roll do
       {
         parse_mode: "HTML",
         reply_markup: expected_markup,
-        text: "<b>Бросок:</b> 🎲 1d1\n<b>Все результаты:</b> 1\n\n\n<b>Итог:</b> 1"
+        text: "<b>Бросок:</b> 🎲 1d1\n<b>Все результаты:</b> 1\n<b>Итог:</b> 1"
       }
     end
     let(:expected_markup) do

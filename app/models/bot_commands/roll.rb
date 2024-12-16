@@ -49,24 +49,7 @@ module BotCommands
     end
 
     def calculate_roll
-      rolls = (1..dice_count).to_a.map { rand(1..dice_value) }
-      sum = rolls.sum
-      mod_sum = (mod_sign == :+) ? sum + mod_value : sum - mod_value
-      mod_text = if mod_value.zero?
-        ""
-      else
-        <<~HTML
-          <b>Сумма без модификатора:</b> #{sum}
-          <b>Модификатор:</b> #{mod_sign}#{mod_value}
-        HTML
-      end
-      text = <<~HTML.chomp
-        <b>Бросок:</b> 🎲 #{input_value}
-        <b>Все результаты:</b> #{rolls.sort.join(", ")}
-        #{mod_text}
-
-        <b>Итог:</b> #{mod_sum}
-      HTML
+      text = roll_formula.roll_result
 
       buttons = [{text: "Другой бросок", callback_data: "#{callback_prefix}:"}]
       inline_keyboard = buttons.in_groups_of(2, false)
@@ -101,7 +84,8 @@ module BotCommands
 
     def keyboard_dices_options
       keyboard = []
-      keyboard << [build_variant_for(1, 20)]
+      keyboard << [build_variant_for(1, 20, label: "🎲 1d20")]
+      keyboard << [build_variant_for(2, 20, label: "Помеха / Преимущество")]
 
       dice_nominals.each do |nominal|
         row = dice_counts.map do |dice_count|
@@ -114,8 +98,9 @@ module BotCommands
       keyboard
     end
 
-    def build_variant_for(nominal, value)
-      {text: "#{nominal}d#{value}", callback_data: "roll:#{nominal}d#{value}"}
+    def build_variant_for(nominal, value, label: nil)
+      text = label.presence || "#{nominal}d#{value}"
+      {text: text, callback_data: "roll:#{nominal}d#{value}"}
     end
 
     def dice_counts
