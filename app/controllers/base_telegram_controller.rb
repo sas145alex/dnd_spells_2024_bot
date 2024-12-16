@@ -8,7 +8,6 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
 
   around_action :set_sentry_context
   before_action :initialize_session
-  after_action :track_user_activity
 
   def message(*_args)
     text = "Ты ввел сообщение, но я не понимаю твою команду. Пожалуйста, проверь команду или выбери ее в меню слева внизу."

@@ -7,9 +7,9 @@ module BotCommands
       if invalid_input?
         [{type: :message, answer: invalid_input}]
       elsif can_roll_the_dice? && manual_input
-        [{type: :reply, answer: calculate_roll}, {type: :message, answer: provide_dices}]
+        [{type: :reply, answer: calculate_roll}]
       elsif can_roll_the_dice?
-        [{type: :edit, answer: calculate_roll}, {type: :message, answer: provide_dices}]
+        [{type: :edit, answer: calculate_roll}]
       elsif is_page_scrolled
         [{type: :edit, answer: provide_dices}]
       else
@@ -67,7 +67,10 @@ module BotCommands
 
         <b>Итог:</b> #{mod_sum}
       HTML
-      reply_markup = {}
+
+      buttons = [{text: "Другой бросок", callback_data: "#{callback_prefix}:"}]
+      inline_keyboard = buttons.in_groups_of(2, false)
+      reply_markup = {inline_keyboard: inline_keyboard}
 
       {
         text: text,
@@ -77,7 +80,16 @@ module BotCommands
     end
 
     def provide_dices
-      text = "Выбери кость для броска или пришли команду в формате '/roll ХdY+Z', к примеру '/roll 2d20', '/roll 3d4+3':"
+      text = <<~HTML.chomp
+        Для мгновенного броска ты можешь вызвать команду с нужными значениями в формате: <blockquote>/roll ХdY+Z</blockquote>
+        
+        Примеры вызова команды:
+        * /roll 2d20
+        * /r 2d20
+        * /roll 3d4+3
+        
+        Для броска выбери кость из таблицы:
+      HTML
       reply_markup = {inline_keyboard: keyboard_dices_options}
 
       {
@@ -140,6 +152,10 @@ module BotCommands
 
     def roll_formula
       @roll_formula ||= RollFormula.new(input_value)
+    end
+
+    def callback_prefix
+      "roll"
     end
   end
 end

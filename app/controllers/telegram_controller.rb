@@ -1,9 +1,16 @@
 class TelegramController < BaseTelegramController
+  after_action :track_user_activity, except: %i[
+    go_back_callback_query
+  ]
+
   after_action :remember_history!, except: %i[
     go_back_callback_query
     pick_mention_callback_query
     all_spells_filters_callback_query
     all_spells_set_filters_callback_query
+    r!
+    roll!
+    roll_callback_query
   ]
 
   def start!(*_args)
@@ -50,6 +57,7 @@ class TelegramController < BaseTelegramController
     answer_messages = BotCommands::Roll.call(input_value: input_value, manual_input: true)
     process_answer_messages(answer_messages)
   end
+  alias_method :r!, :roll!
 
   def roll_callback_query(input_value = nil, *_args)
     answer_messages = BotCommands::Roll.call(input_value: input_value)

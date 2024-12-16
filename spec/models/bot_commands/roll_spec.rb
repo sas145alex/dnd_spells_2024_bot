@@ -5,7 +5,7 @@ RSpec.describe BotCommands::Roll do
     {
       parse_mode: "HTML",
       reply_markup: expected_reply_markup,
-      text: "Выбери кость для броска или пришли команду в формате '/roll ХdY+Z', к примеру '/roll 2d20', '/roll 3d4+3':"
+      text: expected_text
     }
   end
   let(:expected_reply_markup) do
@@ -45,6 +45,18 @@ RSpec.describe BotCommands::Roll do
       [{callback_data: "roll_page:2", text: "Следующая страница"}]
     ]}
   end
+  let(:expected_text) do
+    <<~TEXT.chomp
+      Для мгновенного броска ты можешь вызвать команду с нужными значениями в формате: <blockquote>/roll ХdY+Z</blockquote>
+      
+      Примеры вызова команды:
+      * /roll 2d20
+      * /r 2d20
+      * /roll 3d4+3
+      
+      Для броска выбери кость из таблицы:
+    TEXT
+  end
 
   context "when roll formula is blank" do
     let(:input_value) { nil }
@@ -64,16 +76,18 @@ RSpec.describe BotCommands::Roll do
     let(:expected_roll_result) do
       {
         parse_mode: "HTML",
-        reply_markup: {},
+        reply_markup: expected_markup,
         text: "<b>Бросок:</b> 🎲 1d1\n<b>Все результаты:</b> 1\n\n\n<b>Итог:</b> 1"
       }
+    end
+    let(:expected_markup) do
+      {inline_keyboard: [[{callback_data: "roll:", text: "Другой бросок"}]]}
     end
 
     it "rolls the roll" do
       expect(subject).to eq(
         [
-          {answer: expected_roll_result, type: :edit},
-          {answer: expected_roll_grid_answer, type: :message}
+          {answer: expected_roll_result, type: :edit}
         ]
       )
     end
