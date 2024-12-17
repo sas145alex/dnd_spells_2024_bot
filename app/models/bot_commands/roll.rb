@@ -2,13 +2,14 @@ module BotCommands
   class Roll < BaseCommand
     PAGES = (1..10).to_a.freeze
     DICE_PER_PAGE = 5
+    MAX_ROLL_FORMULAS = 5
 
     def call
       if invalid_input?
         [{type: :message, answer: invalid_input}]
-      elsif can_roll_the_dice? && manual_input
+      elsif can_roll_the_dices? && manual_input
         [{type: :reply, answer: calculate_roll}]
-      elsif can_roll_the_dice?
+      elsif can_roll_the_dices?
         [{type: :edit, answer: calculate_roll}]
       elsif is_page_scrolled
         [{type: :edit, answer: provide_dices}]
@@ -31,12 +32,6 @@ module BotCommands
     attr_reader :page
     attr_reader :manual_input
 
-    delegate :dice_count,
-      :dice_value,
-      :mod_value,
-      :mod_sign,
-      to: :roll_formula
-
     def invalid_input
       text = "Неправильный формат формулы для броска"
       reply_markup = {}
@@ -49,7 +44,7 @@ module BotCommands
     end
 
     def calculate_roll
-      text = roll_formula.roll_result
+      text = roll_formulas.map { _1.roll_result }.join("\n\n")
 
       buttons = [{text: "Другой бросок", callback_data: "#{callback_prefix}:"}]
       inline_keyboard = buttons.in_groups_of(2, false)
@@ -70,6 +65,7 @@ module BotCommands
         * /roll 2d20
         * /r 2d20
         * /roll 3d4+3
+        * /r 3d3-1 4d4+2 5d5
         
         Для броска выбери кость из таблицы:
       HTML
@@ -120,7 +116,7 @@ module BotCommands
     end
 
     def invalid_input?
-      input_value.present? && roll_formula.invalid?
+      input_value.present? && !can_roll_the_dices?
     end
 
     def first_page?
@@ -131,12 +127,15 @@ module BotCommands
       page == PAGES.last
     end
 
-    def can_roll_the_dice?
-      input_value.present? && roll_formula.valid?
+    def can_roll_the_dices?
+      roll_formulas.size <= MAX_ROLL_FORMULAS && roll_formulas.all?(&:valid?)
     end
 
-    def roll_formula
-      @roll_formula ||= RollFormula.new(input_value)
+    def roll_formulas
+      @roll_formulas ||= begin
+        formulas = input_value.include?(" ") ? input_value.split(" ") : [input_value]
+        formulas.map { RollFormula.new(_1) }
+      end
     end
 
     def callback_prefix

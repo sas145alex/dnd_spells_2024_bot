@@ -54,6 +54,7 @@ RSpec.describe BotCommands::Roll do
       * /roll 2d20
       * /r 2d20
       * /roll 3d4+3
+      * /r 3d3-1 4d4+2 5d5
       
       Для броска выбери кость из таблицы:
     TEXT

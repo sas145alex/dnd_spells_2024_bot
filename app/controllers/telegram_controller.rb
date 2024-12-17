@@ -53,7 +53,8 @@ class TelegramController < BaseTelegramController
     respond_with :message, answer_params
   end
 
-  def roll!(input_value = nil, *_args)
+  def roll!(*args)
+    input_value = args.join(" ")
     answer_messages = BotCommands::Roll.call(input_value: input_value, manual_input: true)
     process_answer_messages(answer_messages)
   end
