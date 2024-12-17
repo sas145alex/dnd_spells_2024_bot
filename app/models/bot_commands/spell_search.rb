@@ -11,14 +11,22 @@ module BotCommands
           text: "Указанное заклиннание не найдено",
           parse_mode: parse_mode
         }
-      elsif input_value.starts_with?("/") || input_value.size < SEARCH_VALUE_MIN_LENGTH
-        text = <<~HTML
-          <b>Ты перешел в режим поиска заклинаний.</b>
-          
-          Введи название искомого заклинания (не менее 3х символов). К примеру, “огненный шар” или “wish”.
-          
-          После получения заклинания ты останешься в этом режиме и можешь сразу же ввести название следующего заклинания.
-        HTML
+      elsif input_value.size < SEARCH_VALUE_MIN_LENGTH
+        text = if search_mode_activated
+          <<~HTML
+            <b>Ты перешел в режим поиска заклинаний.</b>
+            
+            Введи название искомого заклинания (не менее 3х символов). К примеру, “огненный шар” или “wish”.
+            
+            После получения заклинания ты останешься в этом режиме и можешь сразу же ввести название следующего заклинания.
+          HTML
+        else
+          <<~HTML
+            Ты позвал бота в чат, поэтому использование команды /spell ограничено и может быть использовано только так:          
+            * /spell огненный
+            * /spell доспех
+          HTML
+        end
         {
           text: text,
           parse_mode: parse_mode
@@ -34,10 +42,11 @@ module BotCommands
       end
     end
 
-    def initialize(payload: {}, spell_gid: nil)
+    def initialize(payload: {}, spell_gid: nil, search_mode_activated: true)
       @payload = payload
-      @input_value = payload["text"].to_s.strip
+      @input_value = payload["text"].to_s.sub("/spell", "").strip
       @spell_gid = spell_gid
+      @search_mode_activated = search_mode_activated
     end
 
     private
@@ -45,6 +54,7 @@ module BotCommands
     attr_reader :payload
     attr_reader :input_value
     attr_reader :spell_gid
+    attr_reader :search_mode_activated
 
     def render_spell_info
       text = selected_spell.description_for_telegram
@@ -91,7 +101,7 @@ module BotCommands
 
     def found_spells
       @found_spells ||= ::Spell
-        .telegram_bot_search(payload["text"], limit: MAX_SEARCH_RESULT_COUNT)
+        .telegram_bot_search(input_value, limit: MAX_SEARCH_RESULT_COUNT)
         .select(:id, :title, :original_title, :level)
         .map(&:decorate)
     end

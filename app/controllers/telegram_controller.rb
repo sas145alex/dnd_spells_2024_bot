@@ -19,9 +19,9 @@ class TelegramController < BaseTelegramController
   end
 
   def spell!(*_args)
-    save_context("spell!")
+    save_context("spell!") unless message_from_chat?
 
-    answer_params = BotCommands::SpellSearch.call(payload: payload)
+    answer_params = BotCommands::SpellSearch.call(payload: payload, search_mode_activated: !message_from_chat?)
     respond_with :message, answer_params
   end
 

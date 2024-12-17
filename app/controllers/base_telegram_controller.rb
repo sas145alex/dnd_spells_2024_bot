@@ -66,4 +66,8 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
   def track_user_activity
     Telegram::UserMetricsJob.perform_later(payload)
   end
+
+  def message_from_chat?
+    payload.dig("from", "id") != payload.dig("chat", "id")
+  end
 end
