@@ -34,7 +34,7 @@ class MessageDistribution
 
     def process_user(user)
       Telegram.bot.send_message(
-        chat_id: user.chat_id || user.external_id,
+        chat_id: user.external_id,
         text: text,
         parse_mode: "HTML"
       )
