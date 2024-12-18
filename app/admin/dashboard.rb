@@ -33,6 +33,18 @@ ActiveAdmin.register_page "Dashboard" do
       end
 
       div class: "col-sm-6" do
+        panel "Chats statistic" do
+          ol do
+            li "Чатов всего: #{TelegramChat.count}"
+            li "Чатов с 10+ комманд: #{TelegramChat.where("command_requested_count >= ?", 10).count}"
+            li "Чатов с 50+ комманд: #{TelegramChat.where("command_requested_count >= ?", 50).count}"
+            li "Чатов с 100+ комманд: #{TelegramChat.where("command_requested_count >= ?", 100).count}"
+            li "Чатов активных за последние 2 недели: #{TelegramChat.where("last_seen_at >= ?", 2.weeks.ago).count}"
+          end
+        end
+      end
+
+      div class: "col-sm-6" do
         panel "Recent users" do
           table_for TelegramUser.order(last_seen_at: :desc).limit(10) do |t|
             t.column :id do |user|

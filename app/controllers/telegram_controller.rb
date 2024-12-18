@@ -1,7 +1,10 @@
 class TelegramController < BaseTelegramController
-  after_action :track_user_activity, except: %i[
+  SKIP_ACTIVITY_ACTIONS = %i[
     go_back_callback_query
   ]
+
+  after_action :track_user_activity, except: SKIP_ACTIVITY_ACTIONS
+  after_action :track_chat_activity, except: SKIP_ACTIVITY_ACTIONS
 
   after_action :remember_history!, except: %i[
     go_back_callback_query
