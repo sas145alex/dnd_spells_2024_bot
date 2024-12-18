@@ -29,7 +29,17 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
   around_action :set_sentry_context
   before_action :initialize_session
 
+  def my_chat_member(*_args)
+    TelegramChat::MemberChangeProcessor.call(payload: payload, bot: bot)
+  end
+
   def message(*_args)
+    if payload.key?("left_chat_participant") || payload.key?("new_chat_participant")
+      # when bot added or removed telegram sends two requests with different types
+      # such changed handled by #my_chat_member in another request
+      return
+    end
+
     text = "Ты ввел сообщение, но я не понимаю твою команду. Пожалуйста, проверь команду или выбери ее в меню слева внизу."
     respond_with :message, text: text
   end
