@@ -9,21 +9,21 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
   class << self
     DIRECT_COMMAND_REGEXP = /^(?<command>\/\w+)(?<suffix>@(?<receiver>\w+_bot))?$/
 
-    def dispatch(bot, update)
-      command = update.fetch("message", {}).fetch("text", "")
-      matches = command.match(DIRECT_COMMAND_REGEXP) || {}
-      receiver = matches[:receiver]
-
-      if receiver.blank?
-        super
-      elsif receiver == "#{bot.username}_bot"
-        update["message"]["text"] = matches[:command]
-        super
-      else
-        # command for another bot in a chat
-        nil
-      end
-    end
+    # def dispatch(bot, update)
+    #   command = update.fetch("message", {}).fetch("text", "")
+    #   matches = command.match(DIRECT_COMMAND_REGEXP) || {}
+    #   receiver = matches[:receiver]
+    #
+    #   if receiver.blank?
+    #     super
+    #   elsif receiver == "#{bot.username}_bot"
+    #     update["message"]["text"] = matches[:command]
+    #     super
+    #   else
+    #     # command for another bot in a chat
+    #     nil
+    #   end
+    # end
   end
 
   around_action :set_sentry_context
