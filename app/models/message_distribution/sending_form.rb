@@ -4,12 +4,24 @@ class MessageDistribution
       []
     end
 
+    def telegram_chat_ids
+      []
+    end
+
     def active_since
-      Time.current - 90.days
+      Time.current - 60.days
     end
 
     def test_sending
       false
+    end
+
+    def send_to_users
+      true
+    end
+
+    def send_to_chats
+      true
     end
   end
 end

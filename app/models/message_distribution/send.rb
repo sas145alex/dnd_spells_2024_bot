@@ -4,7 +4,7 @@ class MessageDistribution
 
     include ActiveModel::Validations
 
-    validate :check_users
+    validate :check_receivers_count
 
     # {"telegram_user_ids"=>[""], "active_since"=>"2024-08-19 11:01", "test_sending"=>"1"}
     def initialize(distribution:, options: {})
@@ -15,12 +15,8 @@ class MessageDistribution
     def call
       return false if invalid?
 
-      users.in_batches(of: BATCH_SIZE).each do |user_batch|
-        user_batch.each do |user|
-          process_user(user)
-        end
-        sleep(2) if Rails.env.production?
-      end
+      send_message_to(users)
+      send_message_to(chats)
 
       distribution.update(last_sent_at: Time.current) unless test_sending?
 
@@ -32,9 +28,19 @@ class MessageDistribution
     attr_reader :distribution
     attr_reader :options
 
-    def process_user(user)
+    def send_message_to(records)
+      records.in_batches(of: BATCH_SIZE).each do |records_batch|
+        records_batch.each do |record|
+          process_chat(record)
+        end
+        sleep(2) if Rails.env.production?
+      end
+    end
+
+    # @param [TelegramChat, TelegramUser] chat
+    def process_chat(chat)
       Telegram.bot.send_message(
-        chat_id: user.external_id,
+        chat_id: chat.external_id,
         text: text,
         parse_mode: "HTML"
       )
@@ -50,9 +56,26 @@ class MessageDistribution
       @users ||= user_dataset
     end
 
+    def chats
+      @chats ||= chat_dataset
+    end
+
     def user_dataset
+      return [] unless send_to_users?
+
       scope = TelegramUser.all
       scope = scope.where(external_id: telegram_user_ids) if telegram_user_ids.present?
+      if last_seen_at.present?
+        scope = scope.where("last_seen_at >= :last_seen_at OR last_seen_at IS NULL", last_seen_at: last_seen_at)
+      end
+      scope
+    end
+
+    def chat_dataset
+      return [] unless send_to_chats?
+
+      scope = TelegramChat.active
+      scope.where(external_id: telegram_chat_ids) if telegram_chat_ids.present?
       if last_seen_at.present?
         scope = scope.where("last_seen_at >= :last_seen_at OR last_seen_at IS NULL", last_seen_at: last_seen_at)
       end
@@ -71,6 +94,20 @@ class MessageDistribution
       @telegram_user_ids ||= (options["telegram_user_ids"] || []).compact_blank.map(&:to_i)
     end
 
+    def send_to_users?
+      value = options["send_to_users"] || true
+      ActiveModel::Type::Boolean.new.cast(value)
+    end
+
+    def telegram_chat_ids
+      @telegram_chat_ids ||= (options["telegram_chat_ids"] || []).compact_blank.map(&:to_i)
+    end
+
+    def send_to_chats?
+      value = options["send_to_chats"] || true
+      ActiveModel::Type::Boolean.new.cast(value)
+    end
+
     def test_sending?
       @test_sending ||= begin
         value = options["test_sending"] || true
@@ -78,10 +115,10 @@ class MessageDistribution
       end
     end
 
-    def check_users
-      return if users.count >= 1
+    def check_receivers_count
+      return if users.count != 0 || chats.count != 0
 
-      errors.add(:base, "Пустая выборка юзеров")
+      errors.add(:base, "Пустая выборка юзеров и чатов")
     end
 
     def check_text

@@ -1,19 +1,28 @@
 <%= semantic_form_for MessageDistribution::SendingForm.new, :url => submit_sending_admin_message_distribution_path(resource) do |f| %>
   <%= f.inputs :name => 'Filters', :class => 'inputs' do %>
 
-    <span>Ничего не выбрано = все пользователи</span>
+    <%= f.input :send_to_users, as: :boolean %>
+
     <%= f.input :telegram_user_ids,
                 as: :select,
                 collection: telegram_users_for_select,
-                input_html: { multiple: true } %>
+                input_html: { multiple: true },
+                hint: "Пустое значение значит что отправка на всех пользователей" %>
+
+    <%= f.input :send_to_chats, as: :boolean %>
+
+    <%= f.input :telegram_chat_ids,
+                as: :select,
+                collection: TelegramChat.active.pluck(:external_id, :external_id),
+                input_html: { multiple: true },
+                hint: "Пустое значение значит что отправка на все активные чаты"%>
 
     <%= f.input :active_since,
                 as: :date_time_picker,
                 picker_options: { timepicker: true },
                 input_html: { size: 500 } %>
 
-    <span>Тестовая отправка не заполняет дату last_sent_at</span>
-    <%= f.input :test_sending, as: :boolean %>
+    <%= f.input :test_sending, as: :boolean, hint: 'Тестовая отправка не заполняет дату last_sent_at' %>
   <% end %>
 
   <fieldset class="actions">
