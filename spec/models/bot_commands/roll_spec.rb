@@ -54,7 +54,7 @@ RSpec.describe BotCommands::Roll do
       * /roll 2d20
       * /r 2d20
       * /roll 3d4+3
-      * /r 3d3-1 4d4+2 5d5
+      * /r 1d10-1 4d4+2 5d5 (множественный бросок)
       
       Для броска выбери кость из таблицы:
     TEXT
@@ -79,7 +79,7 @@ RSpec.describe BotCommands::Roll do
       {
         parse_mode: "HTML",
         reply_markup: expected_markup,
-        text: "<b>Бросок:</b> 🎲 1d1\n<b>Все результаты:</b> 1\n<b>Итог:</b> 1"
+        text: "<b>Бросок:</b> 🎲 1d1\n<b>Выпавшие кости:</b> 1\n<b>Результат:</b> 1"
       }
     end
     let(:expected_markup) do

@@ -44,7 +44,12 @@ module BotCommands
     end
 
     def calculate_roll
-      text = roll_formulas.map { _1.roll_result }.join("\n\n")
+      roll_texts = roll_formulas.map(&:to_s)
+      if roll_formulas.size > 1
+        sum_of_all_rolls = "<b>Итог:</b> #{roll_formulas.map(&:rolls_sum_total).sum}"
+        roll_texts << sum_of_all_rolls
+      end
+      text = roll_texts.join("\n\n")
 
       buttons = [{text: "Другой бросок", callback_data: "#{callback_prefix}:"}]
       inline_keyboard = buttons.in_groups_of(2, false)
@@ -65,7 +70,7 @@ module BotCommands
         * /roll 2d20
         * /r 2d20
         * /roll 3d4+3
-        * /r 3d3-1 4d4+2 5d5
+        * /r 1d10-1 4d4+2 5d5 (множественный бросок)
         
         Для броска выбери кость из таблицы:
       HTML

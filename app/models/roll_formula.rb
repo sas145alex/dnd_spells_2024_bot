@@ -22,6 +22,26 @@ class RollFormula
     !valid?
   end
 
+  def rolls_sum_total
+    apply_modifier(rolls_sum_without_modifier)
+  end
+
+  def to_s
+    text = <<~HTML.chomp
+      <b>Бросок:</b> 🎲 #{roll_formula}
+      <b>Выпавшие кости:</b> #{rolls.sort.join(", ")}
+      #{modifier_text}
+      #{advantage_text}
+      #{disadvantage_text}
+      <b>Результат:</b> #{rolls_sum_total}
+    HTML
+    text.squeeze("\n")
+  end
+
+  private
+
+  attr_reader :roll_formula
+
   def dice_count
     parsed_formula.try(:[], :dice_count).nil? ? nil : parsed_formula[:dice_count].to_i
   end
@@ -38,22 +58,6 @@ class RollFormula
     (parsed_formula[:mod_sign] || "+").to_s.to_sym
   end
 
-  def roll_result
-    text = <<~HTML.chomp
-      <b>Бросок:</b> 🎲 #{roll_formula}
-      <b>Все результаты:</b> #{rolls.sort.join(", ")}
-      #{modifier_text}
-      #{advantage_text}
-      #{disadvantage_text}
-      <b>Итог:</b> #{apply_modifier(rolls_sum)}
-    HTML
-    text.squeeze("\n")
-  end
-
-  private
-
-  attr_reader :roll_formula
-
   def parsed_formula
     @parsed_formula ||= roll_formula.match(ROLL_FORMULA_REGEXP)
   end
@@ -62,7 +66,7 @@ class RollFormula
     @rolls ||= (1..dice_count).to_a.map { rand(1..dice_value) }
   end
 
-  def rolls_sum
+  def rolls_sum_without_modifier
     rolls.sum
   end
 
@@ -74,7 +78,7 @@ class RollFormula
     return "" if mod_value.zero?
 
     <<~HTML
-      <b>Сумма без модификатора:</b> #{rolls_sum}
+      <b>Сумма без модификатора:</b> #{rolls_sum_without_modifier}
       <b>Модификатор:</b> #{mod_sign}#{mod_value}
     HTML
   end
