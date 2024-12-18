@@ -55,6 +55,10 @@ class CharacterKlass < ApplicationRecord
     title == "Мастер боевых искусств" || original_title == "Battle Master"
   end
 
+  def use_infusions?
+    title == "Изобретатель" || original_title == "Artificer"
+  end
+
   def has_spells?
     klass_ids = base_klass? ? [id] : [id, parent_klass_id]
     SpellsCharacterKlass.where(character_klass_id: klass_ids).exists?

@@ -94,7 +94,8 @@ klasses = [
   {title: "Монах", original_title: "Monk", description: "description", subklasses: monks},
   {title: "Паладин", original_title: "Paladin", description: "description", subklasses: paladins},
   {title: "Волшебник", original_title: "Wizard", description: "description", subklasses: wizards},
-  {title: "Чародей", original_title: "Sorcerer", description: "description", subklasses: sorcerers}
+  {title: "Чародей", original_title: "Sorcerer", description: "description", subklasses: sorcerers},
+  {title: "Изобретатель", original_title: "Artificer", description: "description", subklasses: []}
 ]
 
 pp "Performing - #{__FILE__}"

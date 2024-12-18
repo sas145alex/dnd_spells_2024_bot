@@ -1,17 +1,13 @@
-ActiveAdmin.register CharacterKlass do
-  scope :base_klasses, ->(scope) { scope.base_klasses }
-  scope :subklasses, ->(scope) { scope.subklasses }
+ActiveAdmin.register Infusion do
   scope :published, ->(scope) { scope.published }
   scope :not_published, ->(scope) { scope.not_published }
 
   index do
     selectable_column
     id_column
+    column :level
     column :title
     column :original_title
-    column :parent_klass_id do |resource|
-      resource.parent_klass
-    end
     column :description do |resource|
       markdown_to_html(resource.description.first(300))
     end
@@ -42,8 +38,8 @@ ActiveAdmin.register CharacterKlass do
   end
 
   filter :id
+  filter :level
   filter :title
-  filter :parent_klass, collection: -> { CharacterKlass.base_klasses }
   filter :original_title
   filter :description
   filter :published_at
@@ -55,20 +51,17 @@ ActiveAdmin.register CharacterKlass do
   show do
     attributes_table_for(resource) do
       row :id
-      row :parent_klass, collection: CharacterKlass.base_klasses
+      row :level
       row :title
       row :original_title
-      row :use_parent_description do
-        value = resource.use_parent_description?
-        span class: "badge #{value ? "badge-success" : "badge-danger"}" do
-          I18n.t("types.boolean.#{value}")
-        end
-      end
       row :description do
         markdown_to_html(resource.description)
       end
       row :length do
         render partial: "description_length_badge", locals: {resource: resource}
+      end
+      row :published_at do
+        render partial: "published_badge", locals: {resource: resource}
       end
       row :created_at
       row :updated_at
@@ -90,11 +83,11 @@ ActiveAdmin.register CharacterKlass do
   form do |f|
     f.semantic_errors
     f.inputs do
-      f.input :parent_klass, collection: CharacterKlass.base_klasses
+      f.input :level
       f.input :title
       f.input :original_title
       f.input :description,
-        label: "Description (#{CharacterKlass::DESCRIPTION_FORMAT})",
+        label: "Description (#{Infusion::DESCRIPTION_FORMAT})",
         as: :simplemde_editor,
         input_html: {rows: 12, style: "height:auto"}
       li "Created at #{f.object.created_at}" unless f.object.new_record?
@@ -150,18 +143,14 @@ ActiveAdmin.register CharacterKlass do
   end
 
   controller do
-    def scoped_collection
-      super.includes :parent_klass
-    end
-
     def create
-      @resource = CharacterKlass.new
+      @resource = Infusion.new
 
       if @resource.update(create_params)
         if params[:create_another] == "on"
-          redirect_to new_resource_path(@resource), notice: "CharacterKlass was successfully created. Create another one."
+          redirect_to new_resource_path(@resource), notice: "Infusion was successfully created. Create another one."
         else
-          redirect_to resource_path(@resource), notice: "CharacterKlass was successfully created."
+          redirect_to resource_path(@resource), notice: "Infusion was successfully created."
         end
       else
         flash.now[:alert] = "Errors happened: " + @resource.errors.full_messages.to_sentence
@@ -171,7 +160,7 @@ ActiveAdmin.register CharacterKlass do
 
     def update
       if resource.update(update_params)
-        redirect_to resource_path(resource), notice: "CharacterKlass was successfully updated."
+        redirect_to resource_path(resource), notice: "Infusion was successfully updated."
       else
         flash.now[:alert] = "Errors happened: " + resource.errors.full_messages.to_sentence
         render(:edit, status: :unprocessable_entity)
@@ -180,7 +169,7 @@ ActiveAdmin.register CharacterKlass do
 
     def destroy
       if resource.destroy
-        redirect_to collection_path, notice: "The character_klass has been deleted."
+        redirect_to collection_path, notice: "The origin has been deleted."
       else
         redirect_to collection_path, alert: "Errors happened: " + resource.errors.full_messages.to_sentence
       end
@@ -189,13 +178,13 @@ ActiveAdmin.register CharacterKlass do
     private
 
     def create_params
-      attrs = permitted_params[:character_klass].to_h
+      attrs = permitted_params[:infusion].to_h
       attrs[:created_by] = current_admin_user
       attrs
     end
 
     def update_params
-      attrs = permitted_params[:character_klass].to_h
+      attrs = permitted_params[:infusion].to_h
       attrs[:updated_by] = current_admin_user
       attrs
     end
@@ -204,6 +193,6 @@ ActiveAdmin.register CharacterKlass do
   permit_params :title,
     :original_title,
     :description,
-    :parent_klass_id,
+    :level,
     mentions_attributes: [:id, :another_mentionable_type, :another_mentionable_id, :_destroy]
 end

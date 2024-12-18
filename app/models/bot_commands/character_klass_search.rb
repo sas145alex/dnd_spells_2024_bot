@@ -68,6 +68,8 @@ module BotCommands
         inline_keyboard.append([{text: "Метамагия", callback_data: "metamagics:"}])
       elsif selected_object.use_maneuvers?
         inline_keyboard.append([{text: "Маневры", callback_data: "maneuvers:"}])
+      elsif selected_object.use_infusions?
+        inline_keyboard.append([{text: "Инфузии", callback_data: "infusions:"}])
       end
       if selected_object.has_spells?
         linked_spells_button = {
@@ -100,7 +102,7 @@ module BotCommands
     end
 
     def character_klass_scope
-      ::CharacterKlass.ordered
+      ::CharacterKlass.ordered.published
     end
 
     def callback_prefix
