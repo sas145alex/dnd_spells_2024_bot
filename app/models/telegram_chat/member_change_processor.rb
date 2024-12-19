@@ -52,7 +52,7 @@ class TelegramChat
 
     def current_bot_affected?
       return false if new_chat_member["user"]["is_bot"] == false
-      return false if new_chat_member["user"]["username"] != "#{bot.username}_bot"
+      return false if new_chat_member["user"]["username"] != bot.username
 
       true
     end

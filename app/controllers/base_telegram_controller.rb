@@ -18,7 +18,7 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
 
       if receiver.blank?
         super
-      elsif receiver == "#{bot.username}_bot"
+      elsif receiver == bot.username
         update["message"]["text"] = matches[:command]
         super
       else

@@ -179,7 +179,10 @@ class TelegramController < BaseTelegramController
     if history_item.present?
       send(history_item[:action], history_item[:input_value])
     else
-      respond_with :message, text: "Не найден последний ответ от сервера", reply_markup: {}
+      text = <<~HTML.chomp
+        Не найден последний ответ от сервера. Скорее всего твоя сессия истекла. Доступные команды можешь найти в меню слева внизу, а также отправив команду /about
+      HTML
+      respond_with :message, text: text, reply_markup: {}
     end
   end
 
