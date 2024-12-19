@@ -108,4 +108,10 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
   def message_from_chat?
     payload.dig("from", "id") != payload.dig("chat", "id")
   end
+
+  def respond_with(type, params)
+    params[:parse_mode] ||= "HTML"
+    params[:message_thread_id] = payload["message_thread_id"] if payload.key?("message_thread_id")
+    super
+  end
 end
