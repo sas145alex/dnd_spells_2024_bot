@@ -13,18 +13,22 @@ RSpec.describe MessageDistribution::Send do
     {
       "telegram_user_ids" => [""],
       "active_since" => "2024-08-19 11:01",
-      "test_sending" => "1"
+      "test_sending" => "1",
+      "send_to_users" => "1",
+      "send_to_chats" => "1"
     }
   end
 
   let!(:user1) { create(:telegram_user, external_id: 111) }
   let!(:user2) { create(:telegram_user, external_id: 222) }
+  let!(:chat1) { create(:telegram_chat, external_id: 333) }
+  let!(:chat2) { create(:telegram_chat, external_id: 444) }
 
   before do
     allow(Telegram.bot).to receive(:send_message)
   end
 
-  it "sends text to all users" do
+  it "sends text to all users and chats" do
     expect(subject).to eq(true)
 
     expect(Telegram.bot).to have_received(:send_message).with(
@@ -34,6 +38,16 @@ RSpec.describe MessageDistribution::Send do
     )
     expect(Telegram.bot).to have_received(:send_message).with(
       chat_id: user2.external_id,
+      parse_mode: "HTML",
+      text: instance_of(String)
+    )
+    expect(Telegram.bot).to have_received(:send_message).with(
+      chat_id: chat1.external_id,
+      parse_mode: "HTML",
+      text: instance_of(String)
+    )
+    expect(Telegram.bot).to have_received(:send_message).with(
+      chat_id: chat2.external_id,
       parse_mode: "HTML",
       text: instance_of(String)
     )
@@ -59,6 +73,17 @@ RSpec.describe MessageDistribution::Send do
         parse_mode: "HTML",
         text: instance_of(String)
       )
+
+      expect(Telegram.bot).to have_received(:send_message).with(
+        chat_id: chat1.external_id,
+        parse_mode: "HTML",
+        text: instance_of(String)
+      )
+      expect(Telegram.bot).to have_received(:send_message).with(
+        chat_id: chat2.external_id,
+        parse_mode: "HTML",
+        text: instance_of(String)
+      )
     end
   end
 
@@ -79,6 +104,16 @@ RSpec.describe MessageDistribution::Send do
       )
       expect(Telegram.bot).to have_received(:send_message).with(
         chat_id: user2.external_id,
+        parse_mode: "HTML",
+        text: instance_of(String)
+      )
+      expect(Telegram.bot).to have_received(:send_message).with(
+        chat_id: chat1.external_id,
+        parse_mode: "HTML",
+        text: instance_of(String)
+      )
+      expect(Telegram.bot).to have_received(:send_message).with(
+        chat_id: chat2.external_id,
         parse_mode: "HTML",
         text: instance_of(String)
       )

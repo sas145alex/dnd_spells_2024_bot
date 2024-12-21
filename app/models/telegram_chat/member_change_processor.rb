@@ -62,7 +62,7 @@ class TelegramChat
     end
 
     def current_bot_removed?
-      new_chat_member["status"] == "left"
+      new_chat_member["status"] == "left" || new_chat_member["status"] == "kicked"
     end
 
     def external_chat_id

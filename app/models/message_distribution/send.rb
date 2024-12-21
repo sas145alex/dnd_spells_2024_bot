@@ -15,8 +15,13 @@ class MessageDistribution
     def call
       return false if invalid?
 
-      send_message_to(users)
-      send_message_to(chats)
+      users.in_batches(of: BATCH_SIZE).each do |records_batch|
+        process_batch(records_batch)
+      end
+
+      chats.in_batches(of: BATCH_SIZE).each do |records_batch|
+        process_batch(records_batch)
+      end
 
       distribution.update(last_sent_at: Time.current) unless test_sending?
 
@@ -28,13 +33,12 @@ class MessageDistribution
     attr_reader :distribution
     attr_reader :options
 
-    def send_message_to(records)
-      records.in_batches(of: BATCH_SIZE).each do |records_batch|
-        records_batch.each do |record|
-          process_chat(record)
-        end
-        sleep(2) if Rails.env.production?
+    def process_batch(records_batch)
+      records_batch.each do |record|
+        process_chat(record)
       end
+
+      sleep(2) if Rails.env.production?
     end
 
     # @param [TelegramChat, TelegramUser] chat
@@ -61,7 +65,7 @@ class MessageDistribution
     end
 
     def user_dataset
-      return [] unless send_to_users?
+      return TelegramUser.none unless send_to_users?
 
       scope = TelegramUser.all
       scope = scope.where(external_id: telegram_user_ids) if telegram_user_ids.present?
@@ -72,9 +76,9 @@ class MessageDistribution
     end
 
     def chat_dataset
-      return [] unless send_to_chats?
+      return TelegramChat.none unless send_to_chats?
 
-      scope = TelegramChat.active
+      scope = TelegramChat.active.all
       scope.where(external_id: telegram_chat_ids) if telegram_chat_ids.present?
       if last_seen_at.present?
         scope = scope.where("last_seen_at >= :last_seen_at OR last_seen_at IS NULL", last_seen_at: last_seen_at)
@@ -95,7 +99,7 @@ class MessageDistribution
     end
 
     def send_to_users?
-      value = options["send_to_users"] || true
+      value = options.fetch("send_to_users", true)
       ActiveModel::Type::Boolean.new.cast(value)
     end
 
@@ -104,13 +108,13 @@ class MessageDistribution
     end
 
     def send_to_chats?
-      value = options["send_to_chats"] || true
+      value = options.fetch("send_to_chats", true)
       ActiveModel::Type::Boolean.new.cast(value)
     end
 
     def test_sending?
       @test_sending ||= begin
-        value = options["test_sending"] || true
+        value = options.fetch("test_sending", true)
         ActiveModel::Type::Boolean.new.cast(value)
       end
     end
