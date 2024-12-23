@@ -38,11 +38,13 @@ class MessageDistribution
         process_chat(record)
       end
 
-      sleep(2) if Rails.env.production?
+      sleep(1) if Rails.env.production?
     end
 
     # @param [TelegramChat, TelegramUser] chat
     def process_chat(chat)
+      # client = self.class.client_class.wrap(client_id.to_sym)
+      # client.async(false) { client.request(*args) }
       Telegram.bot.send_message(
         chat_id: chat.external_id,
         text: text,

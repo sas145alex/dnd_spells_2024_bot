@@ -46,7 +46,8 @@ class TelegramController < BaseTelegramController
     else
       save_context("feedback!")
 
-      text = "Если ты хочешь предложить как меня улучшить или ты столкнулся с ошибкой в моем функционале, то отправь ответное сообщение. Я распознаю только текст. Спасибо!"
+      command_record = BotCommand.feedback.decorate
+      text = command_record.description_for_telegram
       respond_with :message, text: text
     end
   end
