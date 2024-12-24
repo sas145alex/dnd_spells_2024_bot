@@ -1,0 +1,7 @@
+ru:
+  activerecord:
+    attributes:
+      tool:
+        categories:
+          other: "Другие"
+          handcraft: "Ремесленные"

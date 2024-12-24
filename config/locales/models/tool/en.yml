@@ -1,0 +1,7 @@
+en:
+  activerecord:
+    attributes:
+      tool:
+        categories:
+          other: "Other"
+          handcraft: "Handcraft"

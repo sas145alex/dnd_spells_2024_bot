@@ -2,14 +2,15 @@ ActiveAdmin.register Tool do
   index do
     selectable_column
     id_column
+    column :category do |resource|
+      resource.human_enum_name(:category)
+    end
     column :title
     column :original_title
     column :description do |resource|
       markdown_to_html(resource.description.first(300))
     end
     column :published_at
-    column :created_at
-    column :updated_at
     actions defaults: false do |resource|
       links = []
       links << link_to(
@@ -34,6 +35,7 @@ ActiveAdmin.register Tool do
   end
 
   filter :id
+  filter :category, as: :select, collection: Tool.categories
   filter :title
   filter :original_title
   filter :description
@@ -46,6 +48,7 @@ ActiveAdmin.register Tool do
   show do
     attributes_table_for(resource) do
       row :id
+      row :category
       row :title
       row :original_title
       row :description do
@@ -77,6 +80,7 @@ ActiveAdmin.register Tool do
   form do |f|
     f.semantic_errors
     f.inputs do
+      f.input :category, as: :select, collection: f.object.class.categories
       f.input :title
       f.input :original_title
       f.input :description,
@@ -186,5 +190,6 @@ ActiveAdmin.register Tool do
   permit_params :title,
     :original_title,
     :description,
+    :category,
     mentions_attributes: [:id, :another_mentionable_type, :another_mentionable_id, :_destroy]
 end

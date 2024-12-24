@@ -16,6 +16,11 @@ class Tool < ApplicationRecord
   before_validation :strip_title
   before_validation :strip_original_title
 
+  enum :category, {
+    other: "other",
+    handcraft: "handcraft"
+  }
+
   def self.ransackable_associations(auth_object = nil)
     %w[created_by updated_by]
   end

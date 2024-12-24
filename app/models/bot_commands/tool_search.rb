@@ -2,6 +2,8 @@ module BotCommands
   class ToolSearch < BaseCommand
     def call
       if input_value.blank?
+        provide_top_level_categories
+      elsif category_selected?
         give_tools
       elsif selected_object.is_a?(::Tool)
         give_detailed_tool_info
@@ -20,8 +22,27 @@ module BotCommands
 
     attr_reader :input_value
 
+    def provide_top_level_categories
+      enums = ::Tool.human_enum_names(:category, locale: locale)
+      options = enums.map do |translation, enum_raw_value|
+        {
+          text: translation,
+          callback_data: "#{callback_prefix}:#{enum_raw_value}"
+        }
+      end
+      inline_keyboard = options.in_groups_of(2, false)
+      inline_keyboard.append([go_back_button])
+      reply_markup = {inline_keyboard: inline_keyboard}
+
+      {
+        text: "Выбери категорию",
+        reply_markup: reply_markup,
+        parse_mode: parse_mode
+      }
+    end
+
     def give_tools
-      variants = tool_scope.all
+      variants = tool_scope.all.where(category: input_value)
       options = keyboard_options(variants)
       inline_keyboard = options.in_groups_of(2, false)
       inline_keyboard.prepend(keyboard_option_tool_info)
@@ -70,6 +91,10 @@ module BotCommands
     def keyboard_option_crafting_info
       variants = [::BotCommand.crafting.decorate]
       keyboard_options(variants)
+    end
+
+    def category_selected?
+      input_value.to_s.in?(::Tool.categories.keys)
     end
 
     def tool_scope
