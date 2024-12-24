@@ -32,7 +32,7 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
   before_action :initialize_session
 
   def my_chat_member(*_args)
-    TelegramChat::MemberChangeProcessor.call(payload: payload, bot: bot)
+    TelegramChat::MemberChangeProcessor.call(payload: payload, bot: bot, chat_id: chat["id"])
   end
 
   def message(*_args)
@@ -40,6 +40,16 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
       # when bot added or removed telegram sends two requests with different types
       # such changed handled by #my_chat_member in another request
       return
+    end
+
+    if message_from_chat?
+      data = bot.get_chat_member(user_id: bot.external_id, chat_id: chat["id"])
+      if data["ok"] == true && data.dig("result", "status") == "administrator"
+        chat_id = chat["id"].to_i
+        TelegramChat::LeaveChat.call(bot: bot, chat_id: chat_id)
+        TelegramChat::MarkAsRemoved.call(bot: bot, chat_id: chat_id)
+        return
+      end
     end
 
     text = "Ты ввел сообщение, но я не понимаю твою команду. Пожалуйста, проверь команду или выбери ее в меню слева внизу."
@@ -106,7 +116,9 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
   end
 
   def message_from_chat?
-    payload.dig("from", "id") != payload.dig("chat", "id")
+    user_id = payload.dig("from", "id")
+    chat_id = chat["id"]
+    user_id.present? && chat_id.present? && (user_id != chat_id)
   end
 
   def respond_with(type, params)
