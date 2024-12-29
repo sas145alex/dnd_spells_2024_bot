@@ -42,14 +42,11 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
       return
     end
 
-    if message_from_chat?
-      data = bot.get_chat_member(user_id: bot.external_id, chat_id: chat["id"])
-      if data["ok"] == true && data.dig("result", "status") == "administrator"
-        chat_id = chat["id"].to_i
-        TelegramChat::LeaveChat.call(bot: bot, chat_id: chat_id)
-        TelegramChat::MarkAsRemoved.call(bot: bot, chat_id: chat_id)
-        return
-      end
+    if message_from_chat? && bot_has_admin_right_in_chat?
+      chat_id = chat["id"].to_i
+      TelegramChat::LeaveChat.call(bot: bot, chat_id: chat_id)
+      TelegramChat::MarkAsRemoved.call(bot: bot, chat_id: chat_id)
+      return
     end
 
     text = "Ты ввел сообщение, но я не понимаю твою команду. Пожалуйста, проверь команду или выбери ее в меню слева внизу."
@@ -61,6 +58,16 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
   end
 
   private
+
+  def bot_has_admin_right_in_chat?
+    client_class = BotRequestJob.client_class
+    client = client_class.wrap(bot.id)
+    client.async(false) do
+      data = bot.get_chat_member(user_id: bot.external_id, chat_id: chat["id"])
+
+      data["ok"] == true && data.dig("result", "status") == "administrator"
+    end
+  end
 
   def initialize_session
     session[:_last_activity_at] = Time.current.to_i
