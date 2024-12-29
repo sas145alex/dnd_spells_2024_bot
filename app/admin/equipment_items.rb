@@ -52,6 +52,8 @@ ActiveAdmin.register EquipmentItem do
     attributes_table_for(resource) do
       row :id
       row :item_type
+      row :price
+      row :weight
       row :title
       row :original_title
       row :description do
@@ -84,6 +86,8 @@ ActiveAdmin.register EquipmentItem do
     f.semantic_errors
     f.inputs do
       f.input :item_type, as: :select, collection: f.object.class.item_types
+      f.input :price
+      f.input :weight
       f.input :title
       f.input :original_title
       f.input :description,
@@ -194,5 +198,7 @@ ActiveAdmin.register EquipmentItem do
     :original_title,
     :description,
     :item_type,
+    :weight,
+    :price,
     mentions_attributes: [:id, :another_mentionable_type, :another_mentionable_id, :_destroy]
 end
