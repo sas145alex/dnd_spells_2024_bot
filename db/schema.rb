@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_24_160024) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_29_071643) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -158,6 +158,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_24_160024) do
     t.bigint "updated_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "price"
+    t.string "weight"
     t.index ["created_by_id"], name: "index_equipment_items_on_created_by_id"
     t.index ["updated_by_id"], name: "index_equipment_items_on_updated_by_id"
   end

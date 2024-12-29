@@ -25,8 +25,23 @@ class EquipmentItem < ApplicationRecord
     light_armor: "light_armor",
     medium_armor: "medium_armor",
     heavy_armor: "heavy_armor",
-    shield: "shield"
-  }
+    shield: "shield",
+    alchemy: "alchemy",
+    ammo: "ammo",
+    survival: "survival",
+    chancellery: "chancellery",
+    trap: "trap",
+    magic: "magic",
+    mobility: "mobility",
+    pack: "pack",
+    clothes: "clothes",
+    lighting: "lighting",
+    other: "other",
+    druid_focus: "druid_focus",
+    cleric_focus: "cleric_focus",
+    mage_focus: "mage_focus",
+    storage: "storage"
+  }, default: "other"
 
   def self.weapon_item_types
     %i[simple_melee martial_melee simple_ranged martial_ranged]
