@@ -2,7 +2,8 @@ module BotCommands
   class EquipmentSearch < BaseCommand
     TOP_LEVEL_CATEGORIES = {
       "weapon" => "Оружие",
-      "armor" => "Доспехи"
+      "armor" => "Доспехи",
+      "general" => "Предметы"
     }
 
     def call
@@ -122,9 +123,15 @@ module BotCommands
       when "armor"
         types = EquipmentItem.armor_item_types
         EquipmentItem.human_enum_names(:item_type, only: types)
+      when "general"
+        types = EquipmentItem.general_item_types
+        EquipmentItem.human_enum_names(:item_type, only: types)
       else
-        {}
+        raise NotImplementedError, "do not know how to handle #{input_value}"
       end
+    rescue NoMethodError => e
+      Sentry.capture_exception(e)
+      {}
     end
 
     def callback_prefix

@@ -4,14 +4,15 @@ class Importers::ImportNewItems < ApplicationOperation
     EquipmentItem.transaction do
       CSV.foreach(file_path, headers: true, header_converters: :symbol) do |row|
         item_type = translated_enums.fetch(row[:category])
+        description = row[:description].gsub(/\r\n?/, " ").gsub(/\b-\s\b/, "")
         EquipmentItem.create!(
           title: row[:title],
           original_title: row[:original_title],
-          description: row[:description],
+          description: description,
           weight: row[:weight],
           price: row[:price],
           item_type: item_type,
-          published_at: nil,
+          published_at: Time.current,
           created_at: row[:created_at] || Time.current,
           updated_at: row[:updated_at] || Time.current,
           created_by: created_by

@@ -80,7 +80,7 @@ class TelegramChat
 
     def send_error_to_sentry
       raise NotImplementedError, "do not know how to handle payload #{new_chat_member["status"]}"
-    rescue Exception => error
+    rescue => error
       Sentry.capture_exception(error)
       nil
     end

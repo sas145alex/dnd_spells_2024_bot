@@ -51,6 +51,26 @@ class EquipmentItem < ApplicationRecord
     %i[no_armor light_armor medium_armor heavy_armor shield]
   end
 
+  def self.general_item_types
+    %i[
+      alchemy
+      ammo
+      survival
+      chancellery
+      trap
+      magic
+      mobility
+      pack
+      clothes
+      lighting
+      other
+      druid_focus
+      cleric_focus
+      mage_focus
+      storage
+    ]
+  end
+
   def self.ransackable_associations(auth_object = nil)
     %w[created_by updated_by]
   end

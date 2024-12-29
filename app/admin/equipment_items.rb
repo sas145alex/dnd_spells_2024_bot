@@ -1,4 +1,7 @@
 ActiveAdmin.register EquipmentItem do
+  scope :published, ->(scope) { scope.published }
+  scope :not_published, ->(scope) { scope.not_published }
+
   index do
     selectable_column
     id_column
