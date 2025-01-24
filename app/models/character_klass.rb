@@ -56,7 +56,8 @@ class CharacterKlass < ApplicationRecord
   end
 
   def use_infusions?
-    title == "Изобретатель" || original_title == "Artificer"
+    # wait for release of Artificer and see if Infusion is needed
+    false
   end
 
   def has_spells?
