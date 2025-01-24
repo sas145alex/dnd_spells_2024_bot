@@ -13,6 +13,10 @@ class BotRequestJob < ApplicationJob
       Rails.logger.error(e)
       # do not know why this happens so just drop sending the message
       nil
+    elsif e.message.match?("message is not modified")
+      Rails.logger.error(e)
+      # happens sometimes when clicking return button
+      nil
     else
       raise
     end
