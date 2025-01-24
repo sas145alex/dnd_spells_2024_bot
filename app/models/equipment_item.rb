@@ -40,7 +40,8 @@ class EquipmentItem < ApplicationRecord
     druid_focus: "druid_focus",
     cleric_focus: "cleric_focus",
     mage_focus: "mage_focus",
-    storage: "storage"
+    storage: "storage",
+    poison: "poison"
   }, default: "other"
 
   def self.weapon_item_types
@@ -68,6 +69,7 @@ class EquipmentItem < ApplicationRecord
       cleric_focus
       mage_focus
       storage
+      poison
     ]
   end
 
