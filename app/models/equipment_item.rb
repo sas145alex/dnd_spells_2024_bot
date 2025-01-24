@@ -25,6 +25,9 @@ class EquipmentItem < ApplicationRecord
     light_armor: "light_armor",
     medium_armor: "medium_armor",
     heavy_armor: "heavy_armor",
+    modern_weapon: "modern_weapon",
+    futuristic_weapon: "futuristic_weapon",
+    explosive: "explosive",
     shield: "shield",
     alchemy: "alchemy",
     ammo: "ammo",
@@ -45,7 +48,7 @@ class EquipmentItem < ApplicationRecord
   }, default: "other"
 
   def self.weapon_item_types
-    %i[simple_melee martial_melee simple_ranged martial_ranged]
+    %i[simple_melee martial_melee simple_ranged martial_ranged modern_weapon futuristic_weapon explosive]
   end
 
   def self.armor_item_types

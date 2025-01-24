@@ -28,3 +28,6 @@ ru:
           mage_focus: "Фокусировка мага"
           storage: "Хранение"
           poison: "Яды"
+          modern_weapon: "Современное оружее"
+          futuristic_weapon: "Футуристичное оружее"
+          explosive: "Взрывчатка"
