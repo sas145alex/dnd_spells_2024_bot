@@ -12,6 +12,7 @@ class Telegram::UserMetricsJob < ApplicationJob
       user.chat_id = chat_id
     end
     user.transaction do
+      user.bot_removed_at = nil if user.bot_removed_at.present? && user.bot_removed_at < message_send_at
       user.increment(:command_requested_count)
       user.last_seen_at = [message_send_at, user.last_seen_at].compact.max
       user.username = username if username.present? && user.username != username

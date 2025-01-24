@@ -9,6 +9,7 @@ class Telegram::ChatMetricsJob < ApplicationJob
       new_chat.bot_added_at = Time.current
     end
     chat.transaction do
+      chat.bot_removed_at = nil if chat.bot_removed_at.present? && chat.bot_removed_at < message_send_at
       chat.increment(:command_requested_count)
       chat.last_seen_at = [message_send_at, chat.last_seen_at].compact.max
       chat.save!
