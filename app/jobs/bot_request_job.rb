@@ -8,6 +8,14 @@ class BotRequestJob < ApplicationJob
     payload = args[1] || {}
     mark_receiver_as_not_available(payload)
     nil
+  rescue Telegram::Bot::Error => e
+    if e.message.match?("message thread not found")
+      Rails.logger.error(e)
+      # do not know why this happens so just drop sending the message
+      nil
+    else
+      raise
+    end
   end
 
   def mark_receiver_as_not_available(payload = {})
