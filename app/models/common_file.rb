@@ -1,5 +1,5 @@
 class CommonFile < ApplicationRecord
-  ATTACHMENT_CONTENT_TYPES = %i[png jpg jpeg]
+  ATTACHMENT_CONTENT_TYPES = %i[png jpg jpeg csv]
 
   has_one_attached :attachment
 
