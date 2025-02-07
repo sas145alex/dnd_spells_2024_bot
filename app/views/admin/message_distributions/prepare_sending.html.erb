@@ -5,8 +5,12 @@
 
     <%= f.input :telegram_user_ids,
                 as: :select,
-                collection: telegram_users_for_select,
-                input_html: { multiple: true },
+                collection: [],
+                input_html: {
+                  multiple: true,
+                  class: 'autocomplete-select',
+                  'data-autocomplete-url' => autocomplete_admin_telegram_users_path,
+                },
                 hint: "Пустое значение значит что отправка на всех пользователей" %>
 
     <%= f.input :send_to_chats, as: :boolean %>
