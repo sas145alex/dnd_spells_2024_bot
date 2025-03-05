@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_24_145914) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_05_063952) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -91,6 +91,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_145914) do
     t.bigint "updated_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "searchable_title", default: "", null: false
     t.index ["character_klass_id"], name: "index_character_klass_abilities_on_character_klass_id"
     t.index ["created_by_id"], name: "index_character_klass_abilities_on_created_by_id"
     t.index ["updated_by_id"], name: "index_character_klass_abilities_on_updated_by_id"
@@ -106,6 +107,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_145914) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "published_at"
+    t.string "searchable_title", default: "", null: false
     t.index ["created_by_id"], name: "index_character_klasses_on_created_by_id"
     t.index ["parent_klass_id"], name: "index_character_klasses_on_parent_klass_id"
     t.index ["updated_by_id"], name: "index_character_klasses_on_updated_by_id"
@@ -140,6 +142,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_145914) do
     t.datetime "published_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "searchable_title", default: "", null: false
     t.index ["created_by_id"], name: "index_creatures_on_created_by_id"
     t.index ["published_at"], name: "index_creatures_on_published_at", where: "(published_at IS NOT NULL)"
     t.index ["responsible_id"], name: "index_creatures_on_responsible_id"
@@ -160,6 +163,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_145914) do
     t.datetime "updated_at", null: false
     t.string "price"
     t.string "weight"
+    t.string "searchable_title", default: "", null: false
     t.index ["created_by_id"], name: "index_equipment_items_on_created_by_id"
     t.index ["updated_by_id"], name: "index_equipment_items_on_updated_by_id"
   end
@@ -174,6 +178,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_145914) do
     t.bigint "updated_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "searchable_title", default: "", null: false
     t.index ["created_by_id"], name: "index_feats_on_created_by_id"
     t.index ["updated_by_id"], name: "index_feats_on_updated_by_id"
   end
@@ -197,6 +202,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_145914) do
     t.bigint "updated_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "searchable_title", default: "", null: false
     t.index ["category_id"], name: "index_glossary_items_on_category_id"
     t.index ["created_by_id"], name: "index_glossary_items_on_created_by_id"
     t.index ["updated_by_id"], name: "index_glossary_items_on_updated_by_id"
@@ -226,6 +232,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_145914) do
     t.bigint "updated_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "searchable_title", default: "", null: false
     t.index ["created_by_id"], name: "index_invocations_on_created_by_id"
     t.index ["updated_by_id"], name: "index_invocations_on_updated_by_id"
   end
@@ -239,6 +246,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_145914) do
     t.bigint "updated_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "searchable_title", default: "", null: false
     t.index ["created_by_id"], name: "index_maneuvers_on_created_by_id"
     t.index ["updated_by_id"], name: "index_maneuvers_on_updated_by_id"
   end
@@ -276,6 +284,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_145914) do
     t.bigint "updated_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "searchable_title", default: "", null: false
     t.index ["created_by_id"], name: "index_metamagics_on_created_by_id"
     t.index ["updated_by_id"], name: "index_metamagics_on_updated_by_id"
   end
@@ -289,6 +298,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_145914) do
     t.bigint "updated_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "searchable_title", default: "", null: false
     t.index ["created_by_id"], name: "index_origins_on_created_by_id"
     t.index ["updated_by_id"], name: "index_origins_on_updated_by_id"
   end
@@ -302,6 +312,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_145914) do
     t.bigint "updated_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "searchable_title", default: "", null: false
     t.index ["created_by_id"], name: "index_races_on_created_by_id"
     t.index ["updated_by_id"], name: "index_races_on_updated_by_id"
   end
@@ -333,6 +344,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_145914) do
     t.boolean "ritual", default: false
     t.boolean "concentration", default: false
     t.string "casting_time", default: "action", null: false
+    t.string "searchable_title", default: "", null: false
     t.index ["created_by_id"], name: "index_spells_on_created_by_id"
     t.index ["published_at"], name: "index_spells_on_published_at", where: "(published_at IS NOT NULL)"
     t.index ["responsible_id"], name: "index_spells_on_responsible_id"
@@ -386,6 +398,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_145914) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "category", default: "other", null: false
+    t.string "searchable_title", default: "", null: false
     t.index ["created_by_id"], name: "index_tools_on_created_by_id"
     t.index ["updated_by_id"], name: "index_tools_on_updated_by_id"
   end

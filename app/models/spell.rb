@@ -1,6 +1,7 @@
 class Spell < ApplicationRecord
   LEVELS = (0..9)
 
+  include Multisearchable
   include Publishable
   include Mentionable
   include WhoDidItable

@@ -1,4 +1,5 @@
 class Creature < ApplicationRecord
+  include Multisearchable
   include Publishable
   include Mentionable
   include WhoDidItable

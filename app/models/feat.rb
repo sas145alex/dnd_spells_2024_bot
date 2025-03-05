@@ -1,4 +1,5 @@
 class Feat < ApplicationRecord
+  include Multisearchable
   include Publishable
   include Mentionable
   include Segmentable

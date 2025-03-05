@@ -14,3 +14,8 @@ load "db/seeds/seeders/character_klasses.rb"
 load "db/seeds/seeders/invocations.rb"
 load "db/seeds/seeders/metamagics.rb"
 load "db/seeds/seeders/maneuvers.rb"
+
+if Rails.env.development? || Rails.env.test?
+  pp "Regenerating all searchable columns"
+  Multisearchable.regenerate_all_searchable_columns!
+end
