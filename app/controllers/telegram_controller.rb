@@ -7,6 +7,10 @@ class TelegramController < BaseTelegramController
   after_action :track_chat_activity, except: SKIP_ACTIVITY_ACTIONS
 
   after_action :remember_history!, except: %i[
+    search!
+    search_callback_query
+    spell!
+    spell_callback_query
     go_back_callback_query
     pick_mention_callback_query
     all_spells_filters_callback_query
@@ -18,6 +22,18 @@ class TelegramController < BaseTelegramController
 
   def start!(*_args)
     answer_params = BotCommands::Start.call
+    respond_with :message, answer_params
+  end
+
+  def search!(*_args)
+    answer_params = BotCommands::GlobalSearch.call(payload: payload)
+    respond_with :message, answer_params
+  end
+  alias_method :s!, :search!
+
+  def search_callback_query(record_gid = nil, *_args)
+    answer_params = BotCommands::GlobalSearch.call(payload: payload, record_gid: record_gid)
+
     respond_with :message, answer_params
   end
 

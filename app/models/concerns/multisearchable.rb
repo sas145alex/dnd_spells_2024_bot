@@ -5,6 +5,14 @@ module Multisearchable
     ApplicationRecord.descendants.select { |c| c.included_modules.include?(self) }
   end
 
+  def self.regenerate_all_multisearchables!
+    ApplicationRecord.transaction do
+      used_klasses.each do |klass|
+        PgSearch::Multisearch.rebuild(klass, transactional: false)
+      end
+    end
+  end
+
   def self.regenerate_all_searchable_columns!
     ApplicationRecord.transaction do
       used_klasses.each do |klass|
@@ -21,8 +29,28 @@ module Multisearchable
     end.join(" ").strip
   end
 
+  def self.search(raw_input, scope: PgSearch::Document.all, limit: 10)
+    search_input = format(raw_input)
+    complex_search_result_ids = scope.search(search_input)
+      .limit(limit)
+      .pluck(:id)
+    simple_search_result_ids = scope.where("content LIKE ?", "%#{search_input}%")
+      .limit(limit)
+      .pluck(:id)
+    ids = (complex_search_result_ids + simple_search_result_ids).uniq
+    PgSearch::Document.where(id: ids).limit(limit)
+  end
+
   included do
-    before_validation :regenerate_searchable_columns, if: :fill_searchable_fields?
+    include PgSearch::Model
+
+    before_validation :regenerate_searchable_columns
+
+    multisearchable against: [:searchable_title],
+      using: {
+        tsearch: {dictionary: "russian"}
+      },
+      additional_attributes: ->(record) { {published: record.published?} }
 
     def regenerate_searchable_columns
       self.searchable_title = Multisearchable.format(title, original_title)
@@ -31,13 +59,5 @@ module Multisearchable
     def regenerate_searchable_columns!
       update!(searchable_title: Multisearchable.format(title, original_title))
     end
-  end
-
-  private
-
-  def fill_searchable_fields?
-    return false if searchable_title_changed?
-
-    title_changed? || original_title_changed?
   end
 end

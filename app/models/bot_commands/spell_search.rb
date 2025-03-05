@@ -85,7 +85,6 @@ module BotCommands
         }
       end
       inline_keyboard = options.in_groups_of(1, false)
-      {inline_keyboard: inline_keyboard}
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
@@ -104,14 +103,6 @@ module BotCommands
         .telegram_bot_search(input_value, limit: MAX_SEARCH_RESULT_COUNT)
         .select(:id, :title, :original_title, :level)
         .map(&:decorate)
-    end
-
-    def parse_mode
-      "HTML"
-    end
-
-    def locale
-      "ru"
     end
   end
 end

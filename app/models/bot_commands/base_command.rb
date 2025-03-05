@@ -20,6 +20,8 @@ module BotCommands
     end
 
     def keyboard_mentions_options(object)
+      return [] unless object.respond_to?(:mentions)
+
       object.mentions.map do |mention|
         {
           text: mention.another_mentionable.decorate.title,

@@ -18,4 +18,7 @@ load "db/seeds/seeders/maneuvers.rb"
 if Rails.env.development? || Rails.env.test?
   pp "Regenerating all searchable columns"
   Multisearchable.regenerate_all_searchable_columns!
+
+  pp "Regenerating all pg multisearch entities"
+  Multisearchable.regenerate_all_multisearchables!
 end

@@ -5,7 +5,6 @@ class Spell < ApplicationRecord
   include Publishable
   include Mentionable
   include WhoDidItable
-  include PgSearch::Model
 
   belongs_to :responsible,
     class_name: "AdminUser",
@@ -30,7 +29,7 @@ class Spell < ApplicationRecord
   validates :level, inclusion: {in: LEVELS}
 
   pg_search_scope :search_by_title,
-    against: [:title, :original_title],
+    against: [:searchable_title],
     using: {
       tsearch: {dictionary: "russian"}
     }
@@ -61,15 +60,17 @@ class Spell < ApplicationRecord
     %w[created_by updated_by responsible character_klasses]
   end
 
-  def self.telegram_bot_search(search_input = "", scope: Spell.published, limit: 10)
-    complex_search_result_ids = scope.search_by_title(search_input).pluck(:id)
-    simple_search_result_ids = scope.where(
-      "replace(lower(title), 'ё', 'е') LIKE ? OR replace(lower(original_title), 'ё', 'е') LIKE ?",
-      "%#{search_input}%",
-      "%#{search_input}%"
-    ).pluck(:id)
+  def self.telegram_bot_search(raw_input = "", scope: Spell.published, limit: 10)
+    search_input = Multisearchable.format(raw_input)
+
+    complex_search_result_ids = scope.search_by_title(search_input)
+      .limit(limit)
+      .pluck(:id)
+    simple_search_result_ids = scope.where("searchable_title LIKE ?", "%#{search_input}%")
+      .limit(limit)
+      .pluck(:id)
     ids = (complex_search_result_ids + simple_search_result_ids).uniq
-    where(id: ids)
+    where(id: ids).limit(limit)
   end
 
   def long_description?

@@ -18,10 +18,6 @@ class Creature < ApplicationRecord
     if: :published?,
     allow_blank: true
 
-  pg_search_scope :search_by_title,
-    against: [:title, :original_title],
-    using: :trigram
-
   before_validation :strip_title
 
   scope :ordered, -> { order(title: :asc) }
