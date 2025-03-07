@@ -1,7 +1,7 @@
 module BotCommands
   class GlobalSearch < BaseCommand
     SEARCH_VALUE_MIN_LENGTH = 3
-    MAX_SEARCH_RESULT_COUNT = 7
+    MAX_SEARCH_RESULT_COUNT = 10
 
     def self.normalize_input(raw_input)
       raw_input.to_s.strip.gsub(/\s+/, " ").gsub(/^(\/\w+)(\s+)?/, "").strip
@@ -61,7 +61,7 @@ module BotCommands
     def render_search_results
       text = "Найдено несколько вариантов. Выбери:\n\n"
       variants = found_records
-      options = keyboard_options(variants)
+      options = keyboard_options(variants, title_method: :global_search_title)
       inline_keyboard = options.in_groups_of(1, false)
       reply_markup = {inline_keyboard: inline_keyboard}
 

@@ -1,5 +1,5 @@
 class RaceDecorator < ApplicationDecorator
-  def title
-    object.title
+  def global_search_title
+    "[Вид] #{super.capitalize}"
   end
 end

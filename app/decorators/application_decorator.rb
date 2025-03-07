@@ -8,4 +8,8 @@ class ApplicationDecorator < Draper::Decorator
   def parse_mode_for_telegram
     "HTML"
   end
+
+  def global_search_title
+    title
+  end
 end

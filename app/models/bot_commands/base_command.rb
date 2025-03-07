@@ -30,11 +30,11 @@ module BotCommands
       end
     end
 
-    def keyboard_options(variants, forced_callback_prefix: nil)
+    def keyboard_options(variants, forced_callback_prefix: nil, title_method: :title)
       prefix = forced_callback_prefix || callback_prefix
       variants.map do |variant|
         {
-          text: variant.title,
+          text: variant.public_send(title_method),
           callback_data: "#{prefix}:#{variant.to_global_id}"
         }
       end

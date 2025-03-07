@@ -6,4 +6,8 @@ class CharacterKlassDecorator < ApplicationDecorator
       "#{object.parent_klass.title} - #{object.title}"
     end
   end
+
+  def global_search_title
+    "[Класс] #{super.capitalize}"
+  end
 end

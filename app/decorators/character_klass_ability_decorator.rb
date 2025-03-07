@@ -8,4 +8,8 @@ class CharacterKlassAbilityDecorator < ApplicationDecorator
       "#{EMOJI} #{object.title}"
     end
   end
+
+  def global_search_title
+    "[Умение] #{super.capitalize}"
+  end
 end
