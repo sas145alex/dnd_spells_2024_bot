@@ -12,6 +12,8 @@ class TelegramChat
         bot.send_message(chat_id: chat_id, text: "Не назначай меня администратором")
         bot.leave_chat(chat_id: chat_id)
       end
+    rescue Telegram::Bot::Forbidden => _e
+      nil
     end
 
     private
