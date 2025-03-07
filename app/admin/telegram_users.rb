@@ -7,7 +7,7 @@ ActiveAdmin.register TelegramUser do
     items = records.map do
       name = [_1.external_id, _1.username].join(" - ")
       {
-        id: _1.id,
+        id: _1.external_id,
         text: name
       }
     end
