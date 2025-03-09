@@ -4,6 +4,6 @@ class InvocationDecorator < ApplicationDecorator
   end
 
   def global_search_title
-    "[Возвврания] #{super.capitalize}"
+    "[Воззвания] #{super.capitalize}"
   end
 end

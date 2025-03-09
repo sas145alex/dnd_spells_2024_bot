@@ -35,7 +35,7 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
     TelegramChat::MemberChangeProcessor.call(payload: payload, bot: bot, chat_id: chat["id"])
   end
 
-  def message(*_args)
+  def message(*args)
     if payload.key?("left_chat_participant") || payload.key?("new_chat_participant")
       # when bot added or removed telegram sends two requests with different types
       # such changed handled by #my_chat_member in another request
@@ -49,8 +49,12 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
       return
     end
 
-    text = "Ты ввел сообщение, но я не понимаю твою команду. Пожалуйста, проверь команду или выбери ее в меню слева внизу."
-    respond_with :message, text: text
+    if message_from_chat?
+      text = "Ты ввел сообщение, но я не понимаю твою команду. Пожалуйста, проверь команду или выбери ее в меню слева внизу."
+      respond_with :message, text: text
+    else
+      search!(*args)
+    end
   end
 
   def callback_query(*_args)

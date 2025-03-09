@@ -1,10 +1,11 @@
 module BotCommands
   class GlobalSearch < BaseCommand
     SEARCH_VALUE_MIN_LENGTH = 3
+    SEARCH_VALUE_MAX_LENGTH = 50
     MAX_SEARCH_RESULT_COUNT = 10
 
     def self.normalize_input(raw_input)
-      raw_input.to_s.strip.gsub(/\s+/, " ").gsub(/^(\/\w+)(\s+)?/, "").strip
+      raw_input.to_s.strip.gsub(/\s+/, " ").gsub(/^(\/\w+)(@\w+)?(\s+)?/, "").strip
     end
 
     def call
@@ -15,9 +16,9 @@ module BotCommands
           text: "Указанный объект не найден",
           parse_mode: parse_mode
         }
-      elsif input_value.size < SEARCH_VALUE_MIN_LENGTH
+      elsif input_value.size < SEARCH_VALUE_MIN_LENGTH || input_value.size > SEARCH_VALUE_MAX_LENGTH
         text = <<~HTML
-          Ты ввел слишком мало символов для поиска. Минимум - #{SEARCH_VALUE_MIN_LENGTH}
+          Неверное количество символов. Минимум - #{SEARCH_VALUE_MIN_LENGTH}, максимум - #{SEARCH_VALUE_MAX_LENGTH}
         HTML
         {
           text: text,
