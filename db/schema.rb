@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_05_155444) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_18_152607) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -195,6 +195,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_05_155444) do
     t.string "searchable_title", default: "", null: false
     t.index ["created_by_id"], name: "index_feats_on_created_by_id"
     t.index ["updated_by_id"], name: "index_feats_on_updated_by_id"
+  end
+
+  create_table "feedbacks", force: :cascade do |t|
+    t.bigint "external_user_id"
+    t.text "message", null: false
+    t.jsonb "payload", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["external_user_id"], name: "index_feedbacks_on_external_user_id"
   end
 
   create_table "glossary_categories", force: :cascade do |t|

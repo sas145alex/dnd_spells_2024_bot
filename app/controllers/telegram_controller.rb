@@ -56,9 +56,9 @@ class TelegramController < BaseTelegramController
   end
 
   def feedback!(*_args)
-    if Feedback.payload_can_be_accepted?(payload)
+    if BotCommands::Feedback.payload_can_be_accepted?(payload)
       reply_with :message, text: "Спасибо за обратную связь!"
-      Feedback.create_later(payload)
+      BotCommands::Feedback.process(payload)
     else
       save_context("feedback!")
 
