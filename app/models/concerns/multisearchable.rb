@@ -36,7 +36,9 @@ module Multisearchable
     simple_search_result_ids = scope.where("content LIKE ?", "%#{search_input}%")
       .pluck(:id)
     ids = (complex_search_result_ids + simple_search_result_ids).uniq
-    PgSearch::Document.order(:searchable_type).where(id: ids)
+    PgSearch::Document
+      .order(Arel.sql("case when searchable_type='Spell' then 1 else 2 end ASC"), searchable_type: :asc)
+      .where(id: ids)
   end
 
   included do
