@@ -1,5 +1,7 @@
 module BotCommands
   class BaseCommand < ApplicationOperation
+    PREVIOUS_PAGE_SYMBOL = "⬅️".freeze
+    NEXT_PAGE_SYMBOL = "➡️".freeze
     SEARCH_BY_CHARACTERISTIC_SUBCOMMAND = {text: "Поиск по хар-ке", value: "search_by_characteristic"}.freeze
 
     private

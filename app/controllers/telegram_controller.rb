@@ -9,6 +9,7 @@ class TelegramController < BaseTelegramController
   after_action :remember_history!, except: %i[
     search!
     search_callback_query
+    search_page_callback_query
     spell!
     spell_callback_query
     go_back_callback_query
@@ -37,6 +38,13 @@ class TelegramController < BaseTelegramController
     respond_with :message, answer_params
   end
 
+  def search_page_callback_query(page = nil, *_args)
+    answer_params = BotCommands::GlobalSearch.call(payload: payload, page: page)
+
+    respond_with :message, answer_params
+  end
+
+  # @deprecated
   def spell!(*_args)
     save_context("spell!") unless message_from_chat?
 
@@ -44,6 +52,7 @@ class TelegramController < BaseTelegramController
     respond_with :message, answer_params
   end
 
+  # @deprecated
   def spell_callback_query(spell_gid = nil, *_args)
     answer_params = BotCommands::SpellSearch.call(payload: payload, spell_gid: spell_gid)
     respond_with :message, answer_params

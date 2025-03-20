@@ -1,8 +1,6 @@
 module BotCommands
   class AllSpells < BaseCommand
     SPELLS_PER_PAGE = 10
-    PREVIOUS_PAGE_SYMBOL = "⬅️".freeze
-    NEXT_PAGE_SYMBOL = "➡️".freeze
     FILTERS_PAGE_SYMBOL = "📃".freeze
 
     def call

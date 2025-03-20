@@ -29,16 +29,14 @@ module Multisearchable
     end.join(" ").strip
   end
 
-  def self.search(raw_input, scope: PgSearch::Document.all, limit: 10)
+  def self.search(raw_input, scope: PgSearch::Document.all)
     search_input = format(raw_input)
     complex_search_result_ids = scope.search(search_input)
-      .limit(limit)
       .pluck(:id)
     simple_search_result_ids = scope.where("content LIKE ?", "%#{search_input}%")
-      .limit(limit)
       .pluck(:id)
     ids = (complex_search_result_ids + simple_search_result_ids).uniq
-    PgSearch::Document.where(id: ids).limit(limit)
+    PgSearch::Document.order(:searchable_type).where(id: ids)
   end
 
   included do
