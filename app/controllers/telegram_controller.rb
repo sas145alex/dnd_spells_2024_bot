@@ -27,21 +27,19 @@ class TelegramController < BaseTelegramController
   end
 
   def search!(*_args)
-    answer_params = BotCommands::GlobalSearch.call(payload: payload)
-    respond_with :message, answer_params
+    answer_messages = BotCommands::GlobalSearch.call(payload: payload)
+    process_answer_messages(answer_messages)
   end
   alias_method :s!, :search!
 
   def search_callback_query(record_gid = nil, *_args)
-    answer_params = BotCommands::GlobalSearch.call(payload: payload, record_gid: record_gid)
-
-    respond_with :message, answer_params
+    answer_messages = BotCommands::GlobalSearch.call(payload: payload, record_gid: record_gid)
+    process_answer_messages(answer_messages)
   end
 
   def search_page_callback_query(page = nil, *_args)
-    answer_params = BotCommands::GlobalSearch.call(payload: payload, page: page)
-
-    respond_with :message, answer_params
+    answer_messages = BotCommands::GlobalSearch.call(payload: payload, page: page)
+    process_answer_messages(answer_messages)
   end
 
   # @deprecated

@@ -26,12 +26,13 @@ module BotCommands
 
     def call
       if record_gid.present? && selected_object.present?
-        render_record_info
+        [{type: :message, answer: render_record_info}]
       elsif record_gid.present?
-        {
+        record_not_found = {
           text: "Указанный объект не найден",
           parse_mode: parse_mode
         }
+        [{type: :message, answer: record_not_found}]
       elsif input_value.size < SEARCH_VALUE_MIN_LENGTH || input_value.size > SEARCH_VALUE_MAX_LENGTH
         text = <<~HTML
           Неверное количество символов. Минимум - #{SEARCH_VALUE_MIN_LENGTH}, максимум - #{SEARCH_VALUE_MAX_LENGTH}
@@ -42,17 +43,20 @@ module BotCommands
           Если ты общаешься с ботом лично, то не обязательно даже указывать эту команду:
           <blockquote>огненный шар</blockquote>
         HTML
-        {
+        invalid_input = {
           text: text,
           parse_mode: parse_mode
         }
+        [{type: :message, answer: invalid_input}]
       elsif found_records.blank?
-        {
+        empty_dataset = {
           text: "Вариантов не найдено",
           parse_mode: parse_mode
         }
+        [{type: :message, answer: empty_dataset}]
       else
-        render_search_results
+        render_type = page_clicked ? :edit : :message
+        [{type: render_type, answer: render_search_results}]
       end
     end
 
@@ -65,6 +69,7 @@ module BotCommands
       @input_value = self.class.normalize_input(search_input_source)
       @record_gid = record_gid
       @page = parsed_page
+      @page_clicked = !page.nil?
     end
 
     private
@@ -73,6 +78,7 @@ module BotCommands
     attr_reader :input_value
     attr_reader :record_gid
     attr_reader :page
+    attr_reader :page_clicked
 
     def render_record_info
       text = selected_object.description_for_telegram
