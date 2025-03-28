@@ -1,0 +1,28 @@
+en:
+  activerecord:
+    attributes:
+      magic_item:
+        categories:
+          wand: "Magic Wand"
+          armor: "Armor"
+          shield: "Shield"
+          rod: "Rod"
+          potion: "Potion"
+          ring: "Ring"
+          weapon: "Weapon"
+          staff: "Staff"
+          scroll: "Scroll"
+          magic_item: "Magic Item"
+        rarities:
+          common: "Common"
+          uncommon: "Uncommon"
+          rare: "Rare"
+          very_rare: "Very Rare"
+          legendary: "Legendary"
+          artifact: "Artifact"
+          vary: "Vary"
+        attunements:
+          unrequired: "Not required"
+          required: "Required"
+          magic: "Required magical"
+          special: "Required special"

@@ -1,0 +1,28 @@
+ru:
+  activerecord:
+    attributes:
+      magic_item:
+        categories:
+          wand: "Волшебная палочка"
+          armor: "Доспех"
+          shield: "Щит"
+          rod: "Жезл"
+          potion: "Зелье"
+          ring: "Кольцо"
+          weapon: "Оружие"
+          staff: "Посох"
+          scroll: "Свиток"
+          magic_item: "Чудесный предмет"
+        rarities:
+          common: "Обычный"
+          uncommon: "Необычный"
+          rare: "Редкий"
+          very_rare: "Очень редкий"
+          legendary: "Легендарный"
+          artifact: "Артефакт"
+          vary: "Варьируется"
+        attunements:
+          unrequired: "Не требуется"
+          required: "Требуется"
+          magic: "Требуется заклинательная"
+          special: "Требуется особая"
