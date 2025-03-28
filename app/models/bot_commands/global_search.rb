@@ -38,10 +38,14 @@ module BotCommands
           Неверное количество символов. Минимум - #{SEARCH_VALUE_MIN_LENGTH}, максимум - #{SEARCH_VALUE_MAX_LENGTH}
           
           Если ты используешь бота в чатах, то можешь вызывать команду так: 
-          <blockquote>/search огненный шар</blockquote>
+          <blockquote>/search@sneaky_library_bot огненный шар</blockquote>
           
-          Если ты общаешься с ботом лично, то не обязательно даже указывать эту команду:
-          <blockquote>огненный шар</blockquote>
+          Если ты общаешься с ботом лично, то эту команду можно вызывать так:
+          <blockquote>
+            /search огненный шар
+            /s огненный шар
+            огненный шар # (да, без указания команды!)
+          </blockquote>
         HTML
         invalid_input = {
           text: text,
