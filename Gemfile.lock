@@ -237,6 +237,7 @@ GEM
       kaminari-core (= 1.2.2)
     kaminari-core (1.2.2)
     language_server-protocol (3.17.0.3)
+    lefthook (1.11.6)
     lint_roller (1.1.0)
     logger (1.7.0)
     loofah (2.24.0)
@@ -510,6 +511,7 @@ DEPENDENCIES
   httparty
   importmap-rails
   jbuilder (~> 2.13)
+  lefthook
   mutex_m
   observer
   pg (~> 1.1)
