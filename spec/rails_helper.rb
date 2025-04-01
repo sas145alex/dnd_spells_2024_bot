@@ -36,4 +36,10 @@ RSpec.configure do |config|
   config.before(:suite) do
     Rails.application.load_seed
   end
+
+  # issue after updating to new rails 8
+  # https://github.com/heartcombo/devise/issues/5705#issuecomment-2442370072
+  ActiveSupport.on_load(:action_mailer) do
+    Rails.application.reload_routes_unless_loaded
+  end
 end
