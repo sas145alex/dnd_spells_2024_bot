@@ -1,8 +1,9 @@
+creds = Rails.application.credentials.bot || {}
 bots_config = {
   default: {
     async: Rails.env.production? ? "BotRequestJob" : false,
-    token: ENV.fetch("BOT_TOKEN"),
-    username: ENV.fetch("BOT_NAME")
+    token: ENV["BOT_TOKEN"] || creds.dig(:token) || "bot_token",
+    username: ENV["BOT_NAME"] || creds.dig(:name) || "bot_name"
   }.tap do |hash|
     hash[:server] = "http://localhost:3000/" if ENV["BOT_USE_LOCALHOST"]
   end

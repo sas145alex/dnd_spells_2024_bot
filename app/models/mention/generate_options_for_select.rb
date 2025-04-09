@@ -5,7 +5,7 @@ class Mention::GenerateOptionsForSelect < ApplicationOperation
 
   def call
     collection.map do
-      {id: _1.first, text: _1.last.to_s}
+      {id: it.first, text: it.last.to_s}
     end
   end
 

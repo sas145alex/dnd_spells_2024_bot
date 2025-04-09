@@ -59,7 +59,7 @@ ActiveAdmin.register CommonFile do
       f.input :title
       f.input :attachment,
         as: :file,
-        input_html: {accept: f.object.class::ATTACHMENT_CONTENT_TYPES.map { ".#{_1}" }.join(",")}
+        input_html: {accept: f.object.class::ATTACHMENT_CONTENT_TYPES.map { ".#{it}" }.join(",")}
       div do
         span do
           f.object.attachment&.filename

@@ -26,7 +26,7 @@ class BotCommand < ApplicationRecord
   end
 
   def self.memoized_search(title:)
-    _memoized_commands.find { _1.title == title }
+    _memoized_commands.find { it.title == title }
   end
 
   def self.start

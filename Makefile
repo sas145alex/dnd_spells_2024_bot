@@ -4,10 +4,13 @@ setup:
 	bundle exec rails db:create db:migrate db:seed
 
 web:
-	bundle exec rails s
+	bin/dev
 
 bot:
-	bundle exec rails telegram:bot:poller
+	bin/rails telegram:bot:poller
+
+jobs:
+	bin/jobs
 
 test:
 	bundle exec rspec

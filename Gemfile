@@ -43,8 +43,15 @@ gem "tzinfo-data", platforms: %i[windows jruby]
 
 gem "bootsnap", require: false
 
+gem "solid_cache"
+gem "solid_queue"
+gem "solid_cable"
+
+gem "kamal", require: false
+gem "thruster", require: false
+
 group :development, :test do
-  gem "rspec-rails", "~> 7.0.0"
+  gem "rspec-rails", "~> 7.1"
   gem "factory_bot_rails", "~> 6.4"
   gem "ffaker"
   gem "observer" # for ffaker
@@ -52,11 +59,11 @@ group :development, :test do
   gem "dotenv", "~> 3.1"
   gem "debug", platforms: %i[mri windows], require: "debug/prelude"
   gem "brakeman", require: false
-  gem "standard"
-  gem "lefthook"
 end
 
 group :development do
+  gem "lefthook"
+  gem "standard"
   gem "rubocop-rails-omakase", require: false
   gem "web-console"
 end

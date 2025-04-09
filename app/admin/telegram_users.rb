@@ -5,9 +5,9 @@ ActiveAdmin.register TelegramUser do
   collection_action :autocomplete, method: :get do
     records = TelegramUser.autocomplete_search(params[:q])
     items = records.map do
-      name = [_1.external_id, _1.username].join(" - ")
+      name = [it.external_id, it.username].join(" - ")
       {
-        id: _1.external_id,
+        id: it.external_id,
         text: name
       }
     end

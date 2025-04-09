@@ -5,18 +5,48 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
 development:
-  <<: *default
-  username: sas145
-  password: qwerty
-  database: tg_bot_dnd_spells_2024_development
+  primary: &primary_production
+    <<: *default
+    username: sas145
+    password: qwerty
+    database: dnd_handbook_development
+  cache:
+    <<: *primary_production
+    database: dnd_handbook_development_cache
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *primary_production
+    database: dnd_handbook_development_queue
+    migrations_paths: db/queue_migrate
+  cable:
+    <<: *primary_production
+    database: dnd_handbook_development_cable
+    migrations_paths: db/cable_migrate
 
 test:
   <<: *default
   username: sas145
   password: qwerty
-  database: tg_bot_dnd_spells_2024_test
+  database: dnd_handbook_test
 
 production:
-  <<: *default
-  database: tg_bot_dnd_spells_2024
-  url: <%= ENV['RAILS_ENV'] == 'production' ? ENV["DATABASE_URL"] : 'http://localhost:3000/' %>
+  primary: &primary_production
+    <<: *default
+    username: <%= ENV["POSTGRES_USER"] %>
+    database: <%= ENV["POSTGRES_DB"] %>
+    password: <%= ENV["POSTGRES_PASSWORD"] %>
+    host: <%= ENV["DB_HOST"] %>
+    port: <%= ENV["DB_PORT"] %>
+#    url: <%#= ENV['RAILS_ENV'] == 'production' ? ENV["DATABASE_URL"] : 'http://localhost:3000/' %>
+  cache:
+    <<: *primary_production
+    database: <%= ENV["POSTGRES_DB"] %>_cache
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *primary_production
+    database: <%= ENV["POSTGRES_DB"] %>_queue
+    migrations_paths: db/queue_migrate
+  cable:
+    <<: *primary_production
+    database: <%= ENV["POSTGRES_DB"] %>_cable
+    migrations_paths: db/cable_migrate

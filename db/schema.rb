@@ -10,24 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_28_132947) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_28_132947) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
-  enable_extension "plpgsql"
-
-  create_table "_bot2", id: false, force: :cascade do |t|
-    t.float "external_id"
-    t.boolean "registered"
-  end
-
-  create_table "_telegram_user_id_bigint", id: false, force: :cascade do |t|
-    t.bigint "external_id"
-  end
-
-  create_table "_telegram_users_prod", id: false, force: :cascade do |t|
-    t.bigint "id"
-    t.bigint "external_id"
-  end
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string "namespace"

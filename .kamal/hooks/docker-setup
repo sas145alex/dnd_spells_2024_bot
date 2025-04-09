@@ -1,0 +1,7 @@
+#!/bin/sh
+
+echo "Docker set up on $KAMAL_HOSTS..."
+
+# https://github.com/basecamp/kamal/issues/980
+# assuming KAMAL_SERVICE is identical to the host specified in .ssh/config
+ssh $KAMAL_SERVICE 'sudo usermod -aG docker ${USER}'

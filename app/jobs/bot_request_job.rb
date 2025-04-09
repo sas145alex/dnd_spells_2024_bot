@@ -1,6 +1,8 @@
 class BotRequestJob < ApplicationJob
   include Telegram::Bot::Async::Job
 
+  retry_on Exception, attempts: 2
+
   def perform(client_id, *args)
     super
   rescue Telegram::Bot::Forbidden, Telegram::Bot::NotFound => e

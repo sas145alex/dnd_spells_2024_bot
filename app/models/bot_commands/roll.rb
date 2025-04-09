@@ -108,7 +108,7 @@ module BotCommands
 
     def dice_counts
       options = (1..DICE_PER_PAGE).to_a
-      options.map! { _1 + DICE_PER_PAGE * (page - 1) }
+      options.map! { it + DICE_PER_PAGE * (page - 1) }
     end
 
     def dice_nominals
@@ -141,7 +141,7 @@ module BotCommands
     def roll_formulas
       @roll_formulas ||= begin
         formulas = input_value.include?(" ") ? input_value.split(" ") : [input_value]
-        formulas.map { RollFormula.new(_1) }
+        formulas.map { RollFormula.new(it) }
       end
     end
 

@@ -21,10 +21,10 @@ require "dotenv/load" unless Rails.env.production?
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-module TgBotDndSpells2024
+module DndHandbook
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 7.2
+    config.load_defaults 8.0
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
@@ -40,7 +40,7 @@ module TgBotDndSpells2024
     # config.eager_load_paths << Rails.root.join("extras")
 
     # config.cache_store = :redis_store, 'redis://localhost:6379/0/cache', { expires_in: 90.minutes }
-    config.telegram_updates_controller.session_store = :file_store, "file_session_store", {expires_in: 20.minutes}
+    config.telegram_updates_controller.session_store = :solid_cache_store
 
     config.active_storage.draw_routes = true
 
@@ -48,5 +48,7 @@ module TgBotDndSpells2024
     config.i18n.load_path += Dir[Rails.root.join("config", "locales", "**", "*.{rb,yml}")]
     config.i18n.available_locales = [:ru, :en]
     config.active_support.to_time_preserves_timezone = :zone
+
+    config.solid_queue.logger = ActiveSupport::TaggedLogging.logger($stdout)
   end
 end

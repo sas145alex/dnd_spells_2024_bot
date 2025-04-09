@@ -15,7 +15,10 @@ class Feedback::Notificator < ApplicationOperation
   end
 
   def self.notification_client
-    @notification_client ||= DiscordAPI::Client.new(webhook: ENV["ADVICE_WEBHOOK"])
+    @notification_client ||= begin
+      url = ENV["ADVICE_WEBHOOK"] || Rails.application.credentials.dig(:advice_webhook)
+      DiscordAPI::Client.new(webhook: url)
+    end
   end
 
   def initialize(feedback)

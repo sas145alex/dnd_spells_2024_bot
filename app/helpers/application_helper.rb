@@ -15,8 +15,8 @@ module ApplicationHelper
   def grouped_categories_for_select(scope: nil, selected: nil)
     categories = scope || GlossaryCategory.ordered
     optgroups = categories
-      .group_by { _1.top_level? ? "Top level" : _1.parent_category&.title }
-      .transform_values { _1.pluck(:title, :id) }
+      .group_by { it.top_level? ? "Top level" : it.parent_category&.title }
+      .transform_values { it.pluck(:title, :id) }
     grouped_options_for_select(optgroups, selected)
   end
 
@@ -31,8 +31,8 @@ module ApplicationHelper
         "coalesce(parent_klasses_character_klasses.title, 'Base Class') as parent_title"
       )
     optgroups = character_klasses
-      .group_by { _1["parent_title"] }
-      .transform_values { _1.pluck(:title, :id) }
+      .group_by { it["parent_title"] }
+      .transform_values { it.pluck(:title, :id) }
     base_klasses = optgroups.delete("Base Class")
     optgroups = optgroups.sort_by { |key, _value| key }.to_h
     optgroups = {"Base Class" => base_klasses}.merge(optgroups) # put base classes first
