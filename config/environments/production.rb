@@ -58,7 +58,8 @@ Rails.application.configure do
 
   # Set host to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: "dnd-spells-2024-bot-14d7afd5a6b6.herokuapp.com" }
-  #  Rails.application.routes.default_url_options[:host] = "dnd-spells-2024-bot-14d7afd5a6b6.herokuapp.com"
+
+  Rails.application.routes.default_url_options[:host] = "dnd-spells-2024-bot-14d7afd5a6b6.herokuapp.com"
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
   # config.action_mailer.smtp_settings = {
