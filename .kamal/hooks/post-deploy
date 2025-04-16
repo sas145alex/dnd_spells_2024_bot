@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# A sample post-deploy hook
+#
+# These environment variables are available:
+# KAMAL_RECORDED_AT
+# KAMAL_PERFORMER
+# KAMAL_VERSION
+# KAMAL_HOSTS
+# KAMAL_ROLE (if set)
+# KAMAL_DESTINATION (if set)
+# KAMAL_RUNTIME
+
+newrelic-cli.newrelic entity deployment create --guid 'NjYxNDEzMHxBUE18QVBQTElDQVRJT058NDA2MDA4NzIw' --version "$KAMAL_VERSION" --deploymentType 'BASIC' --description 'kamal deployment' --user "$KAMAL_PERFORMER" --profile 'prod_eu_6614130_change_tracking'

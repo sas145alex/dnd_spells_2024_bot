@@ -298,6 +298,7 @@ GEM
     net-smtp (0.5.1)
       net-protocol
     net-ssh (7.3.0)
+    newrelic_rpm (9.18.0)
     nio4r (2.7.4)
     nokogiri (1.18.7)
       mini_portile2 (~> 2.8.2)
@@ -576,6 +577,7 @@ DEPENDENCIES
   kamal
   lefthook
   mutex_m
+  newrelic_rpm
   observer
   pg (~> 1.1)
   pg_search

@@ -49,6 +49,7 @@ gem "solid_cable"
 
 gem "kamal", require: false
 gem "thruster", require: false
+gem "newrelic_rpm"
 
 group :development, :test do
   gem "rspec-rails", "~> 7.1"
