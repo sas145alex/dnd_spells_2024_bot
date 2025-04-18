@@ -50,6 +50,7 @@ ActiveAdmin.register Spell do
     as: :select,
     collection: CharacterKlass.all.order(parent_klass_id: :desc),
     multiple: true
+  filter :requested_count
   filter :responsible, as: :select, collection: -> { admins_for_select }
   filter :published_at
   filter :created_at

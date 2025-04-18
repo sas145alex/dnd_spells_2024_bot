@@ -3,7 +3,7 @@ module BotCommands
     SEARCH_VALUE_MIN_LENGTH = 3
     SEARCH_VALUE_MAX_LENGTH = 30
     DOCUMENTS_PER_PAGE = 10
-    PAGE_DELIMETER = "||".freeze
+    PAGE_DELIMITER = "||".freeze
     CALLBACK_PREFIX = "search".freeze
     CALLBACK_PAGE_PREFIX = "#{CALLBACK_PREFIX}_page".freeze
 
@@ -13,19 +13,20 @@ module BotCommands
 
     def self.fetch_text_from(raw_input)
       callback_parts = raw_input.to_s.split("#{CALLBACK_PAGE_PREFIX}:")[1..].join
-      parts = callback_parts.split(PAGE_DELIMETER)[..-1]
+      parts = callback_parts.split(PAGE_DELIMITER)[..-1]
       return parts.join if parts.size < 2
       parts[0..-2].join
     end
 
     def self.fetch_page_from(raw_input)
-      parts = raw_input.to_s.split(PAGE_DELIMETER)
+      parts = raw_input.to_s.split(PAGE_DELIMITER)
       return 1 if parts.size < 2
       parts.last.to_i
     end
 
     def call
       if record_gid.present? && selected_object.present?
+        gather_metrics_for_selected_object
         [{type: :message, answer: render_record_info}]
       elsif record_gid.present?
         record_not_found = {
@@ -97,6 +98,16 @@ module BotCommands
       }
     end
 
+    def gather_metrics_for_selected_object
+      case selected_object
+      when Spell
+        Telegram::SpellMetricsJob.perform_later(spell_gid: record_gid)
+      else
+        # do nothing
+        nil
+      end
+    end
+
     def render_search_results
       text = <<~HTML.chomp
         <b>Поиск</b> - #{input_value}
@@ -132,14 +143,14 @@ module BotCommands
     def links_to_pages
       links = []
       unless first_page?
-        previous_page = "#{input_value}#{PAGE_DELIMETER}#{page - 1}"
+        previous_page = "#{input_value}#{PAGE_DELIMITER}#{page - 1}"
         links << {
           text: "#{PREVIOUS_PAGE_SYMBOL} Предыдущая страница",
           callback_data: "#{callback_prefix}_page:#{previous_page}"
         }
       end
       unless last_page?
-        next_page = "#{input_value}#{PAGE_DELIMETER}#{page + 1}"
+        next_page = "#{input_value}#{PAGE_DELIMITER}#{page + 1}"
         links << {
           text: "Следующая страница #{NEXT_PAGE_SYMBOL}",
           callback_data: "#{callback_page_prefix}:#{next_page}"

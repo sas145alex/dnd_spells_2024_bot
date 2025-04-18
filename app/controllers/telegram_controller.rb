@@ -7,7 +7,9 @@ class TelegramController < BaseTelegramController
   after_action :track_chat_activity, except: SKIP_ACTIVITY_ACTIONS
 
   after_action :remember_history!, except: %i[
+    start!
     search!
+    s!
     search_callback_query
     search_page_callback_query
     spell!
