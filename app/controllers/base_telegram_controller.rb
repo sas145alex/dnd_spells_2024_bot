@@ -38,7 +38,11 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
   def message(*args)
     if payload.key?("left_chat_participant") || payload.key?("new_chat_participant")
       # when bot added or removed telegram sends two requests with different types
-      # such changed handled by #my_chat_member in another request
+      # such changes handled by #my_chat_member in another request
+      return
+    end
+
+    if payload.key?("pinned_message")
       return
     end
 
