@@ -12,7 +12,7 @@ class Runner
   DB_NAME = "dnd_handbook_production".freeze
   REMOTE_FOLDER = "drive:dnd_handbook_backups".freeze
   KEEP_BACKUP_TIME = "14d".freeze
-  WEBHOOK = "https://discord.com/api/webhooks/1361757286141399132/6QU2WdzdnBcaDsesK5voXus0G0AMFdkTZz1yBAvGNYWN-zJ3ZMJRgglwwh5ztSbEzQ6d".freeze
+  WEBHOOK_NOTIFICATION = "".freeze
   ERROR_MSG_LIMIT = 300
   SUCCESS_COLOR = 5763719
   FAILURE_COLOR = 15548997
@@ -82,7 +82,11 @@ class Runner
   end
 
   def notify(body)
-    uri = URI.parse(WEBHOOK)
+    webhook_uri = WEBHOOK_NOTIFICATION
+
+    return if webhook_uri.nil? || webhook_uri.to_s.empty?
+
+    uri = URI.parse(webhook_uri)
     https = Net::HTTP.new(uri.host, uri.port)
     https.use_ssl = true
     req = Net::HTTP::Post.new(uri.path)

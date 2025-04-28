@@ -72,7 +72,6 @@ accessories:
       secret:
         - POSTGRES_PASSWORD
     files:
-#       - config/mysql/production.cnf:/etc/mysql/my.cnf
       - db/production.sql:/docker-entrypoint-initdb.d/setup.sql
     directories:
       - data:/var/lib/postgresql/data
