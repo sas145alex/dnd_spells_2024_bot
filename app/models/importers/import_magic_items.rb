@@ -5,6 +5,7 @@ class Importers::ImportMagicItems < ApplicationOperation
     translated_attunements = MagicItem.human_enum_names(:attunement)
     MagicItem.transaction do
       CSV.foreach(file_path, headers: true, header_converters: :symbol) do |row|
+        original_title = preprocess_original_title(row[:original_title])
         category = translated_categories.fetch(row[:category])
         rarity = translated_rarities.fetch(row[:rarity])
         attunement = translated_attunements.fetch(row[:attunement])
@@ -14,7 +15,7 @@ class Importers::ImportMagicItems < ApplicationOperation
 
         MagicItem.create!(
           title: row[:title],
-          original_title: row[:original_title],
+          original_title: original_title,
           description: description,
           category: category,
           rarity: rarity,
@@ -42,6 +43,10 @@ class Importers::ImportMagicItems < ApplicationOperation
 
   attr_reader :file_path
   attr_reader :created_by
+
+  def preprocess_original_title(text)
+    text.titleize
+  end
 
   def preprocess_text(text)
     str = text.strip

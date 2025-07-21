@@ -37,7 +37,7 @@ module Multisearchable
       .pluck(:id)
     ids = (complex_search_result_ids + simple_search_result_ids).uniq
     PgSearch::Document
-      .order(Arel.sql("case when searchable_type='Spell' then 1 else 2 end ASC"), searchable_type: :asc)
+      .order(Arel.sql("case when searchable_type='Spell' then '0' else searchable_type end ASC"))
       .where(id: ids)
   end
 
