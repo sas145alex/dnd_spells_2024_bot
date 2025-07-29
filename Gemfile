@@ -52,7 +52,7 @@ gem "thruster", require: false
 gem "newrelic_rpm"
 
 group :development, :test do
-  gem "rspec-rails", "~> 7.1"
+  gem "rspec-rails", "~> 8.0"
   gem "factory_bot_rails", "~> 6.4"
   gem "ffaker"
   gem "observer" # for ffaker
