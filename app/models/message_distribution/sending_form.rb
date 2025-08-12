@@ -9,7 +9,7 @@ class MessageDistribution
     end
 
     def active_since
-      Time.current - 60.days
+      60.days.ago
     end
 
     def test_sending

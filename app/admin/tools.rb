@@ -55,7 +55,7 @@ ActiveAdmin.register Tool do
         markdown_to_html(resource.description)
       end
       row :length do
-        render partial: "description_length_badge", locals: {resource: resource}
+        render partial: "description_length_badge", locals: {resource: resource, method: :description}
       end
       row :published_at do
         render partial: "published_badge", locals: {resource: resource}

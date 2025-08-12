@@ -6,13 +6,11 @@ class CharacterKlass < ApplicationRecord
   include WhoDidItable
 
   belongs_to :parent_klass,
-    foreign_key: "parent_klass_id",
     class_name: "CharacterKlass",
     optional: true
 
   has_many :spells_character_klasses,
-    class_name: "SpellsCharacterKlass",
-    foreign_key: "character_klass_id"
+    class_name: "SpellsCharacterKlass"
   has_many :spells,
     class_name: "Spell",
     through: :spells_character_klasses

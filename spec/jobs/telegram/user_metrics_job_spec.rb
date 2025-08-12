@@ -39,7 +39,7 @@ RSpec.describe Telegram::UserMetricsJob do
       }
     end
     let(:external_user_id) { 1350564680 }
-    let(:date) { Time.current - 1.month }
+    let(:date) { 1.month.ago }
 
     it "creates new user with proper attributes" do
       expect { subject }.to change { TelegramUser.count }.from(0).to(1)
@@ -74,7 +74,7 @@ RSpec.describe Telegram::UserMetricsJob do
           last_seen_at: last_seen_at
         )
       end
-      let(:last_seen_at) { Time.current - 100.years }
+      let(:last_seen_at) { 100.years.ago }
 
       it "updates counter" do
         expect { subject }.to change { user.reload.command_requested_count }.from(13).to(14)
@@ -85,7 +85,7 @@ RSpec.describe Telegram::UserMetricsJob do
       end
 
       context "when last_seen_at is in the future" do
-        let(:last_seen_at) { Time.current + 1.month }
+        let(:last_seen_at) { 1.month.from_now }
 
         it "updates counter" do
           expect { subject }.to change { user.reload.command_requested_count }.from(13).to(14)

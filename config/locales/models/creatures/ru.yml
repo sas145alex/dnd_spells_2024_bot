@@ -1,0 +1,30 @@
+ru:
+  activerecord:
+    attributes:
+      creature:
+        creature_types:
+          unknown: "Неизвестно"
+          vary: "Варьируется"
+          aberration: "Абберация"
+          beast: "Зверь"
+          celestial: "Небожитель"
+          construct: "Конструкт"
+          dragon: "Дракон"
+          elemental: "Элементаль"
+          fey: "Фея"
+          fiend: "Исчадие"
+          giant: "Великан"
+          humanoid: "Гуманоид"
+          monstrosity: "Монстр"
+          ooze: "Слизь"
+          plant: "Растение"
+          undead: "Нежить"
+        creature_sizes:
+          unknown: "Неизвестно"
+          vary: "Варьируется"
+          tiny: "Крошечный"
+          small: "Маленький"
+          medium: "Средний"
+          large: "Большой"
+          huge: "Огромный"
+          gargantuan: "Громадный"

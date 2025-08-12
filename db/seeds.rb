@@ -16,7 +16,7 @@ load "db/seeds/seeders/metamagics.rb"
 load "db/seeds/seeders/maneuvers.rb"
 load "db/seeds/seeders/magic_items.rb"
 
-if Rails.env.development? || Rails.env.test?
+if Rails.env.local?
   pp "Regenerating all searchable columns"
   Multisearchable.regenerate_all_searchable_columns!
 

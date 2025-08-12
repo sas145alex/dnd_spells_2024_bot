@@ -8,11 +8,9 @@ class Spell < ApplicationRecord
 
   belongs_to :responsible,
     class_name: "AdminUser",
-    foreign_key: "responsible_id",
     optional: true
   has_many :spells_character_klasses,
-    class_name: "SpellsCharacterKlass",
-    foreign_key: "spell_id"
+    class_name: "SpellsCharacterKlass"
   has_many :character_klasses,
     class_name: "CharacterKlass",
     through: :spells_character_klasses

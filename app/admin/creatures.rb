@@ -6,10 +6,32 @@ ActiveAdmin.register Creature do
   index do
     selectable_column
     id_column
-    column :title
-    column :original_title
+    column :title do |resource|
+      "#{resource.title} [#{resource.original_title}]"
+    end
+    column :creature_size do |resource|
+      resource.human_enum_name(:creature_size)
+    end
+    column :creature_type do |resource|
+      resource.human_enum_name(:creature_type)
+    end
+    column :challenge_rating
+    column :edition_source
+    column :description_size do |resource|
+      ul do
+        li "DB #{resource.description.size}"
+        li "TG #{resource.decorate.description_for_telegram.size}"
+        li "Lim #{ApplicationRecord::DESCRIPTION_LIMIT}"
+      end
+    end
+    column :original_description_size do |resource|
+      ul do
+        li "DB #{resource.original_description.size}"
+        li "TG #{resource.decorate.original_description_for_telegram.size}"
+        li "Lim #{ApplicationRecord::DESCRIPTION_LIMIT}"
+      end
+    end
     column :published_at
-    column :created_at
     actions defaults: false do |resource|
       links = []
       links << link_to(
@@ -37,10 +59,19 @@ ActiveAdmin.register Creature do
   filter :title
   filter :original_title
   filter :description
-  filter :responsible, as: :select, collection: -> { admins_for_select }
+  filter :original_description
+  filter :creature_size, as: :select, collection: Creature.human_enum_names(:creature_size)
+  filter :creature_type, as: :select, collection: Creature.human_enum_names(:creature_type)
+  filter :creature_subtype
+  filter :challenge_rating
+  filter :armor_class
+  filter :hit_points
+  filter :edition_source, as: :select, collection: Creature.distinct.pluck(:edition_source)
+  filter :import_source
   filter :published_at
-  filter :created_at
+  filter :responsible, as: :select, collection: -> { admins_for_select }
   filter :created_by, as: :select, collection: -> { admins_for_select }
+  filter :created_at
   filter :updated_by, as: :select, collection: -> { admins_for_select }
 
   show do
@@ -48,11 +79,30 @@ ActiveAdmin.register Creature do
       row :id
       row :title
       row :original_title
+      row :edition_source
+      row :import_source
+      row :creature_size do
+        resource.human_enum_name(:creature_size)
+      end
+      row :creature_type do
+        resource.human_enum_name(:creature_type)
+      end
+      row :creature_subtype
+      row :challenge_rating
+      row :armor_class
+      row :hit_points
+      row :hit_points_formula
       row :description do
         markdown_to_html(resource.description)
       end
+      row :original_description do
+        markdown_to_html(resource.original_description)
+      end
       row :length do
-        render partial: "description_length_badge", locals: {resource: resource}
+        render partial: "description_length_badge", locals: {resource: resource, method: :description}
+      end
+      row :original_length do
+        render partial: "description_length_badge", locals: {resource: resource, method: :original_description}
       end
       row :published_at do
         render partial: "published_badge", locals: {resource: resource}
@@ -80,7 +130,20 @@ ActiveAdmin.register Creature do
     f.inputs do
       f.input :title
       f.input :original_title
+      f.input :edition_source
+      f.input :import_source
+      f.input :creature_size, as: :select, collection: Creature.human_enum_names(:creature_size)
+      f.input :creature_type, as: :select, collection: Creature.human_enum_names(:creature_type)
+      f.input :creature_subtype
+      f.input :challenge_rating, as: :number, input_html: {step: 1.0, min: 0.0}
+      f.input :armor_class
+      f.input :hit_points
+      f.input :hit_points_formula
       f.input :description,
+        label: "Description (#{Creature::DESCRIPTION_FORMAT})",
+        as: :simplemde_editor,
+        input_html: {rows: 12, style: "height:auto"}
+      f.input :original_description,
         label: "Description (#{Creature::DESCRIPTION_FORMAT})",
         as: :simplemde_editor,
         input_html: {rows: 12, style: "height:auto"}
@@ -189,5 +252,15 @@ ActiveAdmin.register Creature do
   permit_params :title,
     :original_title,
     :description,
+    :original_description,
+    :edition_source,
+    :import_source,
+    :creature_type,
+    :creature_subtype,
+    :challenge_rating,
+    :armor_class,
+    :hit_points,
+    :hit_points_formula,
+    :creature_size,
     mentions_attributes: [:id, :another_mentionable_type, :another_mentionable_id, :_destroy]
 end

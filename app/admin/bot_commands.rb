@@ -56,7 +56,7 @@ ActiveAdmin.register BotCommand do
         markdown_to_html(resource.description)
       end
       row :length do
-        render partial: "description_length_badge", locals: {resource: resource}
+        render partial: "description_length_badge", locals: {resource: resource, method: :description}
       end
       row :created_at
       row :updated_at

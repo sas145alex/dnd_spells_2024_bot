@@ -7,7 +7,6 @@ class Creature < ApplicationRecord
 
   belongs_to :responsible,
     class_name: "AdminUser",
-    foreign_key: "responsible_id",
     optional: true
 
   validates :title, presence: true
@@ -19,8 +18,39 @@ class Creature < ApplicationRecord
     allow_blank: true
 
   before_validation :strip_title
+  before_validation :recalculate_description_size
 
   scope :ordered, -> { order(title: :asc) }
+
+  enum :creature_type, {
+    unknown: "unknown",
+    vary: "vary",
+    aberration: "aberration",
+    beast: "beast",
+    celestial: "celestial",
+    construct: "construct",
+    dragon: "dragon",
+    elemental: "elemental",
+    fey: "fey",
+    fiend: "fiend",
+    giant: "giant",
+    humanoid: "humanoid",
+    monstrosity: "monstrosity",
+    ooze: "ooze",
+    plant: "plant",
+    undead: "undead"
+  }, prefix: :type
+
+  enum :creature_size, {
+    unknown: "unknown",
+    vary: "vary",
+    tiny: "tiny",
+    small: "small",
+    medium: "medium",
+    large: "large",
+    huge: "huge",
+    gargantuan: "gargantuan"
+  }, prefix: :size
 
   def self.ransackable_associations(auth_object = nil)
     %w[created_by updated_by responsible]
@@ -34,5 +64,10 @@ class Creature < ApplicationRecord
 
   def strip_title
     self.title = title&.strip
+  end
+
+  def recalculate_description_size
+    self.description_size = description&.size || 0
+    self.original_description_size = original_description&.size || 0
   end
 end

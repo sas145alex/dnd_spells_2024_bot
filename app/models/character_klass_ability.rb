@@ -5,7 +5,6 @@ class CharacterKlassAbility < ApplicationRecord
   include WhoDidItable
 
   belongs_to :character_klass,
-    foreign_key: "character_klass_id",
     class_name: "CharacterKlass",
     optional: false
 

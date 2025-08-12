@@ -65,6 +65,7 @@ end
 group :development do
   gem "lefthook"
   gem "standard"
+  gem "standard-rails"
   gem "rubocop-rails-omakase", require: false
   gem "web-console"
 end

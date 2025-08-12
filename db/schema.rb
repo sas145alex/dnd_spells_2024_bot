@@ -143,6 +143,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_14_143330) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "searchable_title", default: "", null: false
+    t.string "edition_source", default: "MM25", null: false
+    t.string "import_source", default: "phb24_manual_transfer", null: false
+    t.string "creature_type", default: "unknown", null: false
+    t.string "creature_subtype"
+    t.float "challenge_rating", default: 0.0, null: false
+    t.integer "armor_class", default: 0, null: false
+    t.integer "hit_points", default: 0, null: false
+    t.string "hit_points_formula"
+    t.string "creature_size", default: "unknown", null: false
+    t.string "original_description", default: "", null: false
+    t.integer "description_size", default: 0, null: false
+    t.integer "original_description_size", default: 0, null: false
     t.index ["created_by_id"], name: "index_creatures_on_created_by_id"
     t.index ["published_at"], name: "index_creatures_on_published_at", where: "(published_at IS NOT NULL)"
     t.index ["responsible_id"], name: "index_creatures_on_responsible_id"
