@@ -9,7 +9,7 @@ gem "sprockets-rails"
 gem "importmap-rails"
 # gem "turbo-rails"
 # gem "stimulus-rails"
-gem "jbuilder", "~> 2.13"
+gem "jbuilder", "~> 2.14"
 gem "redis-rails"
 
 gem "activeadmin"
