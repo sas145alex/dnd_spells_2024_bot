@@ -1,5 +1,7 @@
 ru:
   activerecord:
+    models:
+      magic_item: "Артефакт"
     attributes:
       magic_item:
         categories:

@@ -1,5 +1,7 @@
 ru:
   activerecord:
+    models:
+      tool: "Инструмент"
     attributes:
       tool:
         categories:

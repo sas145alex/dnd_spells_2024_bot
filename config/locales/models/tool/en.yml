@@ -1,5 +1,7 @@
 en:
   activerecord:
+    models:
+      tool: "Tool"
     attributes:
       tool:
         categories:

@@ -1,0 +1,4 @@
+ru:
+  activerecord:
+    models:
+      origin: "Происхождение"

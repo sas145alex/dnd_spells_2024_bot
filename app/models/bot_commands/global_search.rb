@@ -54,10 +54,16 @@ module BotCommands
         }
         [{type: :message, answer: invalid_input}]
       elsif found_records.blank?
+        options = []
+        inline_keyboard = options.in_groups_of(1, false)
+        inline_keyboard.prepend(links_to_filters)
+        reply_markup = {inline_keyboard: inline_keyboard}
         empty_dataset = {
           text: "Вариантов не найдено",
+          reply_markup: reply_markup,
           parse_mode: parse_mode
         }
+
         [{type: :message, answer: empty_dataset}]
       else
         render_type = page_clicked ? :edit : :message
@@ -66,7 +72,7 @@ module BotCommands
     end
 
     # при смене страницы текст поиска приходит склеинным со страницей в data, а не text
-    def initialize(payload: {}, record_gid: nil, page: nil)
+    def initialize(user:, payload: {}, record_gid: nil, page: nil)
       search_input_source = page.blank? ? payload["text"] : self.class.fetch_text_from(payload["data"])
       parsed_page = page.blank? ? 1 : self.class.fetch_page_from(payload["data"])
 
@@ -75,6 +81,7 @@ module BotCommands
       @record_gid = record_gid
       @page = parsed_page
       @page_clicked = !page.nil?
+      @user = user
     end
 
     private
@@ -84,6 +91,7 @@ module BotCommands
     attr_reader :record_gid
     attr_reader :page
     attr_reader :page_clicked
+    attr_reader :user
 
     def render_record_info
       text = selected_object.description_for_telegram
@@ -117,6 +125,7 @@ module BotCommands
       variants = found_records
       options = keyboard_options(variants, title_method: :global_search_title)
       inline_keyboard = options.in_groups_of(1, false)
+      inline_keyboard.prepend(links_to_filters)
       inline_keyboard.append(links_to_pages)
       reply_markup = {inline_keyboard: inline_keyboard}
 
@@ -137,7 +146,17 @@ module BotCommands
 
     def documents_scope
       scope = PgSearch::Document.where(published: true)
+      scope = scope.where.not(searchable_type: user.unselected_search_categories)
       Multisearchable.search(input_value, scope: scope)
+    end
+
+    def links_to_filters
+      links = []
+      links << {
+        text: "Фильтры #{FILTERS_PAGE_SYMBOL}",
+        callback_data: "search_filters:"
+      }
+      links
     end
 
     def links_to_pages

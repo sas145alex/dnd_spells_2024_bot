@@ -1,8 +1,4 @@
 class MagicItemDecorator < ApplicationDecorator
-  def global_search_title
-    "[Артефакт] #{super.capitalize}"
-  end
-
   def description_for_telegram
     @description_for_telegram ||= begin
       str = "<b>#{title}</b>\n\n"

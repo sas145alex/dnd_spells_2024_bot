@@ -72,7 +72,7 @@ class Runner
         text = "#{error.class} - #{error.message}"
         if text.size > ERROR_MSG_LIMIT
           threshold = (ERROR_MSG_LIMIT / 2).floor
-          text = text[0...threshold] + "\n\n...\n\n" + text[-threshold..-1]
+          text = text[0...threshold] + "\n\n...\n\n" + text[-threshold..]
         end
         hash[:description] = text
       end
@@ -97,5 +97,3 @@ class Runner
 end
 
 Runner.new.call
-
-

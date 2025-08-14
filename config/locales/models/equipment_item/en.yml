@@ -1,5 +1,7 @@
 en:
   activerecord:
+    models:
+      equipment_item: "Equipment Item"
     attributes:
       equipment_item:
         item_types:

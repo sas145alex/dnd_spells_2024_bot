@@ -1,5 +1,7 @@
 en:
   activerecord:
+    models:
+      magic_item: "Magic Item"
     attributes:
       magic_item:
         categories:

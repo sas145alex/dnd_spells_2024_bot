@@ -1,0 +1,4 @@
+ru:
+  activerecord:
+    models:
+      character_klass_ability: "Умение"

@@ -1,5 +1,7 @@
 ru:
   activerecord:
+    models:
+      feat: "Черта"
     attributes:
       feat:
         categories:

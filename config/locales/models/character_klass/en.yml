@@ -1,0 +1,4 @@
+en:
+  activerecord:
+    models:
+      character_klass: "Class"

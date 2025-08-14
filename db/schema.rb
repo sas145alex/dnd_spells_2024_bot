@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_21_154344) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_14_143330) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -423,6 +423,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_154344) do
     t.string "username"
     t.bigint "chat_id"
     t.datetime "bot_removed_at"
+    t.string "unselected_search_categories", default: [], null: false, array: true
     t.index ["chat_id"], name: "index_telegram_users_on_chat_id"
     t.index ["external_id"], name: "index_telegram_users_on_external_id", unique: true
     t.index ["last_seen_at"], name: "index_telegram_users_on_last_seen_at"

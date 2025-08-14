@@ -3,6 +3,7 @@ ActiveAdmin.register BotCommand do
 
   collection_action :reset_memoized_commands, method: :post do
     BotCommand._reset_memoized_commands
+    BotCommands::GlobalSearch::Filters._reset_memoized_commands
 
     redirect_to admin_bot_commands_path, notice: "The memoized commands have been reset."
   end

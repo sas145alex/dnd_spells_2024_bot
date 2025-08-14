@@ -21,6 +21,7 @@ class TelegramController < BaseTelegramController
     r!
     roll!
     roll_callback_query
+    search_filters_callback_query
   ]
 
   def start!(*_args)
@@ -29,18 +30,23 @@ class TelegramController < BaseTelegramController
   end
 
   def search!(*_args)
-    answer_messages = BotCommands::GlobalSearch.call(payload: payload)
+    answer_messages = BotCommands::GlobalSearch.call(payload: payload, user: current_user)
     process_answer_messages(answer_messages)
   end
   alias_method :s!, :search!
 
   def search_callback_query(record_gid = nil, *_args)
-    answer_messages = BotCommands::GlobalSearch.call(payload: payload, record_gid: record_gid)
+    answer_messages = BotCommands::GlobalSearch.call(payload: payload, record_gid: record_gid, user: current_user)
     process_answer_messages(answer_messages)
   end
 
   def search_page_callback_query(page = nil, *_args)
-    answer_messages = BotCommands::GlobalSearch.call(payload: payload, page: page)
+    answer_messages = BotCommands::GlobalSearch.call(payload: payload, page: page, user: current_user)
+    process_answer_messages(answer_messages)
+  end
+
+  def search_filters_callback_query(selected_klass = nil, *_args)
+    answer_messages = BotCommands::GlobalSearch::Filters.call(user: current_user, selected_klass: selected_klass)
     process_answer_messages(answer_messages)
   end
 

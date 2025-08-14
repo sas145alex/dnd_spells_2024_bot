@@ -7,6 +7,6 @@ class FeatDecorator < ApplicationDecorator
   end
 
   def global_search_title
-    "[Черта] #{super.capitalize}"
+    "[#{object.class.model_name.human}] #{object.title.capitalize}"
   end
 end

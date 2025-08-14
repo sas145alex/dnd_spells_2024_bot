@@ -141,4 +141,19 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
     params[:message_thread_id] = payload["message_thread_id"] if payload.key?("message_thread_id")
     super
   end
+
+  def current_user
+    @current_user ||= begin
+      external_user_id = payload.dig("from", "id")
+      username = payload.dig("from", "username")
+      chat_id = payload.dig("chat", "id")
+
+      return unless external_user_id
+
+      TelegramUser.find_or_create_by!(external_id: external_user_id.to_i) do |user|
+        user.username = username
+        user.chat_id = chat_id
+      end
+    end
+  end
 end

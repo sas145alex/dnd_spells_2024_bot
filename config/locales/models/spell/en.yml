@@ -1,5 +1,7 @@
 en:
   activerecord:
+    models:
+      spell: "Spell"
     attributes:
       spell:
         schools:

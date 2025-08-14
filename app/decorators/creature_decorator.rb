@@ -7,6 +7,6 @@ class CreatureDecorator < ApplicationDecorator
   end
 
   def global_search_title
-    "[Бестиарий] #{super.capitalize}"
+    "[#{object.class.model_name.human}] #{object.title.capitalize}"
   end
 end

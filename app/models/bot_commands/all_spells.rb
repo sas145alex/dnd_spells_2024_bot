@@ -1,7 +1,6 @@
 module BotCommands
   class AllSpells < BaseCommand
     SPELLS_PER_PAGE = 10
-    FILTERS_PAGE_SYMBOL = "📃".freeze
 
     def call
       if invalid_input?
