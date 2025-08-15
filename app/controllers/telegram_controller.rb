@@ -10,6 +10,7 @@ class TelegramController < BaseTelegramController
     start!
     search!
     s!
+    search_en_callback_query
     search_callback_query
     search_page_callback_query
     spell!
@@ -34,6 +35,16 @@ class TelegramController < BaseTelegramController
     process_answer_messages(answer_messages)
   end
   alias_method :s!, :search!
+
+  def search_en_callback_query(record_gid = nil, *_args)
+    answer_messages = BotCommands::GlobalSearch.call(
+      payload: payload,
+      record_gid: record_gid,
+      user: current_user,
+      locale: :en
+    )
+    process_answer_messages(answer_messages)
+  end
 
   def search_callback_query(record_gid = nil, *_args)
     answer_messages = BotCommands::GlobalSearch.call(payload: payload, record_gid: record_gid, user: current_user)

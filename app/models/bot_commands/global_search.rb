@@ -5,7 +5,10 @@ module BotCommands
     DOCUMENTS_PER_PAGE = 10
     PAGE_DELIMITER = "||".freeze
     CALLBACK_PREFIX = "search".freeze
+    CALLBACK_EN_PREFIX = "search_en".freeze
     CALLBACK_PAGE_PREFIX = "#{CALLBACK_PREFIX}_page".freeze
+    RU_SYMBOL = "🇷🇺".freeze
+    EN_SYMBOL = "🇺🇸".freeze
 
     def self.normalize_input(raw_input)
       raw_input.to_s.strip.gsub(/\s+/, " ").gsub(/^(\/\w+)(@\w+)?(\s+)?/, "").strip
@@ -72,12 +75,13 @@ module BotCommands
     end
 
     # при смене страницы текст поиска приходит склеинным со страницей в data, а не text
-    def initialize(user:, payload: {}, record_gid: nil, page: nil)
+    def initialize(user:, payload: {}, locale: :ru, record_gid: nil, page: nil)
       search_input_source = page.blank? ? payload["text"] : self.class.fetch_text_from(payload["data"])
       parsed_page = page.blank? ? 1 : self.class.fetch_page_from(payload["data"])
 
       @payload = payload
       @input_value = self.class.normalize_input(search_input_source)
+      @locale = locale
       @record_gid = record_gid
       @page = parsed_page
       @page_clicked = !page.nil?
@@ -88,21 +92,36 @@ module BotCommands
 
     attr_reader :payload
     attr_reader :input_value
+    attr_reader :locale
     attr_reader :record_gid
     attr_reader :page
     attr_reader :page_clicked
     attr_reader :user
 
     def render_record_info
-      text = selected_object.description_for_telegram
+      text = if locale == :ru
+        selected_object.description_for_telegram
+      else
+        selected_object.original_description_for_telegram
+      end
       mentions = keyboard_mentions_options(selected_object)
       inline_keyboard = mentions.in_groups_of(2, false)
+      inline_keyboard.prepend([link_to_change_locale]) if selected_object.support_other_languages?
       reply_markup = {inline_keyboard: inline_keyboard}
 
       {
         text: text,
         reply_markup: reply_markup,
         parse_mode: parse_mode
+      }
+    end
+
+    def link_to_change_locale
+      change_locale_text = (locale == :ru) ? "EN #{EN_SYMBOL}" : "RU #{RU_SYMBOL}"
+      change_locale_prefix = (locale == :ru) ? callback_en_prefix : callback_prefix
+      {
+        text: change_locale_text,
+        callback_data: "#{change_locale_prefix}:#{selected_object.to_global_id}"
       }
     end
 
@@ -192,6 +211,10 @@ module BotCommands
 
     def callback_prefix
       CALLBACK_PREFIX
+    end
+
+    def callback_en_prefix
+      CALLBACK_EN_PREFIX
     end
 
     def callback_page_prefix
