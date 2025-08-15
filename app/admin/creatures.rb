@@ -20,14 +20,14 @@ ActiveAdmin.register Creature do
     column :description_size do |resource|
       ul do
         li "DB #{resource.description.size}"
-        li "TG #{resource.decorate.description_for_telegram.size}"
+        li "TG #{resource.decorate.description_for_telegram&.size || 0}"
         li "Lim #{ApplicationRecord::DESCRIPTION_LIMIT}"
       end
     end
     column :original_description_size do |resource|
       ul do
         li "DB #{resource.original_description.size}"
-        li "TG #{resource.decorate.original_description_for_telegram.size}"
+        li "TG #{resource.decorate.original_description_for_telegram&.size || 0}"
         li "Lim #{ApplicationRecord::DESCRIPTION_LIMIT}"
       end
     end
@@ -77,6 +77,7 @@ ActiveAdmin.register Creature do
   show do
     attributes_table_for(resource) do
       row :id
+      row :searchable_title
       row :title
       row :original_title
       row :edition_source
