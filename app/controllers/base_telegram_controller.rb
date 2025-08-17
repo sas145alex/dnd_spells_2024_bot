@@ -62,6 +62,8 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
   end
 
   def callback_query(*_args)
+    return if Rails.env.production?
+
     respond_with :message, text: "default callback answer", reply_markup: {}
   end
 

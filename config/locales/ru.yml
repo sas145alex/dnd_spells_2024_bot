@@ -6,3 +6,7 @@ ru:
     boolean:
       "true": "Да"
       "false": "Нет"
+
+  views:
+    pagination:
+      truncate: "..."

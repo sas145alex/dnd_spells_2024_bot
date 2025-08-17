@@ -2,3 +2,31 @@ en:
   activerecord:
     models:
       creature: "Creature"
+    attributes:
+      creature:
+        creature_types:
+          unknown: "unknown"
+          vary: "vary"
+          aberration: "aberration"
+          beast: "beast"
+          celestial: "celestial"
+          construct: "construct"
+          dragon: "dragon"
+          elemental: "elemental"
+          fey: "fey"
+          fiend: "fiend"
+          giant: "giant"
+          humanoid: "humanoid"
+          monstrosity: "monstrosity"
+          ooze: "ooze"
+          plant: "plant"
+          undead: "undead"
+        creature_sizes:
+          unknown: "unknown"
+          vary: "vary"
+          tiny: "tiny"
+          small: "small"
+          medium: "medium"
+          large: "large"
+          huge: "huge"
+          gargantuan: "gargantuan"

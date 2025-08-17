@@ -40,6 +40,8 @@ module BotCommands
       elsif input_value.size < SEARCH_VALUE_MIN_LENGTH || input_value.size > SEARCH_VALUE_MAX_LENGTH
         text = <<~HTML
           Неверное количество символов. Минимум - #{SEARCH_VALUE_MIN_LENGTH}, максимум - #{SEARCH_VALUE_MAX_LENGTH}
+
+          При необходимости можешь поставить фильтр на секции поиска.
           
           Если ты используешь бота в чатах, то можешь вызывать команду так: 
           <blockquote>/search@sneaky_library_bot огненный шар</blockquote>
