@@ -9,4 +9,8 @@ class CreatureDecorator < ApplicationDecorator
   def global_search_title
     "[#{object.class.model_name.human}] #{object.title.capitalize}"
   end
+
+  def admin_mention_title
+    "[#{edition_source}] #{super}"
+  end
 end

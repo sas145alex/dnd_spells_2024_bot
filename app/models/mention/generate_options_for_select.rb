@@ -14,13 +14,11 @@ class Mention::GenerateOptionsForSelect < ApplicationOperation
   attr_reader :mentionable_klass
 
   def collection
-    if mentionable_klass.nil?
+    items = if mentionable_klass.nil?
       []
-    elsif mentionable_klass.in?([WildMagic])
-      items = WildMagic.ordered.select(:id, :roll)
-      items.map { |item| [item.id, item.decorate.title] }
     else
-      mentionable_klass.ordered.pluck(:id, :title)
+      mentionable_klass.ordered
     end
+    items.to_a.map { |item| [item.id, item.decorate.admin_mention_title] }
   end
 end

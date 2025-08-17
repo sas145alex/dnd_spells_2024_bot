@@ -26,4 +26,8 @@ class ApplicationDecorator < Draper::Decorator
   def global_search_title
     "[#{object.class.model_name.human}] #{title.capitalize}"
   end
+
+  def admin_mention_title
+    title
+  end
 end

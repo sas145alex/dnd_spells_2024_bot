@@ -1,16 +1,24 @@
 panel "Mentions" do
   panel "Entity has mentions (#{resource.mentions.size})" do
-    table_for resource.mentions do |_mention|
-      column :mentionable
-      column :another_mentionable
+    table_for resource.mentions do
+      column :mentionable do |mention|
+        auto_link(mention.mentionable, mention.mentionable.decorate.admin_mention_title)
+      end
+      column :another_mentionable do |mention|
+        auto_link(mention.another_mentionable, mention.another_mentionable.decorate.admin_mention_title)
+      end
       column :created_at
     end
   end
 
   panel "Entity mentioned (#{resource.mentioned_mentions.size})" do
-    table_for resource.mentioned_mentions do |_mention|
-      column :mentionable
-      column :another_mentionable
+    table_for resource.mentioned_mentions do
+      column :mentionable do |mention|
+        auto_link(mention.mentionable, mention.mentionable.decorate.admin_mention_title)
+      end
+      column :another_mentionable do |mention|
+        auto_link(mention.another_mentionable, mention.mentionable.decorate.admin_mention_title)
+      end
       column :created_at
     end
   end
