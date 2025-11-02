@@ -1,0 +1,7 @@
+ru:
+  activerecord:
+    models:
+      psionic_power:
+        one: "Псионическая дисциплина"
+        few: "Псионические дисциплины"
+        other: "Псионические дисциплины"

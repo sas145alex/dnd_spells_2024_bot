@@ -1,10 +1,10 @@
 module BotCommands
-  class InfusionsSearch < BaseCommand
+  class PsionicPowersSearch < BaseCommand
     def call
       if input_value.blank?
-        provide_infusions
-      elsif infusion_selected?
-        provide_infusion_description
+        provide_psionic_powers
+      elsif psionic_power_selected?
+        provide_psionic_power_description
       else
         invalid_input
       end
@@ -18,9 +18,9 @@ module BotCommands
 
     attr_reader :input_value
 
-    def provide_infusions
+    def provide_psionic_powers
       text = "Выбери"
-      variants = infusion_scope
+      variants = psionic_power_scope
       options = keyboard_options(variants)
       inline_keyboard = options.in_groups_of(2, false)
       inline_keyboard.append([go_back_button])
@@ -33,7 +33,7 @@ module BotCommands
       }
     end
 
-    def provide_infusion_description
+    def provide_psionic_power_description
       text = selected_object.description_for_telegram
       mentions = keyboard_mentions_options(selected_object)
       inline_keyboard = mentions.in_groups_of(2, false)
@@ -47,16 +47,16 @@ module BotCommands
       }
     end
 
-    def infusion_selected?
-      selected_object.is_a?(::Infusion)
+    def psionic_power_selected?
+      selected_object.is_a?(::PsionicPower)
     end
 
-    def infusion_scope
-      ::Infusion.published.ordered.all.map(&:decorate)
+    def psionic_power_scope
+      ::PsionicPower.published.ordered.all.map(&:decorate)
     end
 
     def callback_prefix
-      "infusions"
+      "psionic_powers"
     end
   end
 end

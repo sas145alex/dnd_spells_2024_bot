@@ -80,9 +80,9 @@ ActiveAdmin.register CharacterKlass do
 
     div do
       if resource.published?
-        link_to "Unpublish", unpublish_admin_infusion_path(resource), class: "btn btn-primary"
+        link_to "Unpublish", unpublish_admin_psionic_power_path(resource), class: "btn btn-primary"
       else
-        link_to "Publish", publish_admin_infusion_path(resource), class: "btn btn-primary"
+        link_to "Publish", publish_admin_psionic_power_path(resource), class: "btn btn-primary"
       end
     end
   end
@@ -114,11 +114,11 @@ ActiveAdmin.register CharacterKlass do
       f.actions do
         if f.object.published?
           li class: "action" do
-            link_to "Unpublish", unpublish_admin_infusion_path(f.object)
+            link_to "Unpublish", unpublish_admin_psionic_power_path(f.object)
           end
         else
           li class: "action" do
-            link_to "Publish", publish_admin_infusion_path(f.object)
+            link_to "Publish", publish_admin_psionic_power_path(f.object)
           end
         end
       end

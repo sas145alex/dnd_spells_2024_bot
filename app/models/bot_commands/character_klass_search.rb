@@ -63,13 +63,21 @@ module BotCommands
       mentions = keyboard_mentions_options(selected_object)
       inline_keyboard = mentions.in_groups_of(2, false)
       if selected_object.use_invocations?
-        inline_keyboard.append([{text: "Воззвания", callback_data: "invocations:"}])
+        inline_keyboard.append(
+          [{text: Invocation.model_name.human(count: 999), callback_data: "invocations:"}]
+        )
       elsif selected_object.use_metamagic?
-        inline_keyboard.append([{text: "Метамагия", callback_data: "metamagics:"}])
+        inline_keyboard.append(
+          [{text: Metamagic.model_name.human(count: 999), callback_data: "metamagics:"}]
+        )
       elsif selected_object.use_maneuvers?
-        inline_keyboard.append([{text: "Маневры", callback_data: "maneuvers:"}])
-      elsif selected_object.use_infusions?
-        inline_keyboard.append([{text: "Инфузии", callback_data: "infusions:"}])
+        inline_keyboard.append(
+          [{text: Maneuver.model_name.human(count: 999), callback_data: "maneuvers:"}]
+        )
+      elsif selected_object.use_psionic_powers?
+        inline_keyboard.append(
+          [{text: PsionicPower.model_name.human(count: 999), callback_data: "psionic_powers:"}]
+        )
       end
       if selected_object.has_spells?
         linked_spells_button = {

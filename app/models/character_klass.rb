@@ -54,9 +54,8 @@ class CharacterKlass < ApplicationRecord
     title == "Мастер боевых искусств" || original_title == "Battle Master"
   end
 
-  def use_infusions?
-    # wait for release of Artificer and see if Infusion is needed
-    false
+  def use_psionic_powers?
+    title.match?("Псионик") || original_title.match?("Psion")
   end
 
   def has_spells?

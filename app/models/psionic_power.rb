@@ -1,4 +1,4 @@
-class Infusion < ApplicationRecord
+class PsionicPower < ApplicationRecord
   include Publishable
   include Mentionable
   include WhoDidItable

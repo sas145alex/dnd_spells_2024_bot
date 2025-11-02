@@ -1,4 +1,4 @@
-ActiveAdmin.register Infusion do
+ActiveAdmin.register PsionicPower do
   scope :published, ->(scope) { scope.published }
   scope :not_published, ->(scope) { scope.not_published }
 
@@ -73,9 +73,9 @@ ActiveAdmin.register Infusion do
 
     div do
       if resource.published?
-        link_to "Unpublish", unpublish_admin_infusion_path(resource), class: "btn btn-primary"
+        link_to "Unpublish", unpublish_admin_psionic_power_path(resource), class: "btn btn-primary"
       else
-        link_to "Publish", publish_admin_infusion_path(resource), class: "btn btn-primary"
+        link_to "Publish", publish_admin_psionic_power_path(resource), class: "btn btn-primary"
       end
     end
   end
@@ -87,7 +87,7 @@ ActiveAdmin.register Infusion do
       f.input :title
       f.input :original_title
       f.input :description,
-        label: "Description (#{Infusion::DESCRIPTION_FORMAT})",
+        label: "Description (#{PsionicPower::DESCRIPTION_FORMAT})",
         as: :simplemde_editor,
         input_html: {rows: 12, style: "height:auto"}
       li "Created at #{f.object.created_at}" unless f.object.new_record?
@@ -107,11 +107,11 @@ ActiveAdmin.register Infusion do
       f.actions do
         if f.object.published?
           li class: "action" do
-            link_to "Unpublish", unpublish_admin_infusion_path(f.object)
+            link_to "Unpublish", unpublish_admin_psionic_power_path(f.object)
           end
         else
           li class: "action" do
-            link_to "Publish", publish_admin_infusion_path(f.object)
+            link_to "Publish", publish_admin_psionic_power_path(f.object)
           end
         end
       end
@@ -144,13 +144,14 @@ ActiveAdmin.register Infusion do
 
   controller do
     def create
-      @resource = Infusion.new
+      @resource = PsionicPower.new
 
       if @resource.update(create_params)
         if params[:create_another] == "on"
-          redirect_to new_resource_path(@resource), notice: "Infusion was successfully created. Create another one."
+          redirect_to new_resource_path(@resource),
+            notice: "Psionic Power was successfully created. Create another one."
         else
-          redirect_to resource_path(@resource), notice: "Infusion was successfully created."
+          redirect_to resource_path(@resource), notice: "Psionic Power was successfully created."
         end
       else
         flash.now[:alert] = "Errors happened: " + @resource.errors.full_messages.to_sentence
@@ -160,7 +161,7 @@ ActiveAdmin.register Infusion do
 
     def update
       if resource.update(update_params)
-        redirect_to resource_path(resource), notice: "Infusion was successfully updated."
+        redirect_to resource_path(resource), notice: "Psionic Power was successfully updated."
       else
         flash.now[:alert] = "Errors happened: " + resource.errors.full_messages.to_sentence
         render(:edit, status: :unprocessable_entity)
@@ -178,13 +179,13 @@ ActiveAdmin.register Infusion do
     private
 
     def create_params
-      attrs = permitted_params[:infusion].to_h
+      attrs = permitted_params[:psionic_power].to_h
       attrs[:created_by] = current_admin_user
       attrs
     end
 
     def update_params
-      attrs = permitted_params[:infusion].to_h
+      attrs = permitted_params[:psionic_power].to_h
       attrs[:updated_by] = current_admin_user
       attrs
     end
