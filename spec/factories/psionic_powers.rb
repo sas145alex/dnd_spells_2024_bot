@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :infusion do
+  factory :psionic_power do
     title { "MyString" }
     original_title { "MyString" }
     description { "MyText" }

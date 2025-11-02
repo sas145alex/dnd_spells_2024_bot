@@ -1,0 +1,7 @@
+ru:
+  activerecord:
+    models:
+      plan:
+        one: "Чертеж"
+        few: "Чертежи"
+        other: "Чертежи"

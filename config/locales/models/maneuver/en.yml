@@ -1,4 +1,7 @@
 en:
   activerecord:
     models:
-      maneuver: "Maneuver"
+      maneuver:
+        one: "Maneuver"
+        few: "Maneuvers"
+        other: "Maneuvers"

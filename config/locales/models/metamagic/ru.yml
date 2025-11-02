@@ -1,4 +1,7 @@
 ru:
   activerecord:
     models:
-      metamagic: "Метамагия"
+      metamagic:
+        one: "Метамагия"
+        few: "Метамагия"
+        other: "Метамагия"

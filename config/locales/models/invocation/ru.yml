@@ -1,4 +1,7 @@
 ru:
   activerecord:
     models:
-      invocation: "Воззвание"
+      invocation:
+        one: "Воззвание"
+        few: "Воззвания"
+        other: "Воззвания"

@@ -1,4 +1,4 @@
-class InfusionDecorator < ApplicationDecorator
+class PsionicPowerDecorator < ApplicationDecorator
   def title
     "[#{object.level}] #{object.title}"
   end

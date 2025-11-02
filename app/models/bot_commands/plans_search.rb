@@ -1,10 +1,10 @@
 module BotCommands
-  class InfusionsSearch < BaseCommand
+  class PlansSearch < BaseCommand
     def call
       if input_value.blank?
-        provide_infusions
-      elsif infusion_selected?
-        provide_infusion_description
+        provide_plans
+      elsif plan_selected?
+        provide_plan_description
       else
         invalid_input
       end
@@ -18,9 +18,9 @@ module BotCommands
 
     attr_reader :input_value
 
-    def provide_infusions
+    def provide_plans
       text = "Выбери"
-      variants = infusion_scope
+      variants = plan_scope
       options = keyboard_options(variants)
       inline_keyboard = options.in_groups_of(2, false)
       inline_keyboard.append([go_back_button])
@@ -33,7 +33,7 @@ module BotCommands
       }
     end
 
-    def provide_infusion_description
+    def provide_plan_description
       text = selected_object.description_for_telegram
       mentions = keyboard_mentions_options(selected_object)
       inline_keyboard = mentions.in_groups_of(2, false)
@@ -47,16 +47,16 @@ module BotCommands
       }
     end
 
-    def infusion_selected?
-      selected_object.is_a?(::Infusion)
+    def plan_selected?
+      selected_object.is_a?(::Plan)
     end
 
-    def infusion_scope
-      ::Infusion.published.ordered.all.map(&:decorate)
+    def plan_scope
+      ::Plan.published.ordered.all.map(&:decorate)
     end
 
     def callback_prefix
-      "infusions"
+      "plans"
     end
   end
 end

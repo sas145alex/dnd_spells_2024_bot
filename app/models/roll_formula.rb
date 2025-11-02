@@ -2,7 +2,7 @@ class RollFormula
   MAX_VALUE = 100
   MAX_MODIFIER = 10_000
   BASE_ROLL_REGEXP = /^(?<dice_count>\d+)(?<second_part>\w(?<dice_value>\d+))/
-  MOD_ROLL_REGEXP = /(?<mod_sign>[\+\-])?(?<mod_value>\d+)?/
+  MOD_ROLL_REGEXP = /(?<mod_sign>[+-])?(?<mod_value>\d+)?/
   ROLL_FORMULA_REGEXP = Regexp.new(BASE_ROLL_REGEXP.source + MOD_ROLL_REGEXP.source)
 
   def initialize(roll_formula = "")

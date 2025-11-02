@@ -1,4 +1,7 @@
 en:
   activerecord:
     models:
-      metamagic: "Metamagic"
+      metamagic:
+        one: "Metamagic"
+        few: "Metamagic"
+        other: "Metamagic"

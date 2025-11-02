@@ -1,0 +1,7 @@
+en:
+  activerecord:
+    models:
+      psionic_power:
+        one: "Psionic Power"
+        few: "Psionic Powers"
+        other: "Psionic Powers"

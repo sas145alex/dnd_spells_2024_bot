@@ -49,7 +49,7 @@ module BotCommands
         all_klasses.map do |klass|
           name = klass.model_name.human
           symbol = unselected_klasses.include?(klass.to_s) ? UNSELECTED_SYMBOL : SELECTED_SYMBOL
-          text = "#{name} #{symbol}"
+          text = "#{symbol} #{name}"
           {
             text: text,
             callback_data: "#{callback_prefix}:#{klass}"

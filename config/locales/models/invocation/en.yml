@@ -1,4 +1,7 @@
 en:
   activerecord:
     models:
-      invocation: "Invocation"
+      invocation:
+        one: "Invocation"
+        few: "Invocations"
+        other: "Invocations"

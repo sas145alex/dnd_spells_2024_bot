@@ -1,0 +1,7 @@
+en:
+  activerecord:
+    models:
+      plan:
+        one: "Plan"
+        few: "Plans"
+        other: "Plans"
