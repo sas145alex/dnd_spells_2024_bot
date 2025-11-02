@@ -64,7 +64,8 @@ class CharacterKlass < ApplicationRecord
   end
 
   def use_arcane_shots?
-    title.match?("Арканный Лучник") || original_title.match?("Arcane Archer")
+    title.downcase.match?("арканный лучник") ||
+      original_title.downcase.match?("arcane archer")
   end
 
   def has_spells?

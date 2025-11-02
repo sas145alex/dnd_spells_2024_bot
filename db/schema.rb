@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_02_072053) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_02_130918) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -81,6 +81,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_02_072053) do
     t.bigint "updated_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "searchable_title", default: "", null: false
     t.index ["created_by_id"], name: "index_arcane_shots_on_created_by_id"
     t.index ["updated_by_id"], name: "index_arcane_shots_on_updated_by_id"
   end
@@ -365,6 +366,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_02_072053) do
     t.bigint "updated_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "searchable_title", default: "", null: false
     t.index ["created_by_id"], name: "index_plans_on_created_by_id"
     t.index ["updated_by_id"], name: "index_plans_on_updated_by_id"
   end
@@ -379,6 +381,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_02_072053) do
     t.bigint "updated_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "searchable_title", default: "", null: false
     t.index ["created_by_id"], name: "index_psionic_powers_on_created_by_id"
     t.index ["updated_by_id"], name: "index_psionic_powers_on_updated_by_id"
   end

@@ -157,6 +157,16 @@ class TelegramController < BaseTelegramController
     edit_message :text, answer_params
   end
 
+  def plans_callback_query(input_value = nil, *_args)
+    answer_params = BotCommands::PlansSearch.call(input_value: input_value)
+    edit_message :text, answer_params
+  end
+
+  def arcane_shots_callback_query(input_value = nil, *_args)
+    answer_params = BotCommands::ArcaneShotsSearch.call(input_value: input_value)
+    edit_message :text, answer_params
+  end
+
   def metamagics_callback_query(input_value = nil, *_args)
     answer_params = BotCommands::MetamagicsSearch.call(input_value: input_value)
     edit_message :text, answer_params
