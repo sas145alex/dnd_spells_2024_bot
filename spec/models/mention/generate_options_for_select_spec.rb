@@ -18,7 +18,7 @@ RSpec.describe Mention::GenerateOptionsForSelect do
       [
         {
           id: mentionable_entity.id,
-          text: mentionable_entity.title
+          text: mentionable_entity.decorate.title
         }
       ]
     end
@@ -37,7 +37,7 @@ RSpec.describe Mention::GenerateOptionsForSelect do
       [
         {
           id: mentionable_entity.id,
-          text: mentionable_entity.title
+          text: mentionable_entity.decorate.title
         }
       ]
     end
@@ -56,7 +56,7 @@ RSpec.describe Mention::GenerateOptionsForSelect do
       [
         {
           id: mentionable_entity.id,
-          text: mentionable_entity.title
+          text: mentionable_entity.decorate.title
         }
       ]
     end
@@ -75,7 +75,7 @@ RSpec.describe Mention::GenerateOptionsForSelect do
       [
         {
           id: mentionable_entity.id,
-          text: mentionable_entity.title
+          text: mentionable_entity.decorate.title
         }
       ]
     end
@@ -94,7 +94,7 @@ RSpec.describe Mention::GenerateOptionsForSelect do
       [
         {
           id: mentionable_entity.id,
-          text: mentionable_entity.title
+          text: mentionable_entity.decorate.title
         }
       ]
     end
