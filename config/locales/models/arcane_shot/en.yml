@@ -1,0 +1,7 @@
+en:
+  activerecord:
+    models:
+      arcane_shot:
+        one: "Arcane Shot"
+        few: "Arcane Shots"
+        other: "Arcane Shots"

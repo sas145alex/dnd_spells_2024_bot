@@ -78,6 +78,14 @@ module BotCommands
         inline_keyboard.append(
           [{text: PsionicPower.model_name.human(count: 999), callback_data: "psionic_powers:"}]
         )
+      elsif selected_object.use_plans?
+        inline_keyboard.append(
+          [{text: Plan.model_name.human(count: 999), callback_data: "plans:"}]
+        )
+      elsif selected_object.use_arcane_shots?
+        inline_keyboard.append(
+          [{text: ArcaneShot.model_name.human(count: 999), callback_data: "arcane_shots:"}]
+        )
       end
       if selected_object.has_spells?
         linked_spells_button = {

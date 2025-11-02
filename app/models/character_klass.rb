@@ -58,6 +58,14 @@ class CharacterKlass < ApplicationRecord
     title.match?("Псионик") || original_title.match?("Psion")
   end
 
+  def use_plans?
+    title.match?("Изобретатель") || original_title.match?("Artificer")
+  end
+
+  def use_arcane_shots?
+    title.match?("Арканный Лучник") || original_title.match?("Arcane Archer")
+  end
+
   def has_spells?
     klass_ids = base_klass? ? [id] : [id, parent_klass_id]
     SpellsCharacterKlass.where(character_klass_id: klass_ids).exists?

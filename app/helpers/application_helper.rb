@@ -48,7 +48,21 @@ module ApplicationHelper
   end
 
   def mention_types_for_select
-    %w[Creature Spell GlossaryItem Feat Tool Origin WildMagic BotCommand EquipmentItem MagicItem PsionicPower]
+    %w[
+      Creature
+      Spell
+      GlossaryItem
+      Feat
+      Tool
+      Origin
+      WildMagic
+      BotCommand
+      EquipmentItem
+      MagicItem
+      PsionicPower
+      Plan
+      ArcaneShot
+    ]
   end
 
   def segment_types_for_select
