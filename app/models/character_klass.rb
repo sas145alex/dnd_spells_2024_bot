@@ -55,11 +55,12 @@ class CharacterKlass < ApplicationRecord
   end
 
   def use_psionic_powers?
-    title.match?("Псионик") || original_title.match?("Psion")
+    main_character_klass.title.match?("Псионик") || main_character_klass.original_title.match?("Psion")
   end
 
   def use_plans?
-    title.match?("Изобретатель") || original_title.match?("Artificer")
+    main_character_klass.title.match?("Изобретатель") ||
+      main_character_klass.original_title.match?("Artificer")
   end
 
   def use_arcane_shots?
