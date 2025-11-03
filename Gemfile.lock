@@ -53,7 +53,7 @@ GEM
       activestorage (>= 6.1.4)
       activesupport (>= 6.1.4)
       marcel (>= 1.0.3)
-    activeadmin (3.3.0)
+    activeadmin (3.4.0)
       arbre (~> 1.2, >= 1.2.1)
       csv
       formtastic (>= 3.1)
@@ -342,7 +342,7 @@ GEM
       nio4r (~> 2.0)
     raabro (1.4.0)
     racc (1.8.1)
-    rack (3.2.3)
+    rack (3.2.4)
     rack-session (2.1.1)
       base64 (>= 0.1.0)
       rack (>= 3.0.0)
