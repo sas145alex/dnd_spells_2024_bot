@@ -14,7 +14,7 @@ class Feat < ApplicationRecord
     allow_blank: true
   validates :category, presence: true
 
-  scope :ordered, -> { order(title: :asc) }
+  scope :ordered, -> { order(category: :asc, title: :asc) }
 
   before_validation :strip_title
   before_validation :strip_original_title

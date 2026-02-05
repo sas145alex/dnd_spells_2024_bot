@@ -70,6 +70,7 @@ module BotCommands
     def provide_feats_by_characteristic
       ids = Segment.where(attribute_resource: selected_object, resource_type: "Feat").pluck(:resource_id)
       feats = feat_scope.where(id: ids)
+      feats = feats.where(category: 'general')
       options = feats.map do |item|
         {
           text: item.title,
