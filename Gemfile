@@ -74,9 +74,8 @@ end
 
 group :development do
   gem "lefthook", "~> 2.1", require: false
-  gem "standard", "~> 1.31", require: false
-  gem "standard-rails", "~> 1.6", require: false
   gem "rubocop-rails-omakase", "~> 1.1", require: false
+  gem "rubocop-rails", "~> 2.34", require: false # already pulled by omakase; listed explicitly
   gem "web-console", "~> 4.3"
 end
 

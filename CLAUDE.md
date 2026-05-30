@@ -34,12 +34,12 @@ bundle exec rspec spec/path/to/file_spec.rb   # single spec file
 
 ### Linting
 
-- **Local canon: StandardRB.** The lefthook pre-commit hook runs `bundle exec standardrb --fix`
-  (`lefthook.yml`). Run `bundle exec standardrb` to check, `--fix` to autocorrect.
-- ⚠️ **CI runs RuboCop, not StandardRB.** `.github/workflows/ci.yml` runs `bin/rubocop -f github`
-  (rubocop-rails-omakase) plus `bin/brakeman` (security). The two linters have different rule sets and
-  **can disagree** — code that passes the StandardRB hook may still be flagged in CI. When in doubt,
-  run both before pushing.
+- **Single linter: RuboCop** with the `rubocop-rails-omakase` preset (`.rubocop.yml`), plus the
+  `rubocop-rails` / `rubocop-performance` cops it enables. Run `bin/rubocop` to check, `bin/rubocop -A`
+  to autocorrect.
+- The same RuboCop runs everywhere: the lefthook pre-commit hook autocorrects staged files
+  (`bin/rubocop -A --force-exclusion {staged_files}`, `lefthook.yml`), and CI runs `bin/rubocop -f github`
+  (`.github/workflows/ci.yml`) plus `bin/brakeman` (security). No StandardRB.
 
 ### Commit conventions
 
@@ -167,10 +167,8 @@ Required env vars (`.env`, seeded from `.env.test` by `make setup`): `BOT_TOKEN`
 
 ## Gotchas
 
-- The Telegram session / `history_stack` is in **solid_cache**, not Redis (`redis-rails` is present but
-  the redis `cache_store` is commented out).
+- The Telegram session / `history_stack` is in **solid_cache**, not Redis.
 - Rebuilding search needs **two** calls — `regenerate_all_searchable_columns!` *and*
   `regenerate_all_multisearchables!`.
 - A new `BotCommands` subclass must override `callback_prefix` or it raises `NotImplementedError`.
 - `make bot` is dev-only — production delivery is webhook-based.
-- The pre-commit hook (StandardRB) and CI (RuboCop) use different rule sets and can disagree.
