@@ -144,6 +144,10 @@ RSpec + FactoryBot, test-prof (`let_it_be`), WebMock, Timecop. Spec layout mirro
 - **Testing outbound sends:** mock the client — `allow(Telegram.bot).to receive(:send_message)` — then
   assert `have_received(...)`. Discord HTTP is stubbed via WebMock (`require "webmock_helper"`).
 - Request specs use Devise `sign_in(admin)` and the `json_body` helper (`spec/support/api_helpers.rb`).
+- **Coverage (SimpleCov):** running specs writes an HTML report to `coverage/index.html` and prints the
+  line/branch % at the end of the run. SimpleCov only counts files exercised by the specs that
+  **actually ran**, so the report is accurate **only after the full suite** (`bundle exec rspec`) —
+  running a single spec file reports misleading, partial coverage.
 
 ## Seeds & data import
 

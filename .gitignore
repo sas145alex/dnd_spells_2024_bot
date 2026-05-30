@@ -44,5 +44,8 @@ public/uploads
 /config/credentials/production.key
 .claude/
 
+# SimpleCov coverage report
+/coverage
+
 # Track the Git hooks config even though it's ignored globally (~/.global-gitignore).
 !lefthook.yml

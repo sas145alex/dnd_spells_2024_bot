@@ -83,4 +83,5 @@ group :test do
   gem "database_cleaner-active_record", "~> 2.2"
   gem "test-prof", "~> 1.0"
   gem "webmock", "~> 3.23"
+  gem "simplecov", "~> 0.22", require: false
 end
