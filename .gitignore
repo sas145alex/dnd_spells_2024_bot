@@ -42,3 +42,4 @@ file_session_store
 public/uploads
 
 /config/credentials/production.key
+.claude/
