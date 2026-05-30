@@ -41,6 +41,12 @@ bundle exec rspec spec/path/to/file_spec.rb   # single spec file
   **can disagree** — code that passes the StandardRB hook may still be flagged in CI. When in doubt,
   run both before pushing.
 
+### Commit conventions
+
+- Keep commit messages **short** — a concise one-line summary of the change.
+- **Do not** mention Claude, Claude Code, or any other AI agent in commit messages, and **do not** add
+  `Co-Authored-By` / "Generated with" trailers for AI tools.
+
 ## Request flow
 
 Telegram updates arrive via webhook at `telegram_webhook TelegramController` (`config/routes.rb`).

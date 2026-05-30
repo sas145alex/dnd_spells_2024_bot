@@ -1,77 +1,85 @@
 source "https://rubygems.org"
 
-ruby "3.4.4"
-gem "rails", "~> 8.0.2"
-gem "pg", "~> 1.1"
-gem "puma", ">= 5.0"
+ruby file: ".ruby-version"
 
-gem "sprockets-rails"
-gem "importmap-rails"
+# Core
+gem "rails", "~> 8.1"
+gem "pg", "~> 1.1"
+gem "puma", "~> 8.0"
+
+# Asset pipeline & JS
+gem "sprockets-rails", "~> 3.5"
+gem "importmap-rails", "~> 2.2"
 # gem "turbo-rails"
 # gem "stimulus-rails"
-gem "jbuilder", "~> 2.13"
-gem "redis-rails"
 
-gem "activeadmin"
-gem "activeadmin_addons"
-gem "activeadmin_simplemde"
-gem "devise", "~> 4.9"
-gem "devise-i18n"
-gem "sassc-rails"
-gem "bootstrap-sass"
-gem "active_bootstrap_skin"
-gem "font-awesome-rails"
-gem "rails-i18n"
+# Admin UI, auth & styling
+gem "activeadmin", "~> 3.4"
+gem "activeadmin_addons", "~> 1.10"
+gem "activeadmin_simplemde", "~> 1.3"
+gem "devise", "~> 5.0"
+gem "devise-i18n", "~> 1.15"
+gem "sassc-rails", "~> 2.1"
+gem "bootstrap-sass", "~> 3.4"
+gem "active_bootstrap_skin", "~> 0.1"
+gem "font-awesome-rails", "~> 4.7"
+gem "rails-i18n", "~> 8.1"
 
-gem "dry-initializer"
-gem "telegram-bot"
-gem "mutex_m"
-gem "redcarpet"
-gem "pg_search"
-gem "draper"
-gem "httparty"
+# Bot & domain logic
+gem "dry-initializer", "~> 3.2"
+gem "telegram-bot", "~> 0.16"
+gem "mutex_m", "~> 0.3"
+gem "redcarpet", "~> 3.6"
+gem "pg_search", "~> 2.3"
+gem "draper", "~> 4.0"
+gem "httparty", "~> 0.24"
 
-gem "sentry-ruby"
-gem "sentry-rails"
-gem "stackprof", "~> 0.2.26"
+# Monitoring & errors
+gem "sentry-ruby", "~> 6.3"
+gem "sentry-rails", "~> 6.3"
 
-gem "cloudinary"
-gem "active_storage_validations"
+# Media / file storage
+gem "cloudinary", "~> 2.4"
+gem "active_storage_validations", "~> 3.0"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[windows jruby]
 
-gem "bootsnap", require: false
+# Boot performance
+gem "bootsnap", "~> 1.22", require: false
 
-gem "solid_cache"
-gem "solid_queue"
-gem "solid_cable"
+# Solid stack (cache / queue / cable on Postgres)
+gem "solid_cache", "~> 1.0"
+gem "solid_queue", "~> 1.3"
+gem "solid_cable", "~> 4.0"
 
-gem "kamal", require: false
-gem "thruster", require: false
-gem "newrelic_rpm"
+# Deploy & APM
+gem "kamal", "~> 2.10", require: false
+gem "thruster", "~> 0.1", require: false
+gem "newrelic_rpm", "~> 10.1"
 
 group :development, :test do
-  gem "rspec-rails", "~> 7.1"
+  gem "rspec-rails", "~> 8.0"
   gem "factory_bot_rails", "~> 6.4"
-  gem "ffaker"
-  gem "observer" # for ffaker
-  gem "timecop"
+  gem "ffaker", "~> 2.24"
+  gem "observer", "~> 0.1" # for ffaker
+  gem "timecop", "~> 0.9"
   gem "dotenv", "~> 3.1"
-  gem "debug", platforms: %i[mri windows], require: "debug/prelude"
-  gem "brakeman", require: false
+  gem "stackprof", "~> 0.2", require: false
+  gem "debug", "~> 1.11", platforms: %i[mri windows], require: "debug/prelude"
+  gem "brakeman", "~> 8.0", require: false
 end
 
 group :development do
-  gem "lefthook"
-  gem "standard"
-  gem "standard-rails"
-  gem "rubocop-rails-omakase", require: false
-  gem "web-console"
+  gem "lefthook", "~> 2.1", require: false
+  gem "standard", "~> 1.31", require: false
+  gem "standard-rails", "~> 1.6", require: false
+  gem "rubocop-rails-omakase", "~> 1.1", require: false
+  gem "web-console", "~> 4.3"
 end
 
 group :test do
-  gem "database_cleaner-active_record"
+  gem "database_cleaner-active_record", "~> 2.2"
   gem "test-prof", "~> 1.0"
   gem "webmock", "~> 3.23"
 end

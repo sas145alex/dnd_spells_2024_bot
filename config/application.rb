@@ -24,7 +24,7 @@ Bundler.require(*Rails.groups)
 module DndHandbook
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 8.0
+    config.load_defaults 8.1
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
@@ -47,7 +47,6 @@ module DndHandbook
     config.i18n.default_locale = :ru
     config.i18n.load_path += Dir[Rails.root.join("config/locales/**/*.{rb,yml}")]
     config.i18n.available_locales = [:ru, :en]
-    config.active_support.to_time_preserves_timezone = :zone
 
     config.solid_queue.logger = ActiveSupport::TaggedLogging.logger($stdout)
   end
