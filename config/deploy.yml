@@ -29,7 +29,7 @@ env:
     POSTGRES_DB: dnd_handbook_production
     DB_HOST: dnd_handbook-db
     DB_PORT: 5432
-#    BOT_TOKEN: 7901258290:AAGofKmUY2hllwLDuIl0GiJNiwbmdPE3oYY # tmp
+#    BOT_TOKEN: 7901258290:AAGofKmUY2hllwLDuIl0GiJNiwbmdPE3oYY # tmp - safe to commit
 #    BOT_NAME: tmp_bot_remove_bot # tmp
 
 # Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
