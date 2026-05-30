@@ -22,4 +22,6 @@ More about it [github/telegram-bot-rb](https://github.com/telegram-bot-rb/telegr
 # Current pre-deployment prerequisites:
 * install newrelic-cli and add newrelic-profile with `newrelic-cli.newrelic profile add --profile ...`
 * install 1password-cli and add 1password-agent / 1password account
+* the deploy SSH user (`ssh.user` in `config/deploy.yml`) must have passwordless sudo on the server —
+  the `.kamal/hooks/docker-setup` hook runs `sudo usermod -aG docker` to grant Docker access
 * run `kamal deploy`

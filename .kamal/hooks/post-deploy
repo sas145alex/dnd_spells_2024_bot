@@ -11,4 +11,11 @@
 # KAMAL_DESTINATION (if set)
 # KAMAL_RUNTIME
 
+# Skip gracefully if newrelic-cli isn't installed on the deploying machine, so a
+# missing local tool doesn't fail the deploy after the app is already live.
+if ! command -v newrelic-cli.newrelic >/dev/null 2>&1; then
+  echo "newrelic-cli not found; skipping deployment marker."
+  exit 0
+fi
+
 newrelic-cli.newrelic entity deployment create --guid 'NjYxNDEzMHxBUE18QVBQTElDQVRJT058NDA2MDA4NzIw' --version "$KAMAL_VERSION" --deploymentType 'BASIC' --description 'kamal deployment' --user "$KAMAL_PERFORMER" --profile 'prod_eu_6614130_change_tracking'
