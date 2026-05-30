@@ -15,7 +15,7 @@ class AddDescriptionSizeToCreatures < ActiveRecord::Migration[8.0]
 
   def fill_counters
     sql = <<~SQL.squish
-      UPDATE creatures 
+      UPDATE creatures#{' '}
       SET description_size = length(description), original_description_size = length(original_description)
       WHERE 1=1
     SQL

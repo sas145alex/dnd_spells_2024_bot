@@ -52,7 +52,7 @@ module BotCommands
 
         text = <<~HTML
           <b>Фильтрация заклинаний</b>
-          
+
           Выбери класс
         HTML
 
@@ -78,7 +78,7 @@ module BotCommands
 
         text = <<~HTML
           <b>Фильтрация заклинаний</b>
-          
+
           Выбери уровень заклинаний
         HTML
 
@@ -103,7 +103,7 @@ module BotCommands
 
         text = <<~HTML
           <b>Фильтрация заклинаний</b>
-          
+
           Выбери школу заклинаний
         HTML
 
@@ -128,7 +128,7 @@ module BotCommands
 
         text = <<~HTML
           <b>Фильтрация заклинаний</b>
-          
+
           Выбери время накладывания
         HTML
 
@@ -153,7 +153,7 @@ module BotCommands
 
         text = <<~HTML
           <b>Фильтрация заклинаний</b>
-          
+
           Можно ли применять заклинание как ритуал
         HTML
 
@@ -178,7 +178,7 @@ module BotCommands
 
         text = <<~HTML
           <b>Фильтрация заклинаний</b>
-          
+
           Нужно ли поддерживать концентрацию
         HTML
 

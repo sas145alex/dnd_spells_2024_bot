@@ -57,7 +57,7 @@ module BotCommands
       klass_record = klass_record.decorate
       text = <<~HTML
         <b>Выбрано:</b> #{selected_object.title}
-        
+
         #{klass_record.description_for_telegram}
       HTML
       mentions = keyboard_mentions_options(selected_object)

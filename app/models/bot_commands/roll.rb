@@ -65,7 +65,7 @@ module BotCommands
     def provide_dices
       text = <<~HTML.chomp
         Для мгновенного броска ты можешь вызвать команду с нужными значениями в формате: <blockquote>/roll ХdY+Z</blockquote>
-        
+
         Примеры вызова команды:
         <blockquote>
         /roll 2d20
@@ -73,7 +73,7 @@ module BotCommands
         /roll 3d4+3
         /r 1d10-1 4d4+2 5d5
         </blockquote>
-        
+
         Для броска выбери кость из таблицы:
       HTML
       reply_markup = {inline_keyboard: keyboard_dices_options}

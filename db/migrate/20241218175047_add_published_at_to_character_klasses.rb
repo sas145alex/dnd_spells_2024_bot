@@ -2,7 +2,7 @@ class AddPublishedAtToCharacterKlasses < ActiveRecord::Migration[7.2]
   def up
     add_column :character_klasses, :published_at, :datetime
     sql = <<~SQL.squish
-      UPDATE character_klasses 
+      UPDATE character_klasses#{' '}
       SET published_at = now()
       WHERE 1=1
     SQL
