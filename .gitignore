@@ -43,3 +43,6 @@ public/uploads
 
 /config/credentials/production.key
 .claude/
+
+# Track the Git hooks config even though it's ignored globally (~/.global-gitignore).
+!lefthook.yml

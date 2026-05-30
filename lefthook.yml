@@ -1,0 +1,8 @@
+pre-commit:
+  parallel: true
+  commands:
+    rubocop:
+      tags: backend style
+      glob: "*.rb"
+      run: bin/rubocop -A --force-exclusion {staged_files}
+      stage_fixed: true
