@@ -38,6 +38,8 @@ gem "httparty", "~> 0.24"
 # Monitoring & errors
 gem "sentry-ruby", "~> 6.3"
 gem "sentry-rails", "~> 6.3"
+# Required in production for Sentry's profiler (config.profiles_sample_rate in config/initializers/sentry.rb)
+gem "stackprof", "~> 0.2"
 
 # Media / file storage
 gem "cloudinary", "~> 2.4"
@@ -66,7 +68,6 @@ group :development, :test do
   gem "observer", "~> 0.1" # for ffaker
   gem "timecop", "~> 0.9"
   gem "dotenv", "~> 3.1"
-  gem "stackprof", "~> 0.2", require: false
   gem "debug", "~> 1.11", platforms: %i[mri windows], require: "debug/prelude"
   gem "brakeman", "~> 8.0", require: false
 end
