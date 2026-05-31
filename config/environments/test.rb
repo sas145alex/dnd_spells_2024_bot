@@ -62,4 +62,9 @@ Rails.application.configure do
 
   config.active_job.verbose_enqueue_logs = true
   config.active_job.queue_adapter = :inline
+
+  # The Telegram session store is solid_cache_store in app config, but the single test database
+  # has no solid_cache_entries table (that lives in the separate cache DB in dev/prod). Use an
+  # in-memory store in test so controller/request specs can exercise the session.
+  config.telegram_updates_controller.session_store = :memory_store
 end

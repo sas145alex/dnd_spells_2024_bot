@@ -137,6 +137,13 @@ SimpleMDE is wired for Markdown `description` fields.
 RSpec + FactoryBot, test-prof (`let_it_be`), WebMock, Timecop. Spec layout mirrors `app/`
 (`spec/models/`, `spec/decorators/`, `spec/jobs/`, `spec/requests/`).
 
+**Spec style** (see `spec/models/bot_commands/wild_magic_search_spec.rb`): each `describe`/`context`
+defines its own `subject` directive, and each example varies behaviour by overriding a `let` that
+feeds the subject's arguments — **not** by inlining literal arguments inside the `it` block. Put a
+default `let` at the top, override it per context/example, and prefer `it { is_expected.to ... }`.
+Reusable concern behaviour goes in `spec/support/shared_examples/` (e.g. `it_behaves_like
+"publishable", :spell`).
+
 - Seed data is loaded once before the suite: `rails_helper` runs `before(:suite) { Rails.application.load_seed }`.
 - DatabaseCleaner uses the `:transaction` strategy (one `:truncation` before the suite).
 - **Testing a command:** call `BotCommands::Foo.call(...)` and assert the returned answer hash/array

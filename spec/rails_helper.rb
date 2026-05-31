@@ -9,8 +9,7 @@ require "rspec/rails"
 # Add additional requires below this line. Rails is not loaded until this point!
 
 require "test_prof/recipes/rspec/let_it_be"
-require_relative "support/api_helpers"
-require_relative "support/database_cleaner"
+Dir[Rails.root.join("spec/support/**/*.rb")].sort.each { |f| require f }
 
 begin
   ActiveRecord::Migration.maintain_test_schema!
@@ -35,6 +34,10 @@ RSpec.configure do |config|
 
   config.before(:suite) do
     Rails.application.load_seed
+    # Seeding runs model callbacks/concerns and would otherwise inflate the coverage report with
+    # lines no spec actually exercises. Discard the seed-time hits so coverage reflects only what
+    # the specs themselves run. Ruby's Coverage keeps tracking after a `clear: true` result.
+    Coverage.result(stop: false, clear: true) if defined?(Coverage) && Coverage.running?
   end
 
   # issue after updating to new rails 8

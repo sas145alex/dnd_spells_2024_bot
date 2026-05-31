@@ -1,4 +1,9 @@
 RSpec.describe Spell do
+  it_behaves_like "publishable", :spell
+  it_behaves_like "multisearchable", :spell
+  it_behaves_like "mentionable", :spell
+  it_behaves_like "who_did_itable", :spell
+
   let_it_be(:spell_random, freeze: true) do
     create(:spell, title: "Случайный", original_title: "random")
   end

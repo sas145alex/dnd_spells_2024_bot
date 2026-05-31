@@ -3,8 +3,6 @@ FactoryBot.define do
     title { "MyString" }
     original_title { "MyString" }
     description { "MyText" }
-    character_klass { nil }
-    created_by { nil }
-    updated_by { nil }
+    character_klass
   end
 end

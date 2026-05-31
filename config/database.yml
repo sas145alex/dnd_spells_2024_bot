@@ -27,7 +27,7 @@ test:
   <<: *default
   username: sas145
   password: qwerty
-  database: dnd_handbook_test
+  database: <%= ENV.fetch("TEST_DB_NAME", "dnd_handbook_test") %>
 
 production:
   primary: &primary_production
