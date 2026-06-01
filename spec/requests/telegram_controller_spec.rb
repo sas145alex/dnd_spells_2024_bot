@@ -138,4 +138,36 @@ RSpec.describe TelegramController do
       expect(bot.requests[:sendMessage].last).to include(text: include("about command"))
     end
   end
+
+  describe "a go_back callback query replaying a remembered my_chat_member state" do
+    let(:update) do
+      {
+        "callback_query" => {
+          "id" => "1",
+          "data" => "go_back:go_back",
+          "from" => {"id" => external_id},
+          "message" => {"chat" => {"id" => external_id}, "message_id" => 5}
+        }
+      }
+    end
+
+    before do
+      TelegramController.session_store.write(
+        "#{bot.username}:#{external_id}",
+        {history_stack: [
+          {action: "my_chat_member", input_value: ""},
+          {action: "sections_callback_query", input_value: "/sections"}
+        ]}
+      )
+    end
+
+    # Regression for DND-HANDBOOK-3H: replaying a remembered my_chat_member ran
+    # MemberChangeProcessor against the go_back callback payload (no new_chat_member),
+    # raising NoMethodError ("undefined method 'dig' for nil") and 500ing the webhook.
+    # New my_chat_member updates are no longer recorded, but legacy persisted stacks
+    # must still replay harmlessly.
+    it "replays without raising" do
+      expect { dispatch }.not_to raise_error
+    end
+  end
 end

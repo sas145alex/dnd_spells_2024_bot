@@ -48,6 +48,7 @@ class TelegramChat
     end
 
     def current_bot_affected?
+      return false if new_chat_member.blank?
       return false unless new_chat_member.dig("user", "is_bot")
       return false if new_chat_member.dig("user", "username") != bot.username
 
@@ -79,9 +80,9 @@ class TelegramChat
     end
 
     def send_error_to_sentry
-      raise NotImplementedError, "do not know how to handle payload #{new_chat_member["status"]}"
+      raise NotImplementedError, "do not know how to handle payload #{new_chat_member&.dig("status")}"
     rescue => error
-      Sentry.capture_exception(error, extra: {status: new_chat_member["status"], payload: payload})
+      Sentry.capture_exception(error, extra: {status: new_chat_member&.dig("status"), payload: payload})
       nil
     end
   end

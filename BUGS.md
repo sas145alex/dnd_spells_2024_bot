@@ -212,35 +212,6 @@ closed topics are dropped instead of retried and reported.
 
 ---
 
-## 7. `MemberChangeProcessor#current_bot_affected?` crashes on a nil `new_chat_member`
-
-**Severity:** low–medium (only 3 events, but it is a genuine code crash that 500s the webhook and is
-then redelivered per bug #4 — which already cites this issue as *evidence*; this entry documents the
-underlying cause)
-
-**Where:**
-- `app/models/telegram_chat/member_change_processor.rb:50-55` — `current_bot_affected?` calls
-  `new_chat_member.dig("user", "is_bot")` (`:51`).
-- `app/models/telegram_chat/member_change_processor.rb:77-79` — `new_chat_member` is just
-  `payload["new_chat_member"]`, which is `nil` when the key is absent.
-- `app/models/telegram_chat/member_change_processor.rb:81-86` — `send_error_to_sentry` has the same
-  latent nil deref: it reads `new_chat_member["status"]` for both the raise message and the Sentry
-  `extra`.
-
-**Problem:** the `my_chat_member` handler assumes the payload always carries `new_chat_member`. For
-an update shape that omits it (or a malformed / partial payload), `new_chat_member` is `nil` and line
-51 raises `NoMethodError: undefined method 'dig' for nil`. The exception escapes the controller →
-HTTP 500 → redelivery (bug #4).
-
-**Evidence:** `DND-HANDBOOK-3H` — `NoMethodError: undefined method 'dig' for nil`, 3 events, culprit
-`member_change_processor.rb:51`, synchronous webhook path. (Also referenced as evidence in bug #4.)
-
-**Suggested fix:** guard early — `return false if new_chat_member.blank?` at the top of
-`current_bot_affected?` — so membership updates without a `new_chat_member` are ignored instead of
-crashing, and make `send_error_to_sentry` nil-safe for the same reason.
-
----
-
 ### Note on test data
 None of the above are caused by the test setup. The suite excludes seed-time execution from coverage
 (`spec/rails_helper.rb`) and the bugs reproduce against plain factory data.

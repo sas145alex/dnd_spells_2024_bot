@@ -97,5 +97,21 @@ RSpec.describe TelegramChat::MemberChangeProcessor do
         expect(TelegramChat::MarkAsRemoved).not_to have_received(:call)
       end
     end
+
+    # Regression for DND-HANDBOOK-3H: a payload without new_chat_member (e.g. a
+    # go_back callback query replaying a remembered my_chat_member state) used to
+    # raise NoMethodError ("undefined method 'dig' for nil").
+    context "when new_chat_member is absent" do
+      let(:payload) { {} }
+
+      it "does nothing and does not raise" do
+        expect { process }.not_to raise_error
+        expect(process).to be_nil
+
+        expect(TelegramChat::MarkAsAdded).not_to have_received(:call)
+        expect(TelegramChat::MarkAsRemoved).not_to have_received(:call)
+        expect(TelegramChat::LeaveChat).not_to have_received(:call)
+      end
+    end
   end
 end

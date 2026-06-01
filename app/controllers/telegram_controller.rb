@@ -9,6 +9,7 @@ class TelegramController < BaseTelegramController
   after_action :remember_history!, except: %i[
     start!
     about!
+    my_chat_member
     search!
     s!
     search_en_callback_query
