@@ -1,5 +1,6 @@
 Sentry.init do |config|
   config.dsn = ENV["SENTRY_DSN"] || Rails.application.credentials.dig(:sentry, :dsn)
+  config.release = ENV["GIT_SHA"] if ENV["GIT_SHA"].present?
   config.breadcrumbs_logger = [:active_support_logger, :http_logger]
 
   # Set traces_sample_rate to 1.0 to capture 100%

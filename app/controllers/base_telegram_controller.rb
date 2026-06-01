@@ -84,6 +84,8 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
   end
 
   def set_sentry_context
+    Sentry.set_user(sentry_user) if sentry_user.present?
+    Sentry.set_tags(sentry_tags)
     yield
   rescue => e
     Sentry.configure_scope do |scope|
@@ -91,6 +93,23 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
       scope.set_context("_payload", payload)
     end
     raise e
+  end
+
+  # Built from the raw payload (not current_user) to avoid a find_or_create_by!
+  # DB write / possible raise inside the instrumentation hook.
+  def sentry_user
+    from = payload["from"] || {}
+    return {} if from["id"].blank?
+
+    {id: from["id"], username: from["username"]}.compact
+  end
+
+  def sentry_tags
+    {
+      "telegram.chat_type": chat&.dig("type"),
+      "telegram.action": action_name,
+      "telegram.callback_prefix": payload["data"]&.split(":", 2)&.first
+    }.compact
   end
 
   def pop_history_item!

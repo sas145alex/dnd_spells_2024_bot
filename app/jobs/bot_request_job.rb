@@ -4,6 +4,7 @@ class BotRequestJob < ApplicationJob
   retry_on Exception, attempts: 2
 
   def perform(client_id, *args)
+    set_sentry_context(args)
     super
   rescue Telegram::Bot::Forbidden, Telegram::Bot::NotFound => e
     Rails.logger.error(e)
@@ -22,6 +23,18 @@ class BotRequestJob < ApplicationJob
     else
       raise
     end
+  end
+
+  # sentry-rails wraps each job in its own Sentry scope, so setting on the
+  # global scope here is job-local. Links job-path errors (e.g. empty-text
+  # sends) back to the API method and chat that produced them.
+  def set_sentry_context(args)
+    api_method = args[0]
+    params = args[1].is_a?(Hash) ? args[1] : {}
+    chat_id = params[:chat_id] || params["chat_id"]
+
+    Sentry.set_tags("telegram.api_method": api_method)
+    Sentry.set_user(id: chat_id) if chat_id
   end
 
   def mark_receiver_as_not_available(payload = {})

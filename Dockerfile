@@ -59,6 +59,10 @@ FROM base
 COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
 COPY --from=build /rails /rails
 
+# Expose the deployed git SHA at runtime (used for Sentry release tracking)
+ARG GIT_SHA
+ENV GIT_SHA=${GIT_SHA}
+
 # Run and own only the runtime files as a non-root user for security
 RUN groupadd --system --gid 1000 rails && \
     useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash && \

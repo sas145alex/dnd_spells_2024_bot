@@ -81,7 +81,7 @@ class TelegramChat
     def send_error_to_sentry
       raise NotImplementedError, "do not know how to handle payload #{new_chat_member["status"]}"
     rescue => error
-      Sentry.capture_exception(error)
+      Sentry.capture_exception(error, extra: {status: new_chat_member["status"], payload: payload})
       nil
     end
   end

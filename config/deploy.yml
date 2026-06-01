@@ -55,6 +55,8 @@ asset_path: /rails/public/assets
 # Configure the image builder.
 builder:
   arch: amd64
+  args:
+    GIT_SHA: <%= %x(git rev-parse HEAD).strip %>
 
 # Use a different ssh user than root
 ssh:
