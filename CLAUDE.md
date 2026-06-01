@@ -176,6 +176,26 @@ Required env vars (`.env`, seeded from `.env.test` by `make setup`): `BOT_TOKEN`
 `ADVICE_WEBHOOK` (Discord), `CLOUDINARY_URL`. Production also needs `POSTGRES_*` / `DB_HOST` / `DB_PORT`,
 `RAILS_MASTER_KEY`, and optionally `SENTRY_DSN`, `JOB_CONCURRENCY`.
 
+## MCP servers
+
+`.mcp.json` (committed) configures the Model Context Protocol servers available to Claude Code in
+this repo.
+
+- **`sentry`** — the official Sentry remote MCP (`mcp.sentry.dev`), with the URL **pinned to this
+  project's org/project slug** so every tool call is scoped to *this* project only. Gives read access
+  to production issues, stack traces, events, and Seer root-cause analysis. **First use is
+  interactive:** run `/mcp`, pick `sentry`, complete the one-time OAuth sign-in in the browser.
+  Read-only / interactive — not wired for unattended (cron/CI) runs.
+
+## Skills
+
+Project skills live in `.claude/skills/` (committed); `skills-lock.json` pins the installed versions
+(managed via `npx skills`).
+
+- **`sentry-fix-issues`** — a structured debug→root-cause→fix workflow for production errors. It sits
+  **on top of** the `sentry` MCP (it calls those tools), so the MCP above must be connected first.
+  Ask things like "find the root cause of this Sentry issue and fix it."
+
 ## Gotchas
 
 - The Telegram session / `history_stack` is in **solid_cache**, not Redis.

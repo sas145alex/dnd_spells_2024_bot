@@ -42,7 +42,7 @@ file_session_store
 public/uploads
 
 /config/credentials/production.key
-.claude/
+.claude/settings.local.json
 
 # SimpleCov coverage report
 /coverage
