@@ -58,44 +58,26 @@ events for it.
 
 ---
 
-## 4. Unhandled action errors return HTTP 500, so Telegram redelivers the update without limit
+## 4. ~~Unhandled action errors return HTTP 500, so Telegram redelivers the update without limit~~ — FIXED
 
-**Severity:** medium (one failing update is amplified into hundreds of identical events; inflates
-Sentry counts and reprocesses the same erroring request repeatedly)
-
-**Where:**
-- `app/controllers/base_telegram_controller.rb:86-96` (`set_sentry_context` around-action — captures
-  context then `raise e`, with **no `rescue_from` anywhere** in the controllers).
-- Webhook entry point: `config/routes.rb:16` (`telegram_webhook TelegramController`).
-- Reproducible via the admin `/error` command: `app/controllers/telegram_controller.rb:109-111` →
-  `app/models/bot_commands/error.rb:10` (`raise TestError`).
-
-**Problem:** When a bot action raises, the exception escapes the controller (the around-action
-re-raises and nothing rescues it), so Rails answers the webhook with **HTTP 500**. Telegram retries
-delivery of any update that gets a non-2xx response, so a **single** user action turns into an
-ever-growing stream of identical events until Telegram eventually gives up.
-
-**Evidence:** A single production `/error` invocation produced 100+ events and kept climbing
-(Sentry issue `DND-HANDBOOK-3Q`). The 500 response is visible in the event's trace context:
-```
-"http.response.status_code": 500
-```
-The same 500 appears on unrelated pre-existing issues (e.g. the `NoMethodError` issue
-`DND-HANDBOOK-3H`), confirming this affects **every** unhandled action-path exception, not just the
-test command.
-
-**Not the cause — the sending job:** the obvious suspect, `BotRequestJob`, is **not** involved here.
-The `/error` stacktrace is a pure synchronous web-request path (Puma → Rack → controller → `raise`)
-with no ActiveJob/SolidQueue frames — the action raises before any send is enqueued. And the job is
-already bounded: `app/jobs/bot_request_job.rb:4` uses `retry_on Exception, attempts: 2` (at most 2
-tries, though broad in *what* it catches).
-
-**Suggested fix:** make the webhook always answer 2xx and report errors out-of-band. In
-`set_sentry_context`, instead of `raise e`, call `Sentry.capture_exception(e)` and return `nil` so
-the action completes 200 and Telegram stops redelivering. This caps delivery at one attempt while
-keeping full Sentry visibility. It only catches `StandardError` (`rescue =>`), so genuinely fatal
-errors still surface. Note this is a deliberate **webhook-wide** behaviour change (all action errors
-become swallowed-and-reported, not just `/error`).
+**Fixed:** `set_sentry_context` (`app/controllers/base_telegram_controller.rb`) now reports the error
+out-of-band — `Sentry.capture_exception(e)` + `Rails.logger.error(e)` — and **only re-raises when not
+in webhook mode** (`raise e unless webhook_mode?`), returning `nil` otherwise so the action completes
+**200** and Telegram stops redelivering. The mode check uses the gem's own signal rather than
+`Rails.env`: `webhook_mode?` is `webhook_request.present?`, and `webhook_request` is set by
+telegram-bot only on the webhook path (nil under the `make bot` poller) — so polling and the test
+suite still surface errors by raising, while the production webhook caps delivery at one attempt.
+It still only catches `StandardError` (`rescue =>`), so genuinely fatal errors surface. This is a
+deliberate **webhook-wide** behaviour change (all action errors become swallowed-and-reported, not
+just `/error`); as a side effect it also caps the redelivery amplification for the synchronous-path
+errors in bug #5 (whose narrow per-call rescues are still worth doing). Verified that the
+swallow path does **not** leak into analytics: `after_action` callbacks (`track_user_activity`,
+`remember_history!`) are nested inside the around-action's `yield`, so an errored action still skips
+them. Regression spec: `spec/requests/telegram_error_command_spec.rb` (poller-mode still raises;
+new webhook-mode context asserts no raise + `Sentry.capture_exception`). The original amplification
+was confirmed in `DND-HANDBOOK-3Q` (one `/error` → 189 events, trace
+`"http.response.status_code": 500`); the same 500 affected every unhandled action-path exception
+(e.g. `DND-HANDBOOK-3H`).
 
 ---
 

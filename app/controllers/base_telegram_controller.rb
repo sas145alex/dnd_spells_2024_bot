@@ -92,7 +92,17 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
       scope.set_context("_session", session.to_hash)
       scope.set_context("_payload", payload)
     end
-    raise e
+    Sentry.capture_exception(e)
+    Rails.logger.error(e)
+    # The webhook must answer 2xx or Telegram redelivers the update indefinitely.
+    # In poller mode (make bot) and specs there is no redelivery, so keep raising to surface errors.
+    raise e unless webhook_mode?
+    nil
+  end
+
+  # webhook_request is set by the gem only in webhook mode (nil under the poller).
+  def webhook_mode?
+    webhook_request.present?
   end
 
   # Built from the raw payload (not current_user) to avoid a find_or_create_by!

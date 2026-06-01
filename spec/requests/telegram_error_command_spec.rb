@@ -46,4 +46,29 @@ RSpec.describe TelegramController do
       expect(bot.requests[:sendMessage]).to be_empty
     end
   end
+
+  # In webhook mode the request must answer 2xx, otherwise Telegram redelivers the update
+  # indefinitely. set_sentry_context swallows the error and reports it to Sentry instead of raising.
+  context "in webhook mode" do
+    subject(:dispatch) { described_class.dispatch(bot, update, webhook_request) }
+
+    let(:webhook_request) { instance_double(ActionDispatch::Request) }
+
+    before do
+      create(:telegram_user, :admin, external_id: external_id)
+      allow(Sentry).to receive(:capture_exception)
+    end
+
+    it "does not raise" do
+      expect { dispatch }.not_to raise_error
+    end
+
+    it "reports the error to Sentry" do
+      dispatch
+
+      expect(Sentry).to have_received(:capture_exception).with(
+        an_instance_of(BotCommands::Error::TestError)
+      )
+    end
+  end
 end
