@@ -1,6 +1,15 @@
 ActiveAdmin.register TelegramUser do
+  permit_params :admin
+
   scope :active, ->(scope) { scope.active }
   scope :not_active, ->(scope) { scope.not_active }
+
+  form do |f|
+    f.inputs do
+      f.input :admin
+    end
+    f.actions
+  end
 
   collection_action :autocomplete, method: :get do
     records = TelegramUser.autocomplete_search(params[:q])

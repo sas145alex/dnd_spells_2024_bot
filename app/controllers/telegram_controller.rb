@@ -106,6 +106,10 @@ class TelegramController < BaseTelegramController
   end
   alias_method :r!, :roll!
 
+  def error!(*args)
+    BotCommands::Error.call(user: current_user, input_value: args.join(" "))
+  end
+
   def roll_callback_query(input_value = nil, *_args)
     answer_messages = BotCommands::Roll.call(input_value: input_value)
     process_answer_messages(answer_messages)
