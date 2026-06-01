@@ -8,6 +8,7 @@ class TelegramController < BaseTelegramController
 
   after_action :remember_history!, except: %i[
     start!
+    about!
     search!
     s!
     search_en_callback_query
@@ -76,7 +77,7 @@ class TelegramController < BaseTelegramController
     Telegram::SpellMetricsJob.perform_later(spell_gid: spell_gid)
   end
 
-  def about!
+  def about!(*_args)
     answer_params = BotCommands::About.call
     respond_with :message, answer_params
   end

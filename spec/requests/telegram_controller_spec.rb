@@ -108,4 +108,34 @@ RSpec.describe TelegramController do
       expect(Telegram::UserMetricsJob).not_to have_received(:perform_later)
     end
   end
+
+  describe "a go_back callback query replaying a remembered /about state" do
+    let(:update) do
+      {
+        "callback_query" => {
+          "id" => "1",
+          "data" => "go_back:go_back",
+          "from" => {"id" => external_id},
+          "message" => {"chat" => {"id" => external_id}, "message_id" => 5}
+        }
+      }
+    end
+
+    before do
+      TelegramController.session_store.write(
+        "#{bot.username}:#{external_id}",
+        {history_stack: [
+          {action: "about!", input_value: "/about"},
+          {action: "sections_callback_query", input_value: "/sections"}
+        ]}
+      )
+    end
+
+    # Regression for DND-HANDBOOK-3N: replay used to call about!("/about") on a
+    # zero-arity action, raising ArgumentError and 500ing the webhook.
+    it "replays /about without raising and sends the about message" do
+      expect { dispatch }.not_to raise_error
+      expect(bot.requests[:sendMessage].last).to include(text: include("about command"))
+    end
+  end
 end

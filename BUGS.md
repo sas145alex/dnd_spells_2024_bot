@@ -241,31 +241,6 @@ crashing, and make `send_error_to_sentry` nil-safe for the same reason.
 
 ---
 
-## 8. `about!` action arity mismatch with history replay
-
-**Severity:** low (1 event; latent)
-
-**Where:**
-- `app/controllers/telegram_controller.rb:79-82` — `def about!` takes **zero** parameters, unlike the
-  sibling actions that use `(*args)` / `(input_value = nil, *_args)`.
-- `about!` is **not** in the `remember_history!` skip list (`telegram_controller.rb:9-26`), so it is
-  recorded in the history stack and later replayed by
-  `go_back_callback_query` via `send(history_item[:action], history_item[:input_value])`
-  (`telegram_controller.rb:237`), which always passes one argument.
-
-**Problem:** when a user navigates "back" to a remembered `about!` state, the replay calls
-`about!("<input_value>")`, raising `ArgumentError: wrong number of arguments (given 1, expected 0)`
-→ HTTP 500 → redelivery (bug #4).
-
-**Evidence:** `DND-HANDBOOK-3N` — `ArgumentError: wrong number of arguments (given 1, expected 0)`,
-1 event, culprit `telegram_controller.rb:79`, replayed from a `go_back:go_back` callback.
-
-**Suggested fix:** give `about!` the same tolerant signature as the other actions —
-`def about!(*_args)` — so history replay can pass an argument harmlessly. (Audit other actions for
-the same zero-arity pattern while at it.)
-
----
-
 ### Note on test data
 None of the above are caused by the test setup. The suite excludes seed-time execution from coverage
 (`spec/rails_helper.rb`) and the bugs reproduce against plain factory data.
