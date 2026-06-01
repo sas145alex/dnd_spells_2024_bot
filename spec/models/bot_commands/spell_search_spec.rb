@@ -45,19 +45,27 @@ RSpec.describe BotCommands::SpellSearch do
       end
       let(:payload) { {"text" => "/spell огне"} }
 
-      # NOTE: the command maps results to *decorated* spells, so callback_data carries a
-      # SpellDecorator GID (`gid://app/SpellDecorator/…`). This spec documents the current
-      # behaviour — see the bug noted to the team about selection re-locating with `only: ::Spell`.
-      it "renders the search results keyboard" do
+      # The command maps results to *decorated* spells; the decorator yields the underlying
+      # Spell GID so callback_data is `gid://app/Spell/…` and round-trips through selection.
+      it "renders the search results keyboard with the model GID" do
         expect(result).to eq(
           text: "Найдено несколько вариантов. Выбери:\n\n",
           reply_markup: {
             inline_keyboard: [
-              [{text: spell.decorate.title, callback_data: "spell:#{spell.decorate.to_global_id}"}]
+              [{text: spell.decorate.title, callback_data: "spell:#{spell.to_global_id}"}]
             ]
           },
           parse_mode: "HTML"
         )
+      end
+
+      it "renders the spell when its keyboard callback_data is selected back" do
+        keyboard = result[:reply_markup][:inline_keyboard]
+        selected_gid = keyboard.first.first[:callback_data].sub("spell:", "")
+
+        selection = described_class.call(payload: {}, spell_gid: selected_gid)
+
+        expect(selection[:text]).to eq(spell.decorate.description_for_telegram)
       end
     end
 

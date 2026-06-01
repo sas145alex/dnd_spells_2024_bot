@@ -17,4 +17,16 @@ RSpec.describe Telegram::SpellMetricsJob do
       expect { subject }.to change { spell.reload.requested_count }.from(0).to(1)
     end
   end
+
+  # Callers pass the GID that the search keyboard built from a *decorated* spell. The decorator
+  # must yield the underlying Spell GID, otherwise locate(only: Spell) returns nil and the
+  # counter is silently never incremented for spells opened via search.
+  context "when the gid comes from a decorated spell" do
+    let(:spell) { create(:spell) }
+    let(:spell_gid) { spell.decorate.to_global_id }
+
+    it "changes counter" do
+      expect { subject }.to change { spell.reload.requested_count }.from(0).to(1)
+    end
+  end
 end

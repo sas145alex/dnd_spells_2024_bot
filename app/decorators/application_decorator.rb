@@ -1,6 +1,18 @@
 class ApplicationDecorator < Draper::Decorator
   delegate_all
 
+  # Draper builds a GID from the decorator class (gid://app/<Model>Decorator/<id>), which does
+  # not round-trip through GlobalID::Locator.locate(..., only: <Model>). Keyboards are built from
+  # decorated records, so callback_data must carry the underlying model's GID instead.
+  def to_global_id(options = {})
+    object.to_global_id(options)
+  end
+  alias_method :to_gid, :to_global_id
+
+  def to_gid_param(options = {})
+    object.to_gid_param(options)
+  end
+
   def support_other_languages?
     description_for_telegram.present? && original_description_for_telegram.present?
   end

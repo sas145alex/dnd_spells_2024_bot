@@ -6,45 +6,15 @@ will require updating the corresponding spec expectations.
 
 ---
 
-## 1. Search-result keyboards emit a *decorator* GlobalID in `callback_data`
+## 1. ~~Search-result keyboards emit a *decorator* GlobalID in `callback_data`~~ — FIXED
 
-**Severity:** low–medium (works today by accident; fragile and inconsistent)
-
-**Where:**
-- `app/models/bot_commands/spell_search.rb:79-95` (`render_search_results` maps `found_spells`,
-  which are already `.decorate`d, then builds `callback_data: "spell:#{item.to_global_id}"`).
-- `app/models/bot_commands/base_command.rb:36-44` (`keyboard_options` calls `variant.to_global_id`;
-  several commands pass already-decorated variants).
-- Same pattern in `arcane_shots_search`, `invocations_search`, `maneuvers_search`,
-  `metamagics_search`, `plans_search`, `psionic_powers_search` (all do `scope.map(&:decorate)`),
-  and the "Базовый класс"/section-info buttons in `origin_search` / `tool_search` /
-  `character_klass_search` that call `selected_object.to_global_id` /
-  `BotCommand.x.decorate.to_global_id`.
-
-**Problem:** Draper decorators define their own `to_global_id`, so a decorated record yields
-`gid://app/SpellDecorator/1` instead of `gid://app/Spell/1`. The keyboard therefore stores a
-`*Decorator` GID in `callback_data`.
-
-**Evidence:**
-```ruby
-spell.to_global_id            # => gid://app/Spell/2
-spell.decorate.to_global_id   # => gid://app/SpellDecorator/2
-GlobalID::Locator.locate("gid://app/SpellDecorator/2", only: ::Spell) # => nil
-```
-
-**Why it "works" anyway:** Draper overrides `is_a?`/`kind_of?`, so for commands that locate
-**without** an `only:` filter the returned decorator passes the `is_a?(::Model)` selection guard and
-round-trips. But:
-- It is **inconsistent**: sibling commands that build keyboards from *raw* AR records emit plain
-  `gid://app/<Model>/<id>`, while the ones above emit `*Decorator` GIDs. The callback_data type is
-  accidental and differs across commands.
-- It is **brittle**: any consumer that locates with `only: ::Model` (see bug #2-adjacent code) gets
-  `nil`. `SpellSearch#selected_spell` itself uses `GlobalID::Locator.locate(spell_gid, only: ::Spell)`
-  (`spell_search.rb:97-99`), so a decorator GID would *not* resolve there.
-
-**Suggested fix:** build `callback_data` from the **undecorated** record's GID, e.g. map over raw AR
-records and decorate only for display (`item.object.to_global_id`, or don't decorate before taking
-the GID). Normalise across all commands so callback_data is always `gid://app/<Model>/<id>`.
+**Fixed:** `ApplicationDecorator` now overrides `to_global_id` / `to_gid` / `to_gid_param` to
+delegate to the underlying `object`, so every decorated record yields `gid://app/<Model>/<id>`.
+Keyboard `callback_data` is now consistent across all commands and round-trips through
+`GlobalID::Locator.locate(..., only: <Model>)`. This had two silent consequences before the fix:
+selecting a `/spell` search result reported "не найдено" (`SpellSearch#selected_spell` uses
+`only: ::Spell`), and `Telegram::SpellMetricsJob` (also `only: Spell`) dropped every spell opened
+via `/search`, so `requested_count` never incremented. Regression specs cover both round-trips.
 
 ---
 
