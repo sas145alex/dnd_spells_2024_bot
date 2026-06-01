@@ -75,7 +75,7 @@ class TelegramController < BaseTelegramController
   def spell_callback_query(spell_gid = nil, *_args)
     answer_params = BotCommands::SpellSearch.call(payload: payload, spell_gid: spell_gid)
     respond_with :message, answer_params
-    Telegram::SpellMetricsJob.perform_later(spell_gid: spell_gid)
+    Telegram::SpellMetricsJob.perform_later(spell_gid: spell_gid.to_s)
   end
 
   def about!(*_args)

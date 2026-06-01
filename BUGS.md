@@ -43,26 +43,18 @@ shared `BaseCommand`, so the fix benefits every command using `selected_object`.
 
 ---
 
-## 3. `Telegram::SpellMetricsJob` rejects a `GlobalID` argument
+## 3. ~~`Telegram::SpellMetricsJob` rejects a `GlobalID` argument~~ — FIXED
 
-**Severity:** low (latent; prod passes a String so it works today)
-
-**Where:**
-- `app/jobs/telegram/spell_metrics_job.rb` (`perform(spell_gid:)`).
-- Callers: `app/controllers/telegram_controller.rb:76` and
-  `app/models/bot_commands/global_search.rb:133` — both currently pass `spell_gid` as a **String**
-  (the raw callback value), so the job enqueues fine in production.
-
-**Problem:** ActiveJob can serialise a String GID but **not** a `GlobalID` object. If a caller ever
-passes the `GlobalID` instance instead of its `.to_s`, enqueueing raises:
-```
-ActiveJob::SerializationError: Unsupported argument type: GlobalID
-```
-
-**Suggested fix:** normalise to a string at the boundary — `perform_later(spell_gid: gid.to_s)` in
-callers, and/or `GlobalID::Locator.locate(spell_gid.to_s, only: Spell)` inside the job — so the job
-is robust regardless of caller arg type. (`GlobalID::Locator.locate` accepts either, but the
-serializer is the constraint.)
+**Fixed:** callers now coerce the arg to a String before enqueue —
+`perform_later(spell_gid: spell_gid.to_s)` in `app/controllers/telegram_controller.rb` and
+`perform_later(spell_gid: record_gid.to_s)` in `app/models/bot_commands/global_search.rb`. ActiveJob
+serialises arguments at *enqueue* time and a bare `GlobalID` instance is not a serialisable type, so
+the real fix lives at the caller boundary; the in-job
+`GlobalID::Locator.locate(spell_gid.to_s, only: Spell)` (`app/jobs/telegram/spell_metrics_job.rb`) is
+a defensive guard. The job now enqueues without raising
+`ActiveJob::SerializationError: Unsupported argument type: GlobalID` regardless of whether a caller
+holds a String or a `GlobalID`. This was latent (prod always passed Strings); a Sentry sweep found no
+events for it.
 
 ---
 

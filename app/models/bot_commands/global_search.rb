@@ -130,7 +130,7 @@ module BotCommands
     def gather_metrics_for_selected_object
       case selected_object
       when Spell
-        Telegram::SpellMetricsJob.perform_later(spell_gid: record_gid)
+        Telegram::SpellMetricsJob.perform_later(spell_gid: record_gid.to_s)
       else
         # do nothing
         nil
