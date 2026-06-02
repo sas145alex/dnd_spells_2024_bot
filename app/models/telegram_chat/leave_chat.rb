@@ -12,7 +12,12 @@ class TelegramChat
         bot.send_message(chat_id: chat_id, text: "Не назначай меня администратором")
         bot.leave_chat(chat_id: chat_id)
       end
-    rescue Telegram::Bot::Forbidden => _e
+    rescue Telegram::Bot::Error => e
+      # Expected Telegram states when leaving: admin rights revoked ("need administrator
+      # rights in the channel chat"), bot already removed (Forbidden/NotFound), etc. The
+      # chat is already gone or inaccessible, so treat it as a no-op instead of letting the
+      # synchronous webhook send 500 and trigger redelivery.
+      Rails.logger.info("TelegramChat::LeaveChat skipped for chat #{chat_id}: #{e.message}")
       nil
     end
 

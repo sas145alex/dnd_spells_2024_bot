@@ -86,14 +86,28 @@ was confirmed in `DND-HANDBOOK-3Q` (one `/error` → 189 events, trace
 **Severity:** high (two of the largest error volumes in the project; because each failing update is
 re-sent by Telegram — see bug #4 — a single stuck chat produces thousands of identical events)
 
+**Status:** the `LeaveChat` half is **FIXED** (see below); the `bot_has_admin_right_in_chat?` half
+remains **open but mitigated** by bug #4 (returns HTTP 200, no redelivery — only Sentry noise).
+
 **Where:**
-- `app/models/telegram_chat/leave_chat.rb:8-17` — `call` runs `client.async(false) { bot.send_message(...); bot.leave_chat(...) }`
-  and rescues **only** `Telegram::Bot::Forbidden`. Reached synchronously from the `my_chat_member`
-  webhook: `app/controllers/base_telegram_controller.rb:34-36` → `MemberChangeProcessor#leave_chat!`
-  (`app/models/telegram_chat/member_change_processor.rb:46-48`).
+- ~~`app/models/telegram_chat/leave_chat.rb:8-17`~~ — **FIXED.** `call` now rescues
+  `Telegram::Bot::Error` (was only `Telegram::Bot::Forbidden`), logs a one-liner via
+  `Rails.logger.info`, and returns `nil`. Since `Forbidden < Error` and `NotFound < Error`, this
+  covers the "need administrator rights in the channel chat" `Error`, `Forbidden`, and `NotFound`
+  raised on the farewell send / leave — all expected states (chat already gone / rights revoked).
+  Reached synchronously from the `my_chat_member` webhook:
+  `app/controllers/base_telegram_controller.rb:34-36` → `MemberChangeProcessor#leave_chat!`
+  (`app/models/telegram_chat/member_change_processor.rb:46-48`). It does **not** rescue transient
+  network errors (`Errno::ENETUNREACH` / `HTTPClient::ConnectTimeoutError`) — those now surface
+  harmlessly capped at HTTP 200 by bug #4. Regression spec:
+  `spec/models/telegram_chat/leave_chat_spec.rb` ("when the send raises a non-Forbidden Telegram
+  error"). Closes `DND-HANDBOOK-33` (~6.9k events).
 - `app/controllers/base_telegram_controller.rb:72-80` — `bot_has_admin_right_in_chat?` calls
   `bot.get_chat_member(...)` inside `client.async(false)` with **no rescue at all**; invoked from the
-  `message` action (`base_telegram_controller.rb:49`).
+  `message` action (`base_telegram_controller.rb:49`). **Left as-is on purpose:** this is the admin
+  *check* guard, not a leave operation, so rescuing it would force a return value (`false` → fall
+  through to `respond_with`/`search!`) and change control flow. Already mitigated by bug #4
+  (`DND-HANDBOOK-1S`, ~2.1k events — now HTTP 200, resolve manually later).
 
 **Problem:** outbound Telegram calls made *synchronously* in the webhook request only handle a narrow
 exception set, so the common race conditions escape the controller:
@@ -119,40 +133,11 @@ expected Telegram states (rights revoked / bot removed), not exceptional faults.
 
 **Suggested fix:** rescue the expected Telegram conditions at the point of the synchronous send and
 treat them as no-ops (the chat is already gone / inaccessible). In `LeaveChat#call`, broaden the
-rescue to `Telegram::Bot::Error` (and transient network errors such as `Errno::ENETUNREACH` /
-`HTTPClient::ConnectTimeoutError`) alongside the existing `Forbidden`; in
-`bot_has_admin_right_in_chat?`, rescue `Telegram::Bot::Forbidden` / `Telegram::Bot::Error` and return
-`false`. This stops the 500s for these specific paths even without bug #4's webhook-wide safety net
+rescue to `Telegram::Bot::Error` alongside the existing `Forbidden` — **done**, transient network
+errors deliberately left to surface under bug #4's HTTP-200 cap. The `bot_has_admin_right_in_chat?`
+half was intentionally **not** changed: rescuing it would force a return value and alter the
+`message` action's control flow, so it is left to bug #4's webhook-wide safety net
 (which would also cover them).
-
----
-
-## 6. `BotRequestJob` re-raises every non-whitelisted `Telegram::Bot::Error` (TOPIC_CLOSED storm)
-
-**Severity:** high (the single highest event volume in the project, ~10.7k)
-
-**Where:**
-- `app/jobs/bot_request_job.rb:14-25` — the `rescue Telegram::Bot::Error` branch only swallows
-  messages matching `"message thread not found"` or `"message is not modified"`; every other message
-  hits the `else … raise` at `:24`.
-- `app/jobs/bot_request_job.rb:4` — `retry_on Exception, attempts: 2`, so a re-raised error is also
-  retried once before the job fails and is reported to Sentry.
-
-**Problem:** sending a message to a forum **topic that has since been closed** raises
-`Telegram::Bot::Error: Bad Request: TOPIC_CLOSED`. This runs in the async `BotRequestJob` (not the
-webhook, so it is **not** amplified by bug #4), but `TOPIC_CLOSED` is an expected, recurring delivery
-failure that is not in the whitelist — so it re-raises, burns both retry attempts, and is reported
-every single time. The huge count comes from recurrence across many groups with closed topics,
-multiplied by the doubled retry attempts.
-
-**Evidence:** `DND-HANDBOOK-2R` — `Telegram::Bot::Error: Bad Request: TOPIC_CLOSED`, **~10.7k events**
-since 2025-04-16, culprit `bot_request_job.rb:8`, async SolidQueue frames; enqueued args show a
-`sendMessage` with a `message_thread_id`.
-
-**Suggested fix:** add `TOPIC_CLOSED` (and probably other expected delivery-failure messages such as
-`"chat not found"`) to the swallow list in the `Telegram::Bot::Error` branch — log and return `nil`
-like the existing `"message thread not found"` / `"message is not modified"` cases — so sends to
-closed topics are dropped instead of retried and reported.
 
 ---
 
