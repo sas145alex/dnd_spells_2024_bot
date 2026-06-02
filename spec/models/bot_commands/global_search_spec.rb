@@ -98,9 +98,28 @@ RSpec.describe BotCommands::GlobalSearch do
     end
 
     context "when the global id is present but unparseable" do
-      # A real GID for a deleted record raises RecordNotFound (latent bug — see report);
-      # the not-found branch is only reachable when locate returns nil, i.e. malformed data.
+      # A malformed GID string makes locate return nil, hitting the not-found branch.
       let(:record_gid) { "not-a-valid-gid" }
+
+      it "reports the object was not found" do
+        expect(result).to eq(
+          [
+            {
+              type: :message,
+              answer: {
+                text: "Указанный объект не найден",
+                parse_mode: "HTML"
+              }
+            }
+          ]
+        )
+      end
+    end
+
+    context "when the global id points at a deleted record" do
+      # A valid GID for a deleted record makes locate raise RecordNotFound; selected_object
+      # rescues it to nil so the not-found branch handles deleted records too.
+      let(:record_gid) { create(:spell).tap(&:destroy).to_global_id.to_s }
 
       it "reports the object was not found" do
         expect(result).to eq(

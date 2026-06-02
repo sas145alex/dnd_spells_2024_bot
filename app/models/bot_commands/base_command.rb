@@ -60,6 +60,8 @@ module BotCommands
 
     def selected_object
       @selected_object ||= GlobalID::Locator.locate(gid_value)&.decorate
+    rescue ActiveRecord::RecordNotFound
+      nil
     end
 
     def gid_value

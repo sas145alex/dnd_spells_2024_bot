@@ -18,28 +18,25 @@ via `/search`, so `requested_count` never incremented. Regression specs cover bo
 
 ---
 
-## 2. The "not found" branch is effectively unreachable for deleted records
+## 2. ~~The "not found" branch is effectively unreachable for deleted records~~ — FIXED
 
-**Severity:** low (degraded UX edge case)
+**Fixed:** both GID lookup helpers now `rescue ActiveRecord::RecordNotFound` and return `nil` —
+`selected_object` in `app/models/bot_commands/base_command.rb` (shared by every `*Search` command)
+and `selected_spell` in `app/models/bot_commands/spell_search.rb` (which keeps its own
+`only: ::Spell` lookup). `GlobalID::Locator.locate` raised `ActiveRecord::RecordNotFound` for a
+**valid but deleted** GID (e.g. `gid://app/Spell/0`) and only returned `nil` for a **malformed**
+string, so the `&.decorate` / `.present?` guards only ever caught malformed input. With the rescue,
+a stale/deleted GID resolves to `nil` and falls through to the existing friendly "не найдено"
+messages (`global_search.rb:30-39`, `spell_search` not-found branch) instead of raising. Regression
+specs add a "deleted record" context to `spec/models/bot_commands/global_search_spec.rb` and
+`spec/models/bot_commands/spell_search_spec.rb`. **Low severity, latent:** a 90-day Sentry sweep of
+this project found **zero** `ActiveRecord::RecordNotFound` events (it requires a record deleted
+between keyboard render and click), and since bug #4 such an error was already swallowed at HTTP 200;
+the fix turns that silent dead-end into the intended message.
 
-**Where:**
-- `app/models/bot_commands/base_command.rb:61-67` (`selected_object` → `GlobalID::Locator.locate(gid_value)&.decorate`).
-- `app/models/bot_commands/global_search.rb:30-39` (`record_not_found` message branch) and
-  `:31` (`record_gid.present? && selected_object.present?`).
-
-**Problem:** `GlobalID::Locator.locate` raises `ActiveRecord::RecordNotFound` for a **valid but
-deleted** GID (e.g. `gid://app/Spell/0`) rather than returning `nil`. The `&.decorate` / `.present?`
-guard only protects against a `nil` return, which happens only for a **malformed** GID string. So:
-- A stale/deleted GID → unhandled `RecordNotFound` (bubbles up / Sentry), not the friendly
-  "не найдено" message.
-- The `record_not_found` branch only ever fires for malformed input.
-
-**Evidence:** `GlobalID::Locator.locate("gid://app/Spell/0", only: Spell)` raises
-`ActiveRecord::RecordNotFound`, whereas `locate("not-a-valid-gid")` returns `nil`.
-
-**Suggested fix:** rescue `ActiveRecord::RecordNotFound` in `selected_object` (return `nil`), or use a
-non-raising lookup, so the existing "not found" message handles deleted records too. This is in the
-shared `BaseCommand`, so the fix benefits every command using `selected_object`.
+*Out of scope:* `app/jobs/telegram/spell_metrics_job.rb` also calls `locate(..., only: Spell)` and
+would raise on a deleted spell, but it runs in a background job off the webhook path (retry/fail, no
+user-facing impact) — left as-is.
 
 ---
 

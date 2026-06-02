@@ -39,6 +39,19 @@ RSpec.describe BotCommands::SpellSearch do
       end
     end
 
+    context "when the selected global id points at a deleted spell" do
+      # A valid Spell GID for a deleted record makes locate raise RecordNotFound; selected_spell
+      # rescues it to nil so the not-found branch handles deleted spells too.
+      let(:spell_gid) { create(:spell).tap(&:destroy).to_global_id }
+
+      it "reports the spell was not found" do
+        expect(result).to eq(
+          text: "Указанное заклиннание не найдено",
+          parse_mode: "HTML"
+        )
+      end
+    end
+
     context "when matching spells are found" do
       let!(:spell) do
         create(:spell, :published, level: 3, title: "Огненный шар", original_title: "Fireball")

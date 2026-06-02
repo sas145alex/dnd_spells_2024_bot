@@ -96,6 +96,8 @@ module BotCommands
 
     def selected_spell
       @selected_spell ||= GlobalID::Locator.locate(spell_gid, only: ::Spell)&.decorate
+    rescue ActiveRecord::RecordNotFound
+      nil
     end
 
     def found_spells
