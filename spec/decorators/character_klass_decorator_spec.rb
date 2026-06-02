@@ -31,6 +31,15 @@ RSpec.describe CharacterKlassDecorator do
 
       it { is_expected.to be_nil }
     end
+
+    context "when a subklass has no description of its own" do
+      let(:parent_klass) { create(:character_klass, description: "**Parent text**") }
+      let(:character_klass) { build(:character_klass, description: "", parent_klass: parent_klass) }
+
+      it "inherits the parent klass description" do
+        is_expected.to eq(FormatChanger.markdown_to_telegram_markdown("**Parent text**").strip)
+      end
+    end
   end
 
   describe "#global_search_title" do

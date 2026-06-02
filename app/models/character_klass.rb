@@ -17,7 +17,10 @@ class CharacterKlass < ApplicationRecord
 
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true
-  validates :description, presence: true, allow_blank: true
+  # Subklasses are allowed a blank description by design — they inherit the parent klass's
+  # description at render time (see CharacterKlassSearch#provide_subklass_description and
+  # CharacterKlassDecorator#description_for_telegram). Only published base klasses must have one.
+  validates :description, presence: true, if: -> { published? && base_klass? }
   validates :description,
     length: {minimum: 0, maximum: 5000},
     allow_blank: true

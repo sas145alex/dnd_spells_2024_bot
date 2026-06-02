@@ -101,11 +101,12 @@ module BotCommands
     attr_reader :user
 
     def render_record_info
-      text = if locale == :ru
-        selected_object.description_for_telegram
+      description, header, missing_text = if locale == :ru
+        [selected_object.description_for_telegram, selected_object.title, "Описание отсутствует."]
       else
-        selected_object.original_description_for_telegram
+        [selected_object.original_description_for_telegram, selected_object.original_title, "No description available."]
       end
+      text = description.presence || "<b>#{header}</b>\n\n#{missing_text}"
       mentions = keyboard_mentions_options(selected_object)
       inline_keyboard = mentions.in_groups_of(2, false)
       inline_keyboard.prepend([link_to_change_locale]) if selected_object.support_other_languages?

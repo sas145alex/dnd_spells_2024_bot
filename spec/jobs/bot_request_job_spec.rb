@@ -1,6 +1,34 @@
 require "rails_helper"
 
 RSpec.describe BotRequestJob do
+  describe "#perform" do
+    subject(:perform) { described_class.new.perform("default", "sendMessage", {chat_id: 1, text: nil}) }
+
+    let(:client) { instance_double(Telegram::Bot::Client) }
+
+    before do
+      allow(client).to receive(:async).and_yield
+      allow(client).to receive(:request).and_raise(error)
+      allow(described_class.client_class).to receive(:wrap).and_return(client)
+    end
+
+    context "when Telegram rejects empty message text" do
+      let(:error) { Telegram::Bot::Error.new("Bad Request: message text is empty") }
+
+      it "swallows the error instead of retrying and reporting" do
+        expect { perform }.not_to raise_error
+      end
+    end
+
+    context "when Telegram raises an unexpected error" do
+      let(:error) { Telegram::Bot::Error.new("Bad Request: something unexpected") }
+
+      it "re-raises" do
+        expect { perform }.to raise_error(Telegram::Bot::Error)
+      end
+    end
+  end
+
   describe "#mark_receiver_as_not_available" do
     subject(:mark) { described_class.new.mark_receiver_as_not_available(payload) }
 

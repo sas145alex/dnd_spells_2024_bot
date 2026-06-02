@@ -39,7 +39,7 @@ RSpec.describe WildMagic do
     context "with a blank description" do
       let(:description) { "" }
 
-      it { is_expected.to be_valid }
+      it { is_expected.not_to be_valid }
     end
   end
 

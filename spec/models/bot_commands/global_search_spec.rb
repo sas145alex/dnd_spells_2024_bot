@@ -66,6 +66,37 @@ RSpec.describe BotCommands::GlobalSearch do
       end
     end
 
+    context "when the selected record has a blank description" do
+      # Legacy data: a published record whose description was emptied (bypassing the now-stricter
+      # validation). Must not send text: nil — Telegram rejects empty text (DND-HANDBOOK-2R).
+      let!(:feat) { create(:feat, title: "Алертность", published_at: Time.current) }
+      let(:record_gid) { feat.to_global_id.to_s }
+
+      before { feat.update_column(:description, "") }
+
+      it "renders a title fallback instead of empty text" do
+        answer = result.first[:answer]
+
+        expect(answer[:text]).to eq("<b>Алертность</b>\n\nОписание отсутствует.")
+        expect(answer[:reply_markup]).to eq({inline_keyboard: []})
+      end
+    end
+
+    context "when the selected record is a subklass without its own description" do
+      # By design the subklass inherits the parent klass description — never empty text.
+      let(:parent_klass) do
+        create(:character_klass, title: "Воин", description: "Описание воина", published_at: Time.current)
+      end
+      let!(:subklass) do
+        create(:character_klass, title: "Чемпион", description: "", parent_klass: parent_klass, published_at: Time.current)
+      end
+      let(:record_gid) { subklass.to_global_id.to_s }
+
+      it "renders the parent klass description" do
+        expect(result.first[:answer][:text]).to eq(subklass.decorate.description_for_telegram)
+      end
+    end
+
     context "when the global id is present but unparseable" do
       # A real GID for a deleted record raises RecordNotFound (latent bug — see report);
       # the not-found branch is only reachable when locate returns nil, i.e. malformed data.

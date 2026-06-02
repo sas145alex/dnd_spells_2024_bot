@@ -8,6 +8,7 @@ class Feat < ApplicationRecord
 
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true
+  validates :description, presence: true, if: :published?
   validates :description,
     length: {minimum: 5, maximum: 5000},
     if: :published?,

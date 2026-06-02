@@ -6,6 +6,7 @@ class WildMagic < ApplicationRecord
   MAX_ROLL = 100
   DESCRIPTION_FORMAT = "Markdown"
 
+  validates :description, presence: true
   validates :description,
     length: {minimum: 5, maximum: 5000},
     allow_blank: true

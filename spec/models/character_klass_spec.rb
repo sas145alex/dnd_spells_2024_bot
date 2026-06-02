@@ -42,6 +42,29 @@ RSpec.describe CharacterKlass do
 
       it { is_expected.not_to be_valid }
     end
+
+    context "when a published base klass has no description" do
+      subject(:record) { build(:character_klass, title: title, description: "", published_at: Time.current) }
+
+      it { is_expected.not_to be_valid }
+    end
+
+    context "when not published without a description" do
+      subject(:record) { build(:character_klass, title: title, description: "", published_at: nil) }
+
+      it { is_expected.to be_valid }
+    end
+
+    context "when a published subklass has no description of its own" do
+      # By design — subklasses inherit the parent klass description at render time.
+      subject(:record) do
+        build(:character_klass, title: title, description: "", published_at: Time.current, parent_klass: parent_klass)
+      end
+
+      let(:parent_klass) { create(:character_klass) }
+
+      it { is_expected.to be_valid }
+    end
   end
 
   describe "scopes" do

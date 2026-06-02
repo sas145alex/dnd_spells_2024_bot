@@ -42,6 +42,22 @@ RSpec.describe Feat do
 
       it { is_expected.not_to be_valid }
     end
+
+    context "when published without a description" do
+      subject(:record) do
+        build(:feat, title: title, category: category, description: "", published_at: Time.current)
+      end
+
+      it { is_expected.not_to be_valid }
+    end
+
+    context "when not published without a description" do
+      subject(:record) do
+        build(:feat, title: title, category: category, description: "", published_at: nil)
+      end
+
+      it { is_expected.to be_valid }
+    end
   end
 
   describe "category enum" do

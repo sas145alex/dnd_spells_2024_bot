@@ -20,6 +20,10 @@ class BotRequestJob < ApplicationJob
       Rails.logger.error(e)
       # happens sometimes when clicking return button
       nil
+    elsif e.message.match?("message text is empty")
+      Rails.logger.error(e)
+      # a blank description left the message text empty; drop instead of retrying + reporting
+      nil
     else
       raise
     end
