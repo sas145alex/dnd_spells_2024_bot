@@ -57,6 +57,44 @@ RSpec.describe BotCommands::OriginSearch do
     end
   end
 
+  context "when the characteristic-search subcommand is selected" do
+    let(:input_value) { "search_by_characteristic" }
+
+    it "lists the characteristics to improve" do
+      options = Characteristic.ordered.map do |item|
+        {text: item.title, callback_data: "origin:#{item.to_global_id}"}
+      end
+
+      expect(result).to eq(
+        text: "Выбере характеристиру, которую хотите улучшить",
+        reply_markup: {
+          inline_keyboard: options.in_groups_of(2, false) + [[{text: "Назад", callback_data: "go_back:go_back"}]]
+        },
+        parse_mode: "HTML"
+      )
+    end
+  end
+
+  context "when a characteristic is selected by global id" do
+    let(:characteristic) { Characteristic.ordered.first }
+    let(:input_value) { characteristic.to_global_id.to_s }
+
+    it "lists the origins tied to that characteristic, prefixed with the section info" do
+      section_info = {
+        text: BotCommand.origin.decorate.title,
+        callback_data: "origin:#{BotCommand.origin.decorate.to_global_id}"
+      }
+
+      expect(result).to eq(
+        text: "Выбери происхождение",
+        reply_markup: {
+          inline_keyboard: [[section_info], [{text: "Назад", callback_data: "go_back:go_back"}]]
+        },
+        parse_mode: "HTML"
+      )
+    end
+  end
+
   context "when the input does not resolve to anything" do
     let(:input_value) { "not-a-gid" }
 

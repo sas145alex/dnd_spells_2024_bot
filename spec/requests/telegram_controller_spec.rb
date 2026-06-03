@@ -170,4 +170,206 @@ RSpec.describe TelegramController do
       expect { dispatch }.not_to raise_error
     end
   end
+
+  # Each of these callback actions strips the prefix from the callback data, calls its
+  # BotCommands operation with a blank argument (the top-level category screen), and renders
+  # via `edit_message :text`, which the ClientStub records under :editMessageText.
+  describe "the callback query actions that edit the message" do
+    %w[
+      feat class subclass abilities invocations psionic_powers plans
+      arcane_shots metamagics maneuvers origin glossary tool equipment species
+    ].each do |prefix|
+      context "for the #{prefix} callback" do
+        let(:update) do
+          {
+            "callback_query" => {
+              "id" => "1",
+              "data" => "#{prefix}:",
+              "from" => {"id" => external_id},
+              "message" => {"chat" => {"id" => external_id}, "message_id" => 5}
+            }
+          }
+        end
+
+        it "edits the message without raising" do
+          expect { dispatch }.not_to raise_error
+          expect(bot.requests[:editMessageText]).to be_present
+        end
+      end
+    end
+  end
+
+  describe "the all_spells callback query" do
+    let(:update) do
+      {
+        "callback_query" => {
+          "id" => "1",
+          "data" => "all_spells:",
+          "from" => {"id" => external_id},
+          "message" => {"chat" => {"id" => external_id}, "message_id" => 5}
+        }
+      }
+    end
+
+    it "responds without raising" do
+      expect { dispatch }.not_to raise_error
+    end
+  end
+
+  describe "the search_filters callback query" do
+    let(:update) do
+      {
+        "callback_query" => {
+          "id" => "1",
+          "data" => "search_filters:",
+          "from" => {"id" => external_id},
+          "message" => {"chat" => {"id" => external_id}, "message_id" => 5}
+        }
+      }
+    end
+
+    it "edits the message with the filter screen" do
+      dispatch
+
+      expect(bot.requests[:editMessageText].last).to include(
+        text: include("Разделы справочника")
+      )
+    end
+  end
+
+  describe "the pick_mention callback query" do
+    let(:source) { create(:spell, published_at: Time.current) }
+    let(:target) { create(:spell, published_at: Time.current) }
+    let!(:mention) { create(:mention, mentionable: source, another_mentionable: target) }
+    let(:update) do
+      {
+        "callback_query" => {
+          "id" => "1",
+          "data" => "pick_mention:#{mention.id}",
+          "from" => {"id" => external_id},
+          "message" => {"chat" => {"id" => external_id}, "message_id" => 5}
+        }
+      }
+    end
+
+    it "sends the mentioned record's description" do
+      dispatch
+
+      expect(bot.requests[:sendMessage].last).to include(
+        text: target.decorate.description_for_telegram
+      )
+    end
+  end
+
+  describe "current_user resolution" do
+    let(:text) { "zzz_nonexistent_query_zzz" }
+
+    it "creates a TelegramUser the first time a user is seen" do
+      expect { dispatch }.to change(TelegramUser, :count).by(1)
+      expect(TelegramUser.last).to have_attributes(external_id: external_id)
+    end
+
+    it "reuses the existing TelegramUser on subsequent updates" do
+      dispatch
+
+      expect { described_class.dispatch(bot, update) }.not_to change(TelegramUser, :count)
+    end
+  end
+
+  describe "remembering history and replaying it" do
+    # Drive a remembered action (feat top-level screen), then a go_back which replays it.
+    let(:feat_update) do
+      {
+        "callback_query" => {
+          "id" => "1",
+          "data" => "origin:",
+          "from" => {"id" => external_id},
+          "message" => {"chat" => {"id" => external_id}, "message_id" => 5}
+        }
+      }
+    end
+    let(:go_back_update) do
+      {
+        "callback_query" => {
+          "id" => "2",
+          "data" => "go_back:go_back",
+          "from" => {"id" => external_id},
+          "message" => {"chat" => {"id" => external_id}, "message_id" => 6}
+        }
+      }
+    end
+
+    it "records the action and replays it on go_back" do
+      described_class.dispatch(bot, feat_update)
+      expect { described_class.dispatch(bot, go_back_update) }.not_to raise_error
+    end
+  end
+
+  describe "a pinned_message update" do
+    let(:update) do
+      {"message" => {"pinned_message" => {"message_id" => 1}, "chat" => {"id" => external_id}, "from" => {"id" => external_id}}}
+    end
+
+    it "is ignored without sending anything" do
+      dispatch
+
+      expect(bot.requests[:sendMessage]).to be_blank
+    end
+  end
+
+  describe "a message in a group chat" do
+    # In a chat the from id differs from the chat id, so message_from_chat? is true.
+    let(:chat_id) { external_id + 1 }
+    let(:update) do
+      {"message" => {"text" => "hi", "chat" => {"id" => chat_id, "type" => "group"}, "from" => {"id" => external_id}}}
+    end
+
+    context "when the bot is not an admin" do
+      before { allow_any_instance_of(described_class).to receive(:bot_has_admin_right_in_chat?).and_return(false) }
+
+      it "replies that it does not understand the command" do
+        dispatch
+
+        expect(bot.requests[:sendMessage].last).to include(text: include("не понимаю твою команду"))
+      end
+    end
+
+    context "when the bot has admin rights" do
+      before do
+        allow_any_instance_of(described_class).to receive(:bot_has_admin_right_in_chat?).and_return(true)
+        allow(TelegramChat::LeaveChat).to receive(:call)
+        allow(TelegramChat::MarkAsRemoved).to receive(:call)
+      end
+
+      it "leaves the chat and marks it removed" do
+        dispatch
+
+        expect(TelegramChat::LeaveChat).to have_received(:call).with(bot: bot, chat_id: chat_id)
+        expect(TelegramChat::MarkAsRemoved).to have_received(:call).with(bot: bot, chat_id: chat_id)
+      end
+    end
+  end
+
+  describe "a my_chat_member update" do
+    let(:update) do
+      {
+        "my_chat_member" => {
+          "chat" => {"id" => external_id, "type" => "private"},
+          "from" => {"id" => external_id},
+          "old_chat_member" => {"status" => "left"},
+          "new_chat_member" => {"status" => "member"}
+        }
+      }
+    end
+
+    before { allow(TelegramChat::MemberChangeProcessor).to receive(:call) }
+
+    it "routes to the member change processor" do
+      dispatch
+
+      expect(TelegramChat::MemberChangeProcessor).to have_received(:call).with(
+        hash_including(chat_id: external_id)
+      )
+    end
+  end
 end

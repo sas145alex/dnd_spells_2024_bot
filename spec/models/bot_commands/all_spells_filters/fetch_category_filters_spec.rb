@@ -71,6 +71,30 @@ RSpec.describe BotCommands::AllSpellsFilters::FetchCategoryFilters do
       end
     end
 
+    context "when fetching the concentration filter" do
+      let(:filter_type) { "concentration" }
+
+      it "offers true/false options under the concentration prompt" do
+        expect(result[:text]).to include("концентрацию")
+
+        callbacks = callbacks_from(result)
+        expect(callbacks).to include("all_spells_set_filters:concentration__true", "all_spells_set_filters:concentration__false")
+      end
+    end
+
+    context "when fetching casting times" do
+      let(:filter_type) { "casting_times" }
+
+      it "offers a button per casting time" do
+        expect(result[:text]).to include("время накладывания")
+
+        callbacks = callbacks_from(result)
+        Spell.casting_times.each_key do |casting_time|
+          expect(callbacks).to include("all_spells_set_filters:casting_times__#{casting_time}")
+        end
+      end
+    end
+
     context "when the filter type is unknown" do
       let(:filter_type) { "bogus" }
 

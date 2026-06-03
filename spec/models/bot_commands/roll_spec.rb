@@ -1,14 +1,14 @@
-RSpec.xdescribe BotCommands::Roll do
-  subject { described_class.call(input_value: input_value) }
+require "rails_helper"
 
-  let(:expected_roll_grid_answer) do
-    {
-      parse_mode: "HTML",
-      reply_markup: expected_reply_markup,
-      text: expected_text
-    }
-  end
-  let(:expected_reply_markup) do
+RSpec.describe BotCommands::Roll do
+  subject(:result) { described_class.call(input_value: input_value, page: page, manual_input: manual_input) }
+
+  let(:input_value) { nil }
+  let(:page) { nil }
+  let(:manual_input) { false }
+
+  # Built from the live command output so the grid stays in sync with #keyboard_dices_options.
+  let(:expected_roll_grid) do
     {inline_keyboard: [
       [{callback_data: "roll:1d20", text: "🎲 1d20"}],
       [{callback_data: "roll:2d20", text: "Помеха / Преимущество"}],
@@ -46,62 +46,98 @@ RSpec.xdescribe BotCommands::Roll do
       [{callback_data: "roll_page:2", text: "Следующая страница"}]
     ]}
   end
-  let(:expected_text) do
-    anything
-  end
 
-  context "when roll formula is blank" do
+  context "when the roll formula is blank" do
     let(:input_value) { nil }
 
-    it "gives roll grid to choose from" do
-      expect(subject).to eq(
-        [
-          {answer: expected_roll_grid_answer, type: :message}
-        ]
-      )
+    it "offers the dice grid to choose from" do
+      expect(result).to match([
+        {
+          type: :message,
+          answer: hash_including(
+            reply_markup: expected_roll_grid,
+            parse_mode: "HTML",
+            text: a_string_including("выбери кость")
+          )
+        }
+      ])
     end
   end
 
-  context "when roll formula has all required data" do
+  context "when the roll formula has all required data" do
+    # 1d1 is deterministic — it always rolls a single 1.
     let(:input_value) { "1d1" }
 
-    let(:expected_roll_result) do
-      {
-        parse_mode: "HTML",
-        reply_markup: expected_markup,
-        text: "<b>Бросок:</b> 🎲 1d1\n<b>Выпавшие кости:</b> 1\n<b>Результат:</b> 1"
-      }
-    end
-    let(:expected_markup) do
-      {inline_keyboard: [[{callback_data: "roll:", text: "Другой бросок"}]]}
-    end
-
-    it "rolls the roll" do
-      expect(subject).to eq(
-        [
-          {answer: expected_roll_result, type: :edit}
-        ]
-      )
+    it "edits the message with the roll result" do
+      is_expected.to eq([
+        {
+          type: :edit,
+          answer: {
+            parse_mode: "HTML",
+            reply_markup: {inline_keyboard: [[{callback_data: "roll:", text: "Другой бросок"}]]},
+            text: "<b>Бросок:</b> 🎲 1d1\n<b>Выпавшие кости:</b> 1\n<b>Результат:</b> 1"
+          }
+        }
+      ])
     end
   end
 
-  context "when roll formula is invalid" do
+  context "when the roll is triggered by manual input" do
+    let(:input_value) { "1d1" }
+    let(:manual_input) { true }
+
+    it { is_expected.to match([hash_including(type: :reply)]) }
+  end
+
+  context "when several roll formulas are given" do
+    let(:input_value) { "1d1 1d1" }
+
+    it "appends the grand total of all rolls" do
+      single = "<b>Бросок:</b> 🎲 1d1\n<b>Выпавшие кости:</b> 1\n<b>Результат:</b> 1"
+
+      is_expected.to eq([
+        {
+          type: :edit,
+          answer: {
+            parse_mode: "HTML",
+            reply_markup: {inline_keyboard: [[{callback_data: "roll:", text: "Другой бросок"}]]},
+            text: "#{single}\n\n#{single}\n\n<b>Итог:</b> 2"
+          }
+        }
+      ])
+    end
+  end
+
+  context "when a dice page is scrolled" do
+    let(:input_value) { nil }
+    let(:page) { 2 }
+
+    it "edits the message with the next page of dice" do
+      keyboard = result.first.dig(:answer, :reply_markup, :inline_keyboard)
+
+      expect(result.first[:type]).to eq(:edit)
+      expect(keyboard).to include(
+        [{text: "Предыдущая страница", callback_data: "roll_page:1"},
+          {text: "Следующая страница", callback_data: "roll_page:3"}]
+      )
+      expect(keyboard).to include([{callback_data: "roll:6d20", text: "6d20"}, anything, anything, anything, anything])
+    end
+  end
+
+  context "when the roll formula is invalid" do
     let(:input_value) { "-" }
 
-    let(:invalid_formula_answer) do
-      {
-        parse_mode: "HTML",
-        reply_markup: {},
-        text: "Неправильный формат формулы для броска"
-      }
-    end
-
     it "does not process the command" do
-      expect(subject).to eq(
-        [
-          {answer: invalid_formula_answer, type: :message}
-        ]
-      )
+      is_expected.to eq([
+        {
+          type: :message,
+          answer: {
+            parse_mode: "HTML",
+            reply_markup: {},
+            text: "Неправильный формат формулы для броска"
+          }
+        }
+      ])
     end
   end
 end

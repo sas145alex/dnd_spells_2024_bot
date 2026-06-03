@@ -195,5 +195,37 @@ RSpec.describe BotCommands::GlobalSearch do
         )
       end
     end
+
+    context "when results span multiple pages and a page is clicked" do
+      # 11 matches over a 10-per-page window → two pages, so the prev/next links render.
+      before do
+        11.times { |i| create(:spell, :published, title: "Огонь #{i}") }
+        Multisearchable.regenerate_all_searchable_columns!
+        Multisearchable.regenerate_all_multisearchables!
+      end
+
+      context "on the first page" do
+        let(:payload) { {"data" => "search_page:огонь||1"} }
+        let(:page) { 1 }
+
+        it "edits the message and offers the next page" do
+          expect(result.first[:type]).to eq(:edit)
+          expect(result.first[:answer][:reply_markup][:inline_keyboard]).to include(
+            [{text: "Следующая страница ➡️", callback_data: "search_page:огонь||2"}]
+          )
+        end
+      end
+
+      context "on the last page" do
+        let(:payload) { {"data" => "search_page:огонь||2"} }
+        let(:page) { 2 }
+
+        it "offers the previous page" do
+          expect(result.first[:answer][:reply_markup][:inline_keyboard]).to include(
+            [{text: "⬅️ Предыдущая страница", callback_data: "search_page:огонь||1"}]
+          )
+        end
+      end
+    end
   end
 end
