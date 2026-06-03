@@ -18,6 +18,6 @@ class WildMagic < ApplicationRecord
   end
 
   def self.find_by_roll(roll_value)
-    find_by("int4range(roll) @> #{roll_value}")
+    find_by("int4range(roll) @> ?::int", roll_value)
   end
 end
