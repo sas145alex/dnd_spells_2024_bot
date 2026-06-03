@@ -317,6 +317,35 @@ RSpec.describe TelegramController do
     end
   end
 
+  describe "a poll_option_added service message" do
+    # Telegram delivers poll service messages to bots in groups regardless of privacy mode.
+    # The message carries no `text`, so the whitelist must ignore it entirely.
+    let(:chat_id) { external_id + 1 }
+    let(:update) do
+      {
+        "message" => {
+          "message_id" => 91,
+          "from" => {"id" => external_id},
+          "chat" => {"id" => chat_id, "type" => "supergroup"},
+          "poll_option_added" => {"option_persistent_id" => "2", "option_text" => "option3"}
+        }
+      }
+    end
+
+    it "is ignored without sending anything" do
+      dispatch
+
+      expect(bot.requests[:sendMessage]).to be_blank
+    end
+
+    it "does not track user or chat activity" do
+      dispatch
+
+      expect(Telegram::UserMetricsJob).not_to have_received(:perform_later)
+      expect(Telegram::ChatMetricsJob).not_to have_received(:perform_later)
+    end
+  end
+
   describe "a message in a group chat" do
     # In a chat the from id differs from the chat id, so message_from_chat? is true.
     let(:chat_id) { external_id + 1 }
@@ -327,10 +356,10 @@ RSpec.describe TelegramController do
     context "when the bot is not an admin" do
       before { allow_any_instance_of(described_class).to receive(:bot_has_admin_right_in_chat?).and_return(false) }
 
-      it "replies that it does not understand the command" do
+      it "stays silent on unrecognised text in a group chat" do
         dispatch
 
-        expect(bot.requests[:sendMessage].last).to include(text: include("не понимаю твою команду"))
+        expect(bot.requests[:sendMessage]).to be_blank
       end
     end
 

@@ -6,6 +6,13 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
 
   HISTORY_STACK_SIZE = 30
 
+  # Content keys the catch-all #message action can act on. A message update without any of
+  # these (service messages like poll_option_added, pinned_message, media w/o caption, …) is
+  # ignored silently. Whitelist, not blacklist: new Telegram service-message types stay ignored
+  # by default. Note: command and callback_query updates route to their own actions and never
+  # reach #message, and message-context replies (feedback!/spell!) bypass this guard.
+  PROCESSABLE_MESSAGE_KEYS = %w[text].freeze
+
   class << self
     DIRECT_COMMAND_REGEXP = /^(?<command>\/\w+)(?<suffix>@(?<receiver>\w+_bot))?$/
 
@@ -36,13 +43,11 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
   end
 
   def message(*args)
-    if payload.key?("left_chat_participant") || payload.key?("new_chat_participant")
-      # when bot added or removed telegram sends two requests with different types
-      # such changes handled by #my_chat_member in another request
-      return
-    end
-
-    if payload.key?("pinned_message")
+    # Ignore anything that is not actionable user content (service messages such as
+    # poll_option_added/pinned_message, media without caption, …). Bot promotion to admin is
+    # handled by the my_chat_member update via TelegramChat::MemberChangeProcessor.
+    unless processable_message?
+      @skip_activity_tracking = true
       return
     end
 
@@ -53,12 +58,10 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
       return
     end
 
-    if message_from_chat?
-      text = "Ты ввел сообщение, но я не понимаю твою команду. Пожалуйста, проверь команду или выбери ее в меню слева внизу."
-      respond_with :message, text: text
-    else
-      search!(*args)
-    end
+    # Stay silent on unrecognised text in group/supergroup chats; only private chats search.
+    return if message_from_chat?
+
+    search!(*args)
   end
 
   def callback_query(*_args)
@@ -68,6 +71,10 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
   end
 
   private
+
+  def processable_message?
+    PROCESSABLE_MESSAGE_KEYS.any? { |key| payload[key].present? }
+  end
 
   def bot_has_admin_right_in_chat?
     client_class = BotRequestJob.client_class
@@ -152,11 +159,13 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
   end
 
   def track_user_activity
+    return if @skip_activity_tracking
+
     Telegram::UserMetricsJob.perform_later(payload)
   end
 
   def track_chat_activity
-    return unless message_from_chat?
+    return if @skip_activity_tracking || !message_from_chat?
 
     Telegram::ChatMetricsJob.perform_later(payload, chat)
   end
