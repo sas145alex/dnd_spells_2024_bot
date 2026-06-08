@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_01_101855) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_08_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -304,11 +304,38 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_101855) do
     t.index ["mentionable_id", "mentionable_type", "another_mentionable_type", "another_mentionable_id"], name: "index_mentions_on_mentionable", unique: true
   end
 
+  create_table "message_deliveries", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "error_message"
+    t.string "error_reason"
+    t.bigint "external_id", null: false
+    t.bigint "message_distribution_id", null: false
+    t.bigint "recipient_id", null: false
+    t.string "recipient_type", null: false
+    t.datetime "sent_at"
+    t.string "status", default: "pending", null: false
+    t.datetime "updated_at", null: false
+    t.index ["message_distribution_id", "recipient_type", "recipient_id"], name: "index_message_deliveries_on_distribution_and_recipient", unique: true
+    t.index ["message_distribution_id", "status"], name: "index_message_deliveries_on_message_distribution_id_and_status"
+    t.index ["message_distribution_id"], name: "index_message_deliveries_on_message_distribution_id"
+    t.index ["recipient_type", "recipient_id"], name: "index_message_deliveries_on_recipient"
+  end
+
   create_table "message_distributions", force: :cascade do |t|
+    t.datetime "active_since"
     t.text "content", null: false
     t.datetime "created_at", null: false
     t.bigint "created_by_id"
-    t.datetime "last_sent_at"
+    t.integer "delivered_count", default: 0, null: false
+    t.integer "failed_count", default: 0, null: false
+    t.datetime "finished_at"
+    t.integer "min_command_count"
+    t.boolean "only_active", default: true, null: false
+    t.integer "recipients_count", default: 0, null: false
+    t.boolean "send_to_chats", default: false, null: false
+    t.boolean "send_to_users", default: true, null: false
+    t.datetime "started_at"
+    t.string "status", default: "draft", null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
     t.bigint "updated_by_id"
@@ -529,6 +556,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_101855) do
   add_foreign_key "magic_items", "admin_users", column: "updated_by_id"
   add_foreign_key "maneuvers", "admin_users", column: "created_by_id"
   add_foreign_key "maneuvers", "admin_users", column: "updated_by_id"
+  add_foreign_key "message_deliveries", "message_distributions"
   add_foreign_key "message_distributions", "admin_users", column: "created_by_id"
   add_foreign_key "message_distributions", "admin_users", column: "updated_by_id"
   add_foreign_key "metamagics", "admin_users", column: "created_by_id"

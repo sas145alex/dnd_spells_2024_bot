@@ -4,7 +4,7 @@ RSpec.describe MessageDistribution::SendingForm do
   subject(:form) { described_class.new }
 
   around do |example|
-    Timecop.freeze(Time.parse("2024-10-30")) do
+    Timecop.freeze(Time.parse("2026-06-08")) do
       example.run
     end
   end
@@ -19,12 +19,18 @@ RSpec.describe MessageDistribution::SendingForm do
     expect(form.readonly?).to be(true)
   end
 
-  describe "#telegram_user_ids" do
-    it { expect(form.telegram_user_ids).to eq([]) }
+  describe "#send_to_users" do
+    it { expect(form.send_to_users).to be(true) }
   end
 
-  describe "#telegram_chat_ids" do
-    it { expect(form.telegram_chat_ids).to eq([]) }
+  describe "#send_to_chats" do
+    it "defaults to false (do not broadcast to chats by default)" do
+      expect(form.send_to_chats).to be(false)
+    end
+  end
+
+  describe "#only_active" do
+    it { expect(form.only_active).to be(true) }
   end
 
   describe "#active_since" do
@@ -33,15 +39,19 @@ RSpec.describe MessageDistribution::SendingForm do
     end
   end
 
+  describe "#min_command_count" do
+    it { expect(form.min_command_count).to be_nil }
+  end
+
   describe "#test_sending" do
     it { expect(form.test_sending).to be(false) }
   end
 
-  describe "#send_to_users" do
-    it { expect(form.send_to_users).to be(true) }
+  describe "#test_telegram_user_ids" do
+    it { expect(form.test_telegram_user_ids).to eq([]) }
   end
 
-  describe "#send_to_chats" do
-    it { expect(form.send_to_chats).to be(true) }
+  describe "#test_telegram_chat_ids" do
+    it { expect(form.test_telegram_chat_ids).to eq("") }
   end
 end

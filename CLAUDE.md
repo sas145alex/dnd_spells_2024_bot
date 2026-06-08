@@ -9,7 +9,7 @@ managing content. Bot replies are in Russian; D&D terms are bilingual (RU title 
 
 | Concern | Choice |
 | --- | --- |
-| Language / framework | Ruby **3.4.4** (`.ruby-version`), Rails **8.0.2** |
+| Language / framework | Ruby **4.0.5** (`.ruby-version`), Rails **8.1.3** |
 | Database | PostgreSQL 16 |
 | Solid stack | `solid_cache`, `solid_queue`, `solid_cable` — **all on the primary Postgres DB** (`config/database.yml`) |
 | Bot | `telegram-bot` (telegram-bot-rb) |
@@ -47,6 +47,12 @@ bundle exec rspec spec/path/to/file_spec.rb   # single spec file
 - **Do not** mention Claude, Claude Code, or any other AI agent in commit messages, and **do not** add
   `Co-Authored-By` / "Generated with" trailers for AI tools.
 
+### Comments
+
+- **Do not** comment self-explanatory code — prefer clear names over narration of *what* the code does.
+- Reserve comments for things the code can't express: documenting an enum's states/semantics, or
+  explaining *why* a non-obvious decision or workaround exists (the reasoning, not the mechanics).
+
 ## Request flow
 
 Telegram updates arrive via webhook at `telegram_webhook TelegramController` (`config/routes.rb`).
@@ -75,8 +81,12 @@ replays the previous state. Actions that must not be remembered are explicitly e
 
 `ApplicationOperation` (`app/models/application_operation.rb`) is a 5-line PORO — `self.call(...)` does
 `new(...).call`. No dry-transaction / interactor. `BotCommands::*` and many other ops
-(`Mention::*`, `MessageDistribution::Send`, `TelegramChat::MemberChangeProcessor`, `Presenters::*`,
+(`Mention::*`, `MessageDistribution::Enqueue`, `TelegramChat::MemberChangeProcessor`, `Presenters::*`,
 `Importers::*`) inherit it.
+
+When an operation or model uses `ActiveModel::Validations`, name the methods registered with
+`validate` with a **`check_`** or **`ensure_`** prefix (e.g. `validate :check_audience_present` in
+`MessageDistribution::Enqueue`).
 
 All bot commands live in `app/models/bot_commands/` and inherit `BaseCommand < ApplicationOperation`.
 `BaseCommand` (`base_command.rb`) provides shared helpers:
@@ -125,6 +135,11 @@ Jobs are SolidQueue-backed (`app/jobs/`). `ApplicationJob` retries `StandardErro
   "message is not modified".
 - `Telegram::{User,Chat,Spell}MetricsJob` — activity / popularity counters, fired after bot responses.
 - `Feedback::NotificationJob` — forwards feedback to the Discord webhook (`ADVICE_WEBHOOK`).
+- `MessageDistribution::DeliveryJob` — runs a mass broadcast (built by `MessageDistribution::Enqueue`;
+  one distribution = one send). Resumable (only ever processes `pending` rows), throttled, and
+  **serialized to one broadcast at a time** via SolidQueue `limits_concurrency` (Telegram's ~30 msg/sec
+  global cap). Records a per-recipient `MessageDelivery` (`status` + `error_reason`); the audience is
+  segmented by `MessageDistribution::Audience`.
 
 ## Admin
 
@@ -203,3 +218,6 @@ Project skills live in `.claude/skills/` (committed); `skills-lock.json` pins th
   `regenerate_all_multisearchables!`.
 - A new `BotCommands` subclass must override `callback_prefix` or it raises `NotImplementedError`.
 - `make bot` is dev-only — production delivery is webhook-based.
+- Outbound Telegram sends go through `BotRequestJob` **async in production**, so `Telegram.bot.send_message`
+  returns immediately and you can't observe its result/error. To send synchronously and capture the
+  outcome (e.g. per-recipient delivery tracking), wrap it in `Telegram.bot.async(false) { ... }`.

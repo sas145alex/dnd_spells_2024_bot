@@ -3,12 +3,12 @@ ActiveAdmin.register MessageDistribution do
     selectable_column
     id_column
     column :title
-    column :content do |resource|
-      markdown_to_html(resource.content, limit: 300)
-    end
-    column :last_sent_at
+    column :status
+    column :recipients_count
+    column :delivered_count
+    column :failed_count
+    column :finished_at
     column :created_at
-    column :updated_at
     actions defaults: false do |resource|
       links = []
       links << link_to(
@@ -35,6 +35,7 @@ ActiveAdmin.register MessageDistribution do
   filter :id
   filter :title
   filter :content
+  filter :status, as: :select, collection: -> { MessageDistribution.statuses.keys }
   filter :created_at
   filter :updated_at
   filter :created_by, as: :select, collection: -> { admins_for_select }
@@ -43,7 +44,7 @@ ActiveAdmin.register MessageDistribution do
   show do
     attributes_table_for(resource) do
       row :id
-      row :last_sent_at
+      row :status
       row :title
       row :content do
         markdown_to_html(resource.content)
@@ -54,8 +55,42 @@ ActiveAdmin.register MessageDistribution do
       row :updated_by
     end
 
+    panel "Рассылка" do
+      attributes_table_for(resource) do
+        row :recipients_count
+        row :delivered_count
+        row :failed_count
+        row :started_at
+        row :finished_at
+        row("Сегмент") do
+          parts = []
+          parts << "пользователи" if resource.send_to_users?
+          parts << "чаты" if resource.send_to_chats?
+          segment = "Каналы: #{parts.join(", ").presence || "—"}"
+          segment += "; только активные" if resource.only_active?
+          segment += "; активны с #{resource.active_since.to_fs(:short)}" if resource.active_since
+          segment += "; запросов ≥ #{resource.min_command_count}" if resource.min_command_count
+          segment
+        end
+      end
+    end
+
+    if resource.failed_count.positive?
+      panel "Ошибки доставки" do
+        table_for resource.deliveries.failed.group(:error_reason).count.to_a do
+          column("Причина") { |row| row.first }
+          column("Количество") { |row| row.last }
+        end
+      end
+    end
+
     div do
-      link_to "Prepare sending", prepare_sending_admin_message_distribution_path(resource), class: "btn btn-primary"
+      links = []
+      if resource.sendable?
+        links << link_to("Prepare sending", prepare_sending_admin_message_distribution_path(resource), class: "btn btn-primary")
+      end
+      links << link_to("Доставки", admin_message_deliveries_path(q: {message_distribution_id_eq: resource.id}), class: "btn btn-default")
+      links.join(" ").html_safe
     end
   end
 
@@ -77,16 +112,33 @@ ActiveAdmin.register MessageDistribution do
   end
 
   member_action :prepare_sending do
+    redirect_to resource_path(resource), alert: "Рассылка уже была отправлена" unless resource.sendable?
   end
 
   member_action :submit_sending, method: :post do
-    options = params[:message_distribution_sending_form].permit!.to_h
-    operation = MessageDistribution::Send.new(distribution: resource, options: options)
+    form = params.require(:message_distribution_sending_form)
+    cast = ActiveModel::Type::Boolean.new
 
-    if operation.call
-      redirect_to resource_path(resource), notice: "Distribution is scheduled"
+    if cast.cast(form[:test_sending])
+      chat_ids = Array(form[:test_telegram_user_ids]) + form[:test_telegram_chat_ids].to_s.split(/[\s,]+/)
+      MessageDistribution::TestSend.call(distribution: resource, chat_ids: chat_ids)
+      redirect_to resource_path(resource), notice: "Тестовая отправка выполнена"
     else
-      redirect_to resource_path(resource), alert: "Errors happened: " + operation.errors.full_messages.to_sentence
+      resource.update!(
+        send_to_users: cast.cast(form[:send_to_users]),
+        send_to_chats: cast.cast(form[:send_to_chats]),
+        only_active: cast.cast(form[:only_active]),
+        active_since: form[:active_since].presence,
+        min_command_count: form[:min_command_count].presence
+      )
+
+      operation = MessageDistribution::Enqueue.new(distribution: resource)
+
+      if operation.call
+        redirect_to resource_path(resource), notice: "Рассылка запущена"
+      else
+        redirect_to resource_path(resource), alert: "Errors happened: " + operation.errors.full_messages.to_sentence
+      end
     end
   end
 
