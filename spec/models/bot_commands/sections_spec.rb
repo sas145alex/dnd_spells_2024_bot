@@ -16,6 +16,7 @@ RSpec.describe BotCommands::Sections do
         [{text: "Происхождения", callback_data: "origin:"}],
         [{text: "Инструменты", callback_data: "tool:"}],
         [{text: "Снаряжение", callback_data: "equipment:"}],
+        [{text: "Бастионы", callback_data: "bastion:"}],
         [{text: "Глоссарий", callback_data: "glossary:"}]
       ]
     end

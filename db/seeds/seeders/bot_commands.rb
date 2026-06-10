@@ -26,6 +26,14 @@ BotCommand.find_or_create_by!(title: BotCommand::FEEDBACK_ID) do |command|
   command.description = "feedback command"
 end
 
+BotCommand.find_or_create_by!(title: BotCommand::BASTION_BUILDING_ID) do |command|
+  command.description = "bastion building command"
+end
+
+BotCommand.find_or_create_by!(title: BotCommand::BASTION_OBTAINING_ID) do |command|
+  command.description = "bastion obtaining command"
+end
+
 EquipmentItem.item_types.keys.each do |type|
   BotCommand.find_or_create_by!(title: "#{type}_section_description") do |command|
     command.description = "description for section #{type}"

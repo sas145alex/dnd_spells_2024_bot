@@ -14,6 +14,7 @@ load "db/seeds/seeders/character_klasses.rb"
 load "db/seeds/seeders/invocations.rb"
 load "db/seeds/seeders/metamagics.rb"
 load "db/seeds/seeders/maneuvers.rb"
+load "db/seeds/seeders/bastions.rb"
 load "db/seeds/seeders/magic_items.rb"
 
 if Rails.env.local?

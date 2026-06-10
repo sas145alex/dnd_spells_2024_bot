@@ -1,0 +1,10 @@
+en:
+  activerecord:
+    models:
+      bastion: "Bastion"
+    attributes:
+      bastion:
+        categories:
+          construction: "Buildings"
+          modification: "Modifications"
+          leveling: "Special"

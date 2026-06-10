@@ -46,12 +46,20 @@ bundle exec rspec spec/path/to/file_spec.rb   # single spec file
 - Keep commit messages **short** — a concise one-line summary of the change.
 - **Do not** mention Claude, Claude Code, or any other AI agent in commit messages, and **do not** add
   `Co-Authored-By` / "Generated with" trailers for AI tools.
+- Preferred merge style is **squash + fast-forward** (`--squash` then a fast-forward merge) — keep
+  history linear, no merge commits.
 
 ### Comments
 
 - **Do not** comment self-explanatory code — prefer clear names over narration of *what* the code does.
 - Reserve comments for things the code can't express: documenting an enum's states/semantics, or
   explaining *why* a non-obvious decision or workaround exists (the reasoning, not the mechanics).
+
+### Migrations
+
+- Prefer **fewer migration files**. Combine related schema operations into a single migration rather
+  than splitting them across files — e.g. fold a new table's `searchable_title` column into its
+  `create_table` instead of adding a follow-up migration.
 
 ## Request flow
 
@@ -160,13 +168,16 @@ Reusable concern behaviour goes in `spec/support/shared_examples/` (e.g. `it_beh
 "publishable", :spell`).
 
 - Seed data is loaded once before the suite: `rails_helper` runs `before(:suite) { Rails.application.load_seed }`.
+  **But content seeders are `Rails.env.development?`-guarded** (see *Seeds & data import*), so under
+  `test` only the unconditional seeds (admin users, bot commands) load — specs build their own content
+  with FactoryBot, not from seeds.
 - DatabaseCleaner uses the `:transaction` strategy (one `:truncation` before the suite).
 - **Testing a command:** call `BotCommands::Foo.call(...)` and assert the returned answer hash/array
   (text, `reply_markup`, `parse_mode`), using `.decorate.description_for_telegram` for expected text.
 - **Testing outbound sends:** mock the client — `allow(Telegram.bot).to receive(:send_message)` — then
   assert `have_received(...)`. Discord HTTP is stubbed via WebMock (`require "webmock_helper"`).
 - Request specs use Devise `sign_in(admin)` and the `json_body` helper (`spec/support/api_helpers.rb`).
-- **Coverage (SimpleCov):** running specs writes an HTML report to `coverage/index.html` and prints the
+- **Coverage (SimpleCov):** running specs writes an HTML report to `tmp/coverage/index.html` and prints the
   line/branch % at the end of the run. SimpleCov only counts files exercised by the specs that
   **actually ran**, so the report is accurate **only after the full suite** (`bundle exec rspec`) —
   running a single spec file reports misleading, partial coverage.
@@ -175,6 +186,43 @@ Reusable concern behaviour goes in `spec/support/shared_examples/` (e.g. `it_beh
 
 `db/seeds.rb` loads each seeder in `db/seeds/seeders/*.rb`. Bulk D&D content is imported from CSVs in
 `db/seeds/data/` via `Importers::*`. Search columns are regenerated at the end of seeding in local envs.
+Content seeders guard on `Rails.env.development? && Model.count == 0` (idempotent, dev-only).
+
+## Adding a new content entity (+ a `/sections` section)
+
+This is a repeatable recipe — `Bastion` is a complete worked example; mirror the simplest existing
+model (`Maneuver`) and wire it in:
+
+1. **Migration** (one file) — `create_<table>` with `title`, `original_title`, `description`,
+   (`original_description` if bilingual), enum/`category` columns, `published_at`,
+   `created_by`/`updated_by` refs, and **`searchable_title` (`null: false, default: ""`) folded in**
+   (the `Multisearchable` callback fills it but does *not* create the column).
+2. **Model** `app/models/<name>.rb` — `include Multisearchable, Publishable, Mentionable,
+   WhoDidItable`; declare `enum`s; `scope :ordered`; strip callbacks.
+3. **Decorator** `app/decorators/<name>_decorator.rb` — usually near-empty;
+   `description_for_telegram` / `global_search_title` come from `ApplicationDecorator`.
+4. **Locales** `config/locales/models/<name>/{ru,en}.yml` — `activerecord.models.<name>` (needed for
+   the search-filters list) + enum translations under the **pluralized** enum key (e.g.
+   `attributes.<name>.categories`); `human_enum_names(:category)` reads these.
+5. **Admin** `app/admin/<name>s.rb` — copy an existing one (e.g. `maneuvers.rb`), add the new columns
+   to index/show/form/filters/`permit_params`.
+6. **Bot command** `app/models/bot_commands/<name>_search.rb < BaseCommand` — multi-level navigation
+   lives in **one** command, dispatched on `input_value` (blank → top groups; an enum key/token → a
+   sub-list; a GlobalID → the card). See `EquipmentSearch`/`FeatSearch`. Build buttons with
+   `keyboard_options`, end every screen with `go_back_button`, override `callback_prefix`. Extra menu
+   tiers that don't map to a column can be **hardcoded pseudo-layers** (string tokens kept distinct
+   from enum keys).
+7. **Wire `/sections`** — add `"<prefix>" => "Label"` to `BotCommands::Sections::AVAILABLE_SECTIONS`
+   **and** define `<prefix>_callback_query` in `TelegramController` (the gem routes `"<prefix>:…"`
+   callbacks there by prefix — no other registration). Update `sections_spec.rb`.
+8. **Seeds** — `Importers::Import<Name>s` (CSV → `create!`), `db/seeds/data/<name>s.csv`,
+   `db/seeds/seeders/<name>s.rb`, and a `load` line in `db/seeds.rb`.
+9. **Specs + factory** — `spec/factories/<name>s.rb` (with traits), model spec (`it_behaves_like` the
+   concern shared examples + validations), bot-command spec (one context per nav state), decorator spec.
+
+A new `Multisearchable` model **auto-joins** full-text search, `/search`, and the search-filters UI
+(both driven by `Multisearchable.used_klasses`) — no manual registration beyond step 4's
+`model_name.human`.
 
 ## Deployment & environment
 
@@ -217,6 +265,12 @@ Project skills live in `.claude/skills/` (committed); `skills-lock.json` pins th
 - Rebuilding search needs **two** calls — `regenerate_all_searchable_columns!` *and*
   `regenerate_all_multisearchables!`.
 - A new `BotCommands` subclass must override `callback_prefix` or it raises `NotImplementedError`.
+- A new table's `searchable_title` column is **yours to create** (fold it into `create_table`); the
+  `Multisearchable` `before_validation` only *populates* it.
+- `DISTINCT … pluck` on a `Multisearchable` model collides with the `ordered` scope's `ORDER BY title`
+  (PG: *"ORDER BY expressions must appear in select list"*) — pluck off an unordered scope.
+- Multi-database app: `db:migrate:redo` (and similar) need the namespace, e.g.
+  `bin/rails db:migrate:redo:primary VERSION=…`.
 - `make bot` is dev-only — production delivery is webhook-based.
 - Outbound Telegram sends go through `BotRequestJob` **async in production**, so `Telegram.bot.send_message`
   returns immediately and you can't observe its result/error. To send synchronously and capture the

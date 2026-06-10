@@ -1,0 +1,10 @@
+ru:
+  activerecord:
+    models:
+      bastion: "Бастион"
+    attributes:
+      bastion:
+        categories:
+          construction: "Постройки"
+          modification: "Модификации"
+          leveling: "Специализированные"

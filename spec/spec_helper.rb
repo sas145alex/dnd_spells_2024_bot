@@ -3,6 +3,7 @@
 # after the FULL suite — see CLAUDE.md.
 require "simplecov"
 SimpleCov.start "rails" do
+  coverage_dir "tmp/coverage"
   enable_coverage :branch
   track_files "{app,lib}/**/*.rb"
 
@@ -16,7 +17,7 @@ SimpleCov.start "rails" do
   add_group "Jobs",         "app/jobs"
 
   # Ratchet: fail the run if line/branch coverage drops below the previous run
-  # (baseline stored in the gitignored coverage/.last_run.json). Only enforced on a
+  # (baseline stored in the gitignored tmp/coverage/.last_run.json). Only enforced on a
   # FULL-suite run — a single spec file reports misleading partial coverage (see
   # CLAUDE.md), which would fail spuriously and clobber the baseline.
   running_full_suite = ARGV.none? { |arg| arg.end_with?("_spec.rb") || arg.match?(%r{(\A|/)spec(/|\z)}) }

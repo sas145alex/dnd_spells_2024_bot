@@ -203,6 +203,11 @@ class TelegramController < BaseTelegramController
     edit_message :text, answer_params
   end
 
+  def bastion_callback_query(input_value = nil, *_args)
+    answer_params = BotCommands::BastionSearch.call(input_value: input_value)
+    edit_message :text, answer_params
+  end
+
   def species_callback_query(input_value = nil, *_args)
     answer_params = BotCommands::SpeciesSearch.call(input_value: input_value)
     edit_message :text, answer_params

@@ -7,6 +7,8 @@ class BotCommand < ApplicationRecord
   CRAFTING_ID = "crafting"
   ORIGIN_ID = "origin"
   FEEDBACK_ID = "feedback"
+  BASTION_BUILDING_ID = "bastion_building"
+  BASTION_OBTAINING_ID = "bastion_obtaining"
 
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true
@@ -51,6 +53,14 @@ class BotCommand < ApplicationRecord
 
   def self.feedback
     memoized_search(title: FEEDBACK_ID)
+  end
+
+  def self.bastion_building
+    memoized_search(title: BASTION_BUILDING_ID)
+  end
+
+  def self.bastion_obtaining
+    memoized_search(title: BASTION_OBTAINING_ID)
   end
 
   def long_description?

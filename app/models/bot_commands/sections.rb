@@ -8,6 +8,7 @@ module BotCommands
       "origin" => "Происхождения",
       "tool" => "Инструменты",
       "equipment" => "Снаряжение",
+      "bastion" => "Бастионы",
       "glossary" => "Глоссарий"
     }.freeze
 

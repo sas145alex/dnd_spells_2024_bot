@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_08_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_09_125729) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -84,6 +84,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_120000) do
     t.bigint "updated_by_id"
     t.index ["created_by_id"], name: "index_arcane_shots_on_created_by_id"
     t.index ["updated_by_id"], name: "index_arcane_shots_on_updated_by_id"
+  end
+
+  create_table "bastions", force: :cascade do |t|
+    t.string "category", null: false
+    t.datetime "created_at", null: false
+    t.bigint "created_by_id"
+    t.text "description", default: "", null: false
+    t.integer "level", default: 0, null: false
+    t.text "original_description", default: "", null: false
+    t.string "original_title"
+    t.datetime "published_at"
+    t.string "searchable_title", default: "", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "updated_by_id"
+    t.index ["created_by_id"], name: "index_bastions_on_created_by_id"
+    t.index ["updated_by_id"], name: "index_bastions_on_updated_by_id"
   end
 
   create_table "bot_commands", force: :cascade do |t|
@@ -531,6 +548,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_120000) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "arcane_shots", "admin_users", column: "created_by_id"
   add_foreign_key "arcane_shots", "admin_users", column: "updated_by_id"
+  add_foreign_key "bastions", "admin_users", column: "created_by_id"
+  add_foreign_key "bastions", "admin_users", column: "updated_by_id"
   add_foreign_key "character_klass_abilities", "admin_users", column: "created_by_id"
   add_foreign_key "character_klass_abilities", "admin_users", column: "updated_by_id"
   add_foreign_key "character_klass_abilities", "character_klasses"
