@@ -7,8 +7,8 @@ servers:
       - dnd_handbook
     # Telegram's API range is blocked from this host's network except for this
     # one reachable DC IP. Pin api.telegram.org to it so outbound bot sends work.
-    options:
-      add-host: "api.telegram.org:149.154.167.220"
+#    options:
+#      add-host: "api.telegram.org:149.154.167.220"
 
 proxy:
   ssl: true
