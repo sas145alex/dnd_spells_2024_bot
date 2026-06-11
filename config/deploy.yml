@@ -5,11 +5,6 @@ servers:
   web:
     hosts:
       - dnd_handbook
-    # Telegram's API range is throttled from this host's network; the reachable
-    # DC IP rotates. Pin api.telegram.org to a currently-reachable one so outbound
-    # bot sends work. Re-probe with curl --resolve if sends start timing out again.
-    options:
-      add-host: "api.telegram.org:149.154.167.220"
 
 proxy:
   ssl: true
