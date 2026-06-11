@@ -44,5 +44,8 @@ public/uploads
 /config/credentials/production.key
 .claude/settings.local.json
 
+# Local-only infra/migration notes (may contain prod IPs and resource details).
+/docs/
+
 # Track the Git hooks config even though it's ignored globally (~/.global-gitignore).
 !lefthook.yml

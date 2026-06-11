@@ -3,6 +3,10 @@
     "sentry": {
       "type": "http",
       "url": "https://mcp.sentry.dev/mcp/aleksei-pesonal/dnd-handbook"
+    },
+    "newrelic": {
+      "type": "http",
+      "url": "https://mcp.eu.newrelic.com/mcp/"
     }
   }
 }

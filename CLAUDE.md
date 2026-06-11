@@ -239,6 +239,21 @@ Required env vars (`.env`, seeded from `.env.test` by `make setup`): `BOT_TOKEN`
 `ADVICE_WEBHOOK` (Discord), `CLOUDINARY_URL`. Production also needs `POSTGRES_*` / `DB_HOST` / `DB_PORT`,
 `RAILS_MASTER_KEY`, and optionally `SENTRY_DSN`, `JOB_CONCURRENCY`.
 
+### Monitoring (New Relic)
+
+Two independent NR agents, both in the EU account (`6614130`):
+
+- **APM** — the `newrelic_rpm` gem, configured in `config/newrelic.yml` (app `dnd_handbook`, EU). Baked
+  into the Docker image, so it ships with the app automatically — nothing host-specific to do.
+  ⚠️ the license key is currently **hardcoded** in `config/newrelic.yml` (not a secret).
+- **Infrastructure (host + Docker)** — runs as a **Kamal accessory** (`accessories.newrelic` in
+  `deploy.yml`): a privileged `newrelic/infrastructure-bundle` container (`--pid host`, `/:/host:ro`,
+  `docker.sock`). Boot/replace it on a host with `bin/kamal accessory boot newrelic`. License key is
+  `NRIA_LICENSE_KEY` (1Password → `.kamal/secrets`). Being a Kamal accessory, it travels with the config
+  to any new host — not a native apt/systemd install to redo by hand on each migration.
+- `.kamal/hooks/post-deploy` records a New Relic **deployment marker** via the local `newrelic-cli`
+  (profile `prod_eu_6614130_change_tracking`); it no-ops if the CLI isn't installed on the deploy machine.
+
 ## MCP servers
 
 `.mcp.json` (committed) configures the Model Context Protocol servers available to Claude Code in
@@ -249,6 +264,12 @@ this repo.
   to production issues, stack traces, events, and Seer root-cause analysis. **First use is
   interactive:** run `/mcp`, pick `sentry`, complete the one-time OAuth sign-in in the browser.
   Read-only / interactive — not wired for unattended (cron/CI) runs.
+- **`newrelic`** — the official New Relic remote MCP, on the **EU endpoint** (`mcp.eu.newrelic.com`, to
+  match the EU account `6614130` — the US URL won't work). HTTP transport, OAuth; **first use is
+  interactive:** `/mcp` → `newrelic` → one-time browser sign-in. Exposes NRQL + entity/alert tools
+  (tags `data-access` / `discovery` / `alerting`), so metrics **and** logs (`FROM Log`) and traces are
+  queryable for incident investigation. The server doesn't enforce read-only — sign in as a
+  least-privilege (read-only) NR user. Interactive — not wired for unattended (cron/CI) runs.
 
 ## Skills
 
@@ -275,3 +296,9 @@ Project skills live in `.claude/skills/` (committed); `skills-lock.json` pins th
 - Outbound Telegram sends go through `BotRequestJob` **async in production**, so `Telegram.bot.send_message`
   returns immediately and you can't observe its result/error. To send synchronously and capture the
   outcome (e.g. per-recipient delivery tracking), wrap it in `Telegram.bot.async(false) { ... }`.
+- `.kamal/secrets` fetches **all** referenced secrets from the 1Password item (`DND_BOTS/DND_HANDBOOK`)
+  in one `kamal secrets fetch`. Adding a name there (e.g. `NRIA_LICENSE_KEY`) requires that field to
+  exist in the item, or **every** secret-reading kamal command (including `deploy`) fails — add the
+  1Password field first.
+- Kamal **hooks run on the deploy machine, not the servers**: `.kamal/hooks/docker-setup` SSHes into the
+  host to do remote setup, and `post-deploy` shells out to the local `newrelic-cli`.

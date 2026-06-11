@@ -78,3 +78,24 @@ accessories:
       - db/production.sql:/docker-entrypoint-initdb.d/setup.sql
     directories:
       - data:/var/lib/postgresql/data
+
+  # New Relic host (OS) monitoring. Runs the infra agent as a container instead of
+  # a native apt/systemd package so the agent travels with the Kamal config to any
+  # host (boot it with `kamal accessory boot newrelic`). The -bundle image carries
+  # nri-docker, so it also reports the other containers on the host via docker.sock.
+  newrelic:
+    image: newrelic/infrastructure-bundle:3.3.29
+    host: dnd_handbook
+    network: host
+    env:
+      clear:
+        NRIA_DISPLAY_NAME: dnd_handbook
+        NRIA_OVERRIDE_HOST_ROOT: /host
+      secret:
+        - NRIA_LICENSE_KEY
+    volumes:
+      - "/:/host:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    options:
+      privileged: true
+      pid: host
