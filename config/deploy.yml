@@ -41,6 +41,8 @@ aliases:
   logs: app logs -f
   dbc: app exec -i --reuse "bin/rails dbconsole"
   dbb: accessory exec db -i --reuse "bash"
+  backup-now: accessory exec backup "backup-now"
+  backup-logs: accessory logs backup -f
 
 # Use a persistent storage volume for sqlite database files and local Active Storage files.
 # Recommended to change this to a mounted volume path that is backed up off server.
@@ -99,3 +101,39 @@ accessories:
     options:
       privileged: true
       pid: host
+
+  # Off-host PostgreSQL backups. Runs tiredofit/db-backup as a Kamal accessory (travels with the
+  # config like the New Relic one — no host-side cron/rclone to redo per migration): nightly pg_dump
+  # of the primary DB -> gzip -> Backblaze B2 (S3-compatible), 7-day retention. No `network:` key, so
+  # it joins the default `kamal` network and reaches the DB by container name `dnd_handbook-db`.
+  # A post-backup hook (.kamal/backup/notify.sh) posts a Discord embed every run and, if
+  # BACKUP_HEALTHCHECK_URL is set, pings healthchecks.io as a dead-man's-switch.
+  # Boot/replace on a host: bin/kamal accessory boot backup
+  backup:
+    image: tiredofit/db-backup:4.1.100   # >=4.1.99 bundles PG17 + PG18 clients (auto-selected)
+    host: dnd_handbook
+    files:
+      - .kamal/backup/notify.sh:/assets/scripts/post/notify.sh
+    env:
+      clear:
+        DB01_TYPE: pgsql
+        DB01_HOST: dnd_handbook-db
+        DB01_PORT: 5432
+        DB01_NAME: dnd_handbook_production
+        DB01_USER: dnd_handbook
+        DB01_BACKUP_BEGIN: "0300"            # daily at 03:00
+        DB01_BACKUP_INTERVAL: 1440           # minutes (24h)
+        DB01_CLEANUP_TIME: 10080             # keep 7 days (minutes)
+        DB01_COMPRESSION: GZ
+        DB01_BACKUP_LOCATION: S3
+        DB01_S3_BUCKET: dnd-handbook-backups          # set to your B2 bucket name
+        DB01_S3_REGION: eu-central-003                   # middle segment of the B2 endpoint
+        DB01_S3_HOST: s3.eu-central-003.backblazeb2.com  # the Endpoint shown on the B2 bucket
+        DB01_S3_PATH: dnd_handbook
+        DB01_POST_SCRIPT_SKIP_X_VERIFY: "TRUE"
+      secret:
+        - DB01_PASS
+        - DB01_S3_KEY_ID
+        - DB01_S3_KEY_SECRET
+        - BACKUP_DISCORD_WEBHOOK
+        - BACKUP_HEALTHCHECK_URL

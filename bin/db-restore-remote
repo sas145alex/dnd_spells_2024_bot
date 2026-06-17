@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Restore a Backblaze B2 dump onto the PRODUCTION host, over SSH into the dnd_handbook-db container.
+# Dumps are gzipped plain-SQL pg_dump files (pgsql_..._.sql.gz). If a sidecar <file>.md5 sits next
+# to the dump, its checksum is verified first.
+#
+# Usage:
+#   bin/db-restore-remote <dump.sql.gz> [target_db] [ssh_host]
+#     target_db   default: dnd_handbook_production
+#     ssh_host    default: dnd_handbook
+#
+#   bin/db-restore-remote ~/Downloads/pgsql_..._.sql.gz restore_test             # verify into a scratch db
+#   bin/db-restore-remote ~/Downloads/pgsql_..._.sql.gz dnd_handbook_production   # disaster recovery
+#
+# Get a dump first: download it from the Backblaze B2 web console (or an rclone/b2/aws CLI).
+# Does NOT drop anything (the target may be prod): the target db must already exist and be EMPTY
+# (runs with ON_ERROR_STOP). Create a scratch db first:
+#   bin/kamal accessory exec db -i --reuse \
+#     "psql -U dnd_handbook -d postgres -c 'CREATE DATABASE restore_test OWNER dnd_handbook'"
+# Full disaster recovery: stop web, drop+recreate dnd_handbook_production, then restore into it.
+set -euo pipefail
+
+file="${1:?usage: bin/db-restore-remote <dump.sql.gz> [target_db] [ssh_host]}"
+target_db="${2:-dnd_handbook_production}"
+ssh_host="${3:-dnd_handbook}"
+db_owner="dnd_handbook"
+
+[ -f "$file" ] || { echo "no such file: $file" >&2; exit 1; }
+
+# Optional integrity check against the sidecar .md5 the backup tool writes next to each dump.
+if [ -f "${file}.md5" ] && command -v md5sum >/dev/null 2>&1; then
+  echo "Verifying checksum (${file}.md5)..."
+  ( cd "$(dirname "$file")" && md5sum -c "$(basename "$file").md5" ) \
+    || { echo "checksum verification FAILED -- aborting" >&2; exit 1; }
+fi
+
+echo "REMOTE restore of '$file' -> ${ssh_host}:${target_db} (db must already exist and be EMPTY)."
+read -r -p "Type the target db name to confirm: " confirm
+[ "$confirm" = "$target_db" ] || { echo "aborted" >&2; exit 1; }
+
+gunzip -c "$file" \
+  | ssh "$ssh_host" "docker exec -i dnd_handbook-db psql -v ON_ERROR_STOP=1 -U ${db_owner} -d ${target_db}"
+
+echo "Done. Sanity-check: \\dt, a couple of COUNT(*)s, and that pg_search_documents is present."

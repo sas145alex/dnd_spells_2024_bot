@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Restore a Backblaze B2 dump into your LOCAL Postgres (e.g. to inspect prod data).
+# Dumps are gzipped plain-SQL pg_dump files (pgsql_..._.sql.gz). If a sidecar <file>.md5 sits
+# next to the dump, its checksum is verified first.
+#
+# Usage:
+#   bin/db-restore-local <dump.sql.gz> [target_db]
+#     target_db   default: dnd_prod_copy
+#
+#   bin/db-restore-local ~/Downloads/pgsql_..._.sql.gz                # -> local db "dnd_prod_copy"
+#   bin/db-restore-local ~/Downloads/pgsql_..._.sql.gz my_copy        # -> local db "my_copy"
+#
+# Get a dump first: download it from the Backblaze B2 web console (or an rclone/b2/aws CLI).
+# Connects as $PGUSER (default: sas145); if your local Postgres needs a password, export PGPASSWORD too.
+# Creates the `dnd_handbook` role if missing (the dump assigns ownership to it), then DROPS +
+# recreates an empty target db and loads the dump. Use a local PG >= the dump's server major (17/18).
+# To point the app at it, set the development `database:` in config/database.yml to the target db.
+set -euo pipefail
+
+file="${1:?usage: bin/db-restore-local <dump.sql.gz> [target_db]}"
+target_db="${2:-dnd_prod_copy}"
+admin="${PGUSER:-sas145}"
+db_owner="dnd_handbook"
+
+[ -f "$file" ] || { echo "no such file: $file" >&2; exit 1; }
+
+# Optional integrity check against the sidecar .md5 the backup tool writes next to each dump.
+if [ -f "${file}.md5" ] && command -v md5sum >/dev/null 2>&1; then
+  echo "Verifying checksum (${file}.md5)..."
+  ( cd "$(dirname "$file")" && md5sum -c "$(basename "$file").md5" ) \
+    || { echo "checksum verification FAILED -- aborting" >&2; exit 1; }
+fi
+
+echo "LOCAL restore of '$file' -> db '$target_db' (connecting as '$admin'). This DROPS+recreates it."
+read -r -p "Type the target db name to confirm: " confirm
+[ "$confirm" = "$target_db" ] || { echo "aborted" >&2; exit 1; }
+
+# The dump assigns ownership/grants to role 'dnd_handbook' -- ensure it exists locally.
+if ! psql -U "$admin" -d postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='${db_owner}'" | grep -q 1; then
+  psql -U "$admin" -d postgres -c "CREATE ROLE ${db_owner} LOGIN SUPERUSER;"
+fi
+psql -U "$admin" -d postgres -c "DROP DATABASE IF EXISTS \"${target_db}\";"
+psql -U "$admin" -d postgres -c "CREATE DATABASE \"${target_db}\" OWNER ${db_owner};"
+gunzip -c "$file" | psql -U "$admin" -v ON_ERROR_STOP=1 -d "${target_db}"
+
+echo "Done. Sanity-check: \\dt, a couple of COUNT(*)s, and that pg_search_documents is present."

@@ -10,7 +10,7 @@ managing content. Bot replies are in Russian; D&D terms are bilingual (RU title 
 | Concern | Choice |
 | --- | --- |
 | Language / framework | Ruby **4.0.5** (`.ruby-version`), Rails **8.1.3** |
-| Database | PostgreSQL 16 |
+| Database | PostgreSQL 17 (prod `postgres:17` accessory; local dev 16) |
 | Solid stack | `solid_cache`, `solid_queue`, `solid_cable` — **all on the primary Postgres DB** (`config/database.yml`) |
 | Bot | `telegram-bot` (telegram-bot-rb) |
 | Search | `pg_search` (Postgres full-text, `russian` dictionary) |
@@ -54,6 +54,13 @@ bundle exec rspec spec/path/to/file_spec.rb   # single spec file
 - **Do not** comment self-explanatory code — prefer clear names over narration of *what* the code does.
 - Reserve comments for things the code can't express: documenting an enum's states/semantics, or
   explaining *why* a non-obvious decision or workaround exists (the reasoning, not the mechanics).
+
+### Plans
+
+- Plans are drafted in `/plan` mode (an ephemeral plan file). **Once a plan is confirmed, ask the user
+  whether to save a copy to `docs/PLAN_<plan_name>.md`** and, if yes, write the approved plan there
+  verbatim (e.g. `docs/PLAN_DB_DUMP_SETUP.md`). Note `docs/` is gitignored (see Gotchas), so these
+  copies are local-only — not committed.
 
 ### Migrations
 
@@ -254,6 +261,30 @@ Two independent NR agents, both in the EU account (`6614130`):
 - `.kamal/hooks/post-deploy` records a New Relic **deployment marker** via the local `newrelic-cli`
   (profile `prod_eu_6614130_change_tracking`); it no-ops if the CLI isn't installed on the deploy machine.
 
+### Backups (Backblaze B2)
+
+Off-host DB backups run as the **`backup` Kamal accessory** (`accessories.backup` in `deploy.yml`) —
+`tiredofit/db-backup` (image tag **≥ 4.1.99** bundles PG17 **and** PG18 clients, auto-selected). It
+connects to the `dnd_handbook-db` accessory over the `kamal` network (no `docker exec`), runs a nightly
+`pg_dump` of `dnd_handbook_production` → gzip → **Backblaze B2** (S3-compatible, `DB01_S3_*`), **7-day**
+retention (`DB01_CLEANUP_TIME`, in minutes). A post-backup hook (`.kamal/backup/notify.sh`, mounted to
+`/assets/scripts/post/`; `DB01_POST_SCRIPT_SKIP_X_VERIFY=TRUE`) POSTs a **Discord** embed on every run
+(success/failure) and, if `BACKUP_HEALTHCHECK_URL` is set, pings **healthchecks.io** as a dead-man's-switch
+(the "never ran at all" case the hook itself can't report).
+
+- Boot/replace on a host: `bin/kamal accessory boot backup` (travels with the config like New Relic —
+  no host-side cron/rclone to redo per migration). Logs: `bin/kamal backup-logs`.
+- On-demand run: `bin/kamal backup-now` (alias) or `bin/kamal accessory exec backup "backup-now"`.
+- Restore (break-glass / verify): `bin/db-restore-local <dump.sql.gz> [db]` (into your local Postgres)
+  or `bin/db-restore-remote <dump.sql.gz> [db] [ssh_host]` (onto the prod host via SSH). Restore into a
+  **scratch** DB first to confirm a backup is good (an untested backup isn't a backup). A **local**
+  restore needs your local PG ≥ the dump's server major (PG17+ dumps emit `SET transaction_timeout`,
+  which older PGs reject).
+- Secrets via 1Password (`DND_BOTS/DND_HANDBOOK`): `B2_KEY_ID`, `B2_APP_KEY`, `BACKUP_DISCORD_WEBHOOK`
+  (+ optional `BACKUP_HEALTHCHECK_URL`); `DB01_PASS` reuses `POSTGRES_PASSWORD`. ⚠️ add the 1Password fields
+  **before** referencing them in `.kamal/secrets` (else every secret-reading kamal command fails).
+- Full setup walkthrough (B2 bucket, Discord webhook, healthchecks.io): `docs/PLAN_DB_DUMP_SETUP.md`.
+
 ## MCP servers
 
 `.mcp.json` (committed) configures the Model Context Protocol servers available to Claude Code in
@@ -282,6 +313,13 @@ Project skills live in `.claude/skills/` (committed); `skills-lock.json` pins th
 
 ## Gotchas
 
+- **`docs/` is gitignored on purpose** — everything under it (plan copies like `PLAN_*.md`, runbooks
+  like `HOSTING_MIGRATION.md`) is local-only working notes, **not** in git history; don't `git add` it.
+- A **Postgres major upgrade** (e.g. 17→18) is **not** just bumping the `db` accessory image tag:
+  `postgres:N` won't start on an older major's data dir (`accessories.db` → `directories: data:…`). It
+  needs a logical migration — `pg_dump` from the old major → boot the new image on an **empty** data
+  dir → restore. The `backup` accessory / `bin/db-restore-*` are exactly this tooling, and the backup
+  image already bundles PG17 **and** PG18 clients.
 - The Telegram session / `history_stack` is in **solid_cache**, not Redis.
 - Rebuilding search needs **two** calls — `regenerate_all_searchable_columns!` *and*
   `regenerate_all_multisearchables!`.
