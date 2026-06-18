@@ -67,7 +67,7 @@ ssh:
 
 accessories:
   db:
-    image: postgres:17
+    image: postgres:18
     host: dnd_handbook
     port: "127.0.0.1:5432:5432"
     env:
@@ -79,7 +79,7 @@ accessories:
     files:
       - db/production.sql:/docker-entrypoint-initdb.d/setup.sql
     directories:
-      - data:/var/lib/postgresql/data
+      - data:/var/lib/postgresql
 
   # New Relic host (OS) monitoring. Runs the infra agent as a container instead of
   # a native apt/systemd package so the agent travels with the Kamal config to any
@@ -110,7 +110,7 @@ accessories:
   # BACKUP_HEALTHCHECK_URL is set, pings healthchecks.io as a dead-man's-switch.
   # Boot/replace on a host: bin/kamal accessory boot backup
   backup:
-    image: tiredofit/db-backup:4.1.100   # >=4.1.99 bundles PG17 + PG18 clients (auto-selected)
+    image: tiredofit/db-backup:4.1.100   # >=4.1.99 bundles the PG18 client (auto-selected)
     host: dnd_handbook
     files:
       - .kamal/backup/notify.sh:/assets/scripts/post/notify.sh

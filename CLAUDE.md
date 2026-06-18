@@ -10,7 +10,7 @@ managing content. Bot replies are in Russian; D&D terms are bilingual (RU title 
 | Concern | Choice |
 | --- | --- |
 | Language / framework | Ruby **4.0.5** (`.ruby-version`), Rails **8.1.3** |
-| Database | PostgreSQL 17 (prod `postgres:17` accessory; local dev 16) |
+| Database | PostgreSQL 18 (prod `postgres:18` accessory; local dev 18) |
 | Solid stack | `solid_cache`, `solid_queue`, `solid_cable` — **all on the primary Postgres DB** (`config/database.yml`) |
 | Bot | `telegram-bot` (telegram-bot-rb) |
 | Search | `pg_search` (Postgres full-text, `russian` dictionary) |
@@ -264,7 +264,7 @@ Two independent NR agents, both in the EU account (`6614130`):
 ### Backups (Backblaze B2)
 
 Off-host DB backups run as the **`backup` Kamal accessory** (`accessories.backup` in `deploy.yml`) —
-`tiredofit/db-backup` (image tag **≥ 4.1.99** bundles PG17 **and** PG18 clients, auto-selected). It
+`tiredofit/db-backup` (image tag **≥ 4.1.99** bundles the PG18 client, auto-selected). It
 connects to the `dnd_handbook-db` accessory over the `kamal` network (no `docker exec`), runs a nightly
 `pg_dump` of `dnd_handbook_production` → gzip → **Backblaze B2** (S3-compatible, `DB01_S3_*`), **7-day**
 retention (`DB01_CLEANUP_TIME`, in minutes). A post-backup hook (`.kamal/backup/notify.sh`, mounted to
@@ -278,8 +278,8 @@ retention (`DB01_CLEANUP_TIME`, in minutes). A post-backup hook (`.kamal/backup/
 - Restore (break-glass / verify): `bin/db-restore-local <dump.sql.gz> [db]` (into your local Postgres)
   or `bin/db-restore-remote <dump.sql.gz> [db] [ssh_host]` (onto the prod host via SSH). Restore into a
   **scratch** DB first to confirm a backup is good (an untested backup isn't a backup). A **local**
-  restore needs your local PG ≥ the dump's server major (PG17+ dumps emit `SET transaction_timeout`,
-  which older PGs reject).
+  restore needs your local PG ≥ the dump's server major (modern Postgres dumps emit newer syntax like
+  `SET transaction_timeout` that older servers reject).
 - Secrets via 1Password (`DND_BOTS/DND_HANDBOOK`): `B2_KEY_ID`, `B2_APP_KEY`, `BACKUP_DISCORD_WEBHOOK`
   (+ optional `BACKUP_HEALTHCHECK_URL`); `DB01_PASS` reuses `POSTGRES_PASSWORD`. ⚠️ add the 1Password fields
   **before** referencing them in `.kamal/secrets` (else every secret-reading kamal command fails).
@@ -315,11 +315,16 @@ Project skills live in `.claude/skills/` (committed); `skills-lock.json` pins th
 
 - **`docs/` is gitignored on purpose** — everything under it (plan copies like `PLAN_*.md`, runbooks
   like `HOSTING_MIGRATION.md`) is local-only working notes, **not** in git history; don't `git add` it.
-- A **Postgres major upgrade** (e.g. 17→18) is **not** just bumping the `db` accessory image tag:
+- A **Postgres major upgrade** (e.g. 18→19) is **not** just bumping the `db` accessory image tag:
   `postgres:N` won't start on an older major's data dir (`accessories.db` → `directories: data:…`). It
   needs a logical migration — `pg_dump` from the old major → boot the new image on an **empty** data
-  dir → restore. The `backup` accessory / `bin/db-restore-*` are exactly this tooling, and the backup
-  image already bundles PG17 **and** PG18 clients.
+  dir → restore. The `backup` accessory / `bin/db-restore-*` are exactly this tooling. Runbook for the
+  procedure: `docs/UPGRADING_POSTGRES.md`.
+- **`postgres:18`+ changed the data-dir mount convention** (docker-library PR #1259): the volume must
+  mount at **`/var/lib/postgresql`** (the image then stores the cluster in a version subdir,
+  `…/18/docker`), **NOT** at `/var/lib/postgresql/data` as pre-18 images used — mounting at the old path makes the
+  image refuse to start in a **restart loop**. Prod `accessories.db` is `directories: - data:/var/lib/postgresql`
+  (host cluster lives in `dnd_handbook-db/data/18/docker`). This bites every future major bump too.
 - The Telegram session / `history_stack` is in **solid_cache**, not Redis.
 - Rebuilding search needs **two** calls — `regenerate_all_searchable_columns!` *and*
   `regenerate_all_multisearchables!`.
