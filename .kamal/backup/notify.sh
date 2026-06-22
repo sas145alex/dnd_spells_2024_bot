@@ -8,6 +8,10 @@
 # $BACKUP_HEALTHCHECK_URL is set, pings healthchecks.io ($URL on success, $URL/fail on failure)
 # as a dead-man's-switch — the one failure mode a post-hook can't self-report is "the
 # backup never ran at all", which healthchecks catches.
+#
+# FAILED if EITHER the dump exit code ($1) OR the move/upload exit code ($11) is non-zero. The image
+# passes them separately (see /assets/functions/10-db-backup, tiredofit/db-backup 4.1.x): a failed S3
+# upload leaves $1=0, so checking only $1 would post a false "OK".
 set -u
 
 exit_code="${1:-1}"
@@ -15,8 +19,9 @@ db_name="${4:-?}"
 duration="${7:-?}"
 filename="${8:-?}"
 filesize="${9:-?}"
+move_exit_code="${11:-0}"
 
-if [ "$exit_code" = "0" ]; then
+if [ "$exit_code" = "0" ] && [ "$move_exit_code" = "0" ]; then
   title="✅ DB backup OK"
   color=5763719
   hc_suffix=""
@@ -25,7 +30,7 @@ else
   title="❌ DB backup FAILED"
   color=15548997
   hc_suffix="/fail"
-  desc="DB: ${db_name}\\nExit code: ${exit_code}\\nCheck: kamal accessory logs backup"
+  desc="DB: ${db_name}\\nDump exit: ${exit_code}  Upload exit: ${move_exit_code}\\nCheck: kamal accessory logs backup"
 fi
 
 if [ -n "${BACKUP_DISCORD_WEBHOOK:-}" ]; then
