@@ -131,6 +131,9 @@ accessories:
         DB01_S3_HOST: s3.eu-central-003.backblazeb2.com  # the Endpoint shown on the B2 bucket
         DB01_S3_PATH: dnd_handbook
         DB01_POST_SCRIPT_SKIP_X_VERIFY: "TRUE"
+        # Image defaults to Zabbix monitoring on; we have no Zabbix server, so it errors and adds a
+        # ~10s delay every run. Off.
+        CONTAINER_ENABLE_MONITORING: "FALSE"
       secret:
         - DB01_PASS
         - DB01_S3_KEY_ID
