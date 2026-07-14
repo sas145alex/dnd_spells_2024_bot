@@ -66,7 +66,9 @@ RSpec.describe Feat do
         "general" => "general",
         "origin" => "origin",
         "fighting_style" => "fighting_style",
-        "epic_boon" => "epic_boon"
+        "epic_boon" => "epic_boon",
+        "dark_gift" => "dark_gift",
+        "dragonmark" => "dragonmark"
       )
     end
   end

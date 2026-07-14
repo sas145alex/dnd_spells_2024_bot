@@ -24,7 +24,9 @@ class Feat < ApplicationRecord
     general: "general",
     origin: "origin",
     fighting_style: "fighting_style",
-    epic_boon: "epic_boon"
+    epic_boon: "epic_boon",
+    dark_gift: "dark_gift",
+    dragonmark: "dragonmark"
   }
 
   def self.ransackable_associations(auth_object = nil)
