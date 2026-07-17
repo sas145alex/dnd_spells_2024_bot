@@ -76,6 +76,16 @@ RSpec.describe BotCommands::FeatSearch do
         parse_mode: "HTML"
       )
     end
+
+    context "when the user may use favorites" do
+      subject(:result) { described_class.call(input_value: input_value, user: create(:telegram_user, :admin)) }
+
+      it "prepends an add-to-favorites button on the card" do
+        keyboard = result[:reply_markup][:inline_keyboard]
+
+        expect(keyboard.first).to eq([{text: "⭐ В избранное", callback_data: "fav:#{feat.to_global_id}"}])
+      end
+    end
   end
 
   context "when the characteristic-search subcommand is selected" do

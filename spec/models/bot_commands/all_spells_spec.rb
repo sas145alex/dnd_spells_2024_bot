@@ -2,11 +2,12 @@ require "rails_helper"
 
 RSpec.describe BotCommands::AllSpells do
   describe "#call" do
-    subject(:result) { described_class.call(session: session, input_value: input_value, page: page) }
+    subject(:result) { described_class.call(session: session, input_value: input_value, page: page, user: user) }
 
     let(:session) { {} }
     let(:input_value) { nil }
     let(:page) { nil }
+    let(:user) { nil }
 
     context "when listing published spells without filters" do
       let!(:cantrip) { create(:spell, :published, level: 0, title: "Брызги кислоты") }
@@ -31,6 +32,33 @@ RSpec.describe BotCommands::AllSpells do
 
         expect(keyboard).to include([{text: "Фильтры 📃", callback_data: "all_spells_filters:"}])
         expect(keyboard).to include([{text: "Ко всем разделам", callback_data: "sections:"}])
+      end
+    end
+
+    context "when the listing user has favorited one of the spells" do
+      let!(:favorited) { create(:spell, :published, level: 0, title: "Брызги кислоты") }
+      let!(:plain) { create(:spell, :published, level: 5, title: "Облако смерти") }
+      let(:user) { create(:telegram_user, :admin) }
+
+      before { create(:favorite, telegram_user: user, favoritable: favorited) }
+
+      it "stars only the favorited spell's row" do
+        keyboard = result.first[:answer][:reply_markup][:inline_keyboard]
+        spell_buttons = keyboard.flatten.select { |b| b[:callback_data].to_s.start_with?("all_spells:gid") }
+
+        expect(spell_buttons.map { |b| b[:text] })
+          .to eq(["#{Favorites::Marks::SYMBOL} #{favorited.decorate.title}", plain.decorate.title])
+      end
+
+      context "when the user may not use favorites" do
+        let(:user) { create(:telegram_user) }
+
+        it "leaves every row unstarred" do
+          keyboard = result.first[:answer][:reply_markup][:inline_keyboard]
+          spell_buttons = keyboard.flatten.select { |b| b[:callback_data].to_s.start_with?("all_spells:gid") }
+
+          expect(spell_buttons.map { |b| b[:text] }).to eq([favorited.decorate.title, plain.decorate.title])
+        end
       end
     end
 

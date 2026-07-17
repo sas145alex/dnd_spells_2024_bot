@@ -9,8 +9,6 @@ module Presenters
       option :to_global_id
     end
 
-    EMOJI = "⭐️"
-
     def initialize(character_klass:)
       @character_klass = character_klass
     end

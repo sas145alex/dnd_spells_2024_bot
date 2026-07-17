@@ -22,8 +22,9 @@ module BotCommands
       end
     end
 
-    def initialize(input_value: nil)
+    def initialize(input_value: nil, user: nil)
       @input_value = input_value
+      @user = user
     end
 
     private
@@ -83,40 +84,16 @@ module BotCommands
 
         #{selected_object.description_for_telegram}
       HTML
-      mentions = keyboard_mentions_options(selected_object)
-      inline_keyboard = mentions.in_groups_of(1, false)
-      inline_keyboard.append([go_back_button])
-      reply_markup = {inline_keyboard: inline_keyboard}
-
-      {
-        text: text,
-        reply_markup: reply_markup,
-        parse_mode: parse_mode
-      }
+      Presenters::LeafCard.call(object: selected_object, user: user, text: text, mention_columns: 1)
     end
 
     def give_general_info_of_section
-      text = selected_object.description_for_telegram
-      mentions = keyboard_mentions_options(selected_object)
-      inline_keyboard = mentions.in_groups_of(1, false)
-      inline_keyboard.append([go_back_button])
-      reply_markup = {inline_keyboard: inline_keyboard}
-
-      {
-        text: text,
-        reply_markup: reply_markup,
-        parse_mode: parse_mode
-      }
+      Presenters::LeafCard.call(object: selected_object, user: user, mention_columns: 1)
     end
 
     def provide_characteristics
       text = "Выбере характеристиру, которую хотите улучшить"
-      options = Characteristic.ordered.map do |item|
-        {
-          text: item.title,
-          callback_data: "#{callback_prefix}:#{item.to_global_id}"
-        }
-      end
+      options = keyboard_options(Characteristic.ordered)
       inline_keyboard = options.in_groups_of(2, false)
       inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}

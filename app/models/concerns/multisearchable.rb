@@ -42,6 +42,10 @@ module Multisearchable
   end
 
   included do
+    # Everything reachable via global search is also favoritable — the two sets are identical,
+    # so folding it in here keeps every current (and future) searchable model favoritable.
+    include Favoritable
+
     include PgSearch::Model
 
     before_validation :regenerate_searchable_columns

@@ -42,11 +42,12 @@ module BotCommands
       end
     end
 
-    def initialize(payload: {}, spell_gid: nil, search_mode_activated: true)
+    def initialize(payload: {}, spell_gid: nil, search_mode_activated: true, user: nil)
       @payload = payload
       @input_value = payload["text"].to_s.sub("/spell", "").strip
       @spell_gid = spell_gid
       @search_mode_activated = search_mode_activated
+      @user = user
     end
 
     private
@@ -57,23 +58,7 @@ module BotCommands
     attr_reader :search_mode_activated
 
     def render_spell_info
-      text = selected_spell.description_for_telegram
-      parse_mode = selected_spell.parse_mode_for_telegram
-      mentions = selected_spell.mentions.map do |mention|
-        {
-          text: mention.another_mentionable.decorate.title,
-          callback_data: "pick_mention:#{mention.id}"
-        }
-      end
-
-      inline_keyboard = mentions.in_groups_of(4, false)
-      reply_markup = {inline_keyboard: inline_keyboard}
-
-      {
-        text: text,
-        reply_markup: reply_markup,
-        parse_mode: parse_mode
-      }
+      Presenters::LeafCard.call(object: selected_spell, user: user, mention_columns: 4, back_button: false)
     end
 
     def render_search_results

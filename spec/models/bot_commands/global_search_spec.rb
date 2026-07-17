@@ -64,6 +64,16 @@ RSpec.describe BotCommands::GlobalSearch do
 
         expect(Telegram::SpellMetricsJob).to have_received(:perform_later).with(spell_gid: spell.to_global_id.to_s)
       end
+
+      context "when the user may use favorites" do
+        let(:user) { create(:telegram_user, :admin) }
+
+        it "offers an add-to-favorites button on the card" do
+          keyboard = result.first[:answer][:reply_markup][:inline_keyboard]
+
+          expect(keyboard).to include([{text: "⭐ В избранное", callback_data: "fav:#{spell.to_global_id}"}])
+        end
+      end
     end
 
     context "when the selected record has a blank description" do

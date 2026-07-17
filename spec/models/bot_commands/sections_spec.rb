@@ -45,5 +45,25 @@ RSpec.describe BotCommands::Sections do
         expect(result.first[:type]).to eq(:edit)
       end
     end
+
+    describe "the favorites section" do
+      subject(:keyboard) { described_class.call(user: user).first[:answer][:reply_markup][:inline_keyboard] }
+
+      context "for an admin user" do
+        let(:user) { create(:telegram_user, :admin) }
+
+        it "appends the favorites section as the last row" do
+          expect(keyboard.last).to eq([{text: "⭐ Избранное", callback_data: "favorites:"}])
+        end
+      end
+
+      context "for a non-admin user" do
+        let(:user) { create(:telegram_user) }
+
+        it "does not show the favorites section" do
+          expect(keyboard.flatten).not_to include(hash_including(callback_data: "favorites:"))
+        end
+      end
+    end
   end
 end

@@ -5,10 +5,9 @@ module BotCommands
     DOCUMENTS_PER_PAGE = 10
     PAGE_DELIMITER = "||".freeze
     CALLBACK_PREFIX = "search".freeze
-    CALLBACK_EN_PREFIX = "search_en".freeze
     CALLBACK_PAGE_PREFIX = "#{CALLBACK_PREFIX}_page".freeze
-    RU_SYMBOL = "🇷🇺".freeze
-    EN_SYMBOL = "🇺🇸".freeze
+    # The EN half of a card's RU/EN toggle (Presenters::LeafCard) routes back here.
+    CALLBACK_EN_PREFIX = "#{CALLBACK_PREFIX}_en".freeze
 
     def self.normalize_input(raw_input)
       raw_input.to_s.strip.gsub(/\s+/, " ").gsub(/^(\/\w+)(@\w+)?(\s+)?/, "").strip
@@ -98,34 +97,15 @@ module BotCommands
     attr_reader :record_gid
     attr_reader :page
     attr_reader :page_clicked
-    attr_reader :user
 
     def render_record_info
-      description, header, missing_text = if locale == :ru
-        [selected_object.description_for_telegram, selected_object.title, "Описание отсутствует."]
-      else
-        [selected_object.original_description_for_telegram, selected_object.original_title, "No description available."]
-      end
-      text = description.presence || "<b>#{header}</b>\n\n#{missing_text}"
-      mentions = keyboard_mentions_options(selected_object)
-      inline_keyboard = mentions.in_groups_of(2, false)
-      inline_keyboard.prepend([link_to_change_locale]) if selected_object.support_other_languages?
-      reply_markup = {inline_keyboard: inline_keyboard}
-
-      {
-        text: text,
-        reply_markup: reply_markup,
-        parse_mode: parse_mode
-      }
-    end
-
-    def link_to_change_locale
-      change_locale_text = (locale == :ru) ? "EN #{EN_SYMBOL}" : "RU #{RU_SYMBOL}"
-      change_locale_prefix = (locale == :ru) ? callback_en_prefix : callback_prefix
-      {
-        text: change_locale_text,
-        callback_data: "#{change_locale_prefix}:#{selected_object.to_global_id}"
-      }
+      Presenters::LeafCard.call(
+        object: selected_object,
+        user: user,
+        locale: locale,
+        back_button: false,
+        locale_toggle: true
+      )
     end
 
     def gather_metrics_for_selected_object
@@ -214,10 +194,6 @@ module BotCommands
 
     def callback_prefix
       CALLBACK_PREFIX
-    end
-
-    def callback_en_prefix
-      CALLBACK_EN_PREFIX
     end
 
     def callback_page_prefix

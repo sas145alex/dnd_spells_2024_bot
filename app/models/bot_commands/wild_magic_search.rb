@@ -29,15 +29,7 @@ module BotCommands
     end
 
     def reply_markup
-      mentions = wild_magic.mentions.map do |mention|
-        {
-          text: mention.another_mentionable.decorate.title,
-          callback_data: "pick_mention:#{mention.id}"
-        }
-      end
-
-      inline_keyboard = mentions.in_groups_of(4, false)
-      {inline_keyboard: inline_keyboard}
+      {inline_keyboard: Presenters::MentionButtons.for(wild_magic).in_groups_of(4, false)}
     end
 
     def parse_mode

@@ -212,6 +212,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_21_080407) do
     t.index ["updated_by_id"], name: "index_equipment_items_on_updated_by_id"
   end
 
+  create_table "favorites", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "favoritable_id", null: false
+    t.string "favoritable_type", null: false
+    t.bigint "telegram_user_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["favoritable_type", "favoritable_id"], name: "index_favorites_on_favoritable"
+    t.index ["telegram_user_id", "favoritable_type", "favoritable_id"], name: "index_favorites_uniqueness", unique: true
+    t.index ["telegram_user_id"], name: "index_favorites_on_telegram_user_id"
+  end
+
   create_table "feats", force: :cascade do |t|
     t.string "category", null: false
     t.datetime "created_at", null: false
@@ -564,6 +575,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_21_080407) do
   add_foreign_key "creatures", "admin_users", column: "updated_by_id"
   add_foreign_key "equipment_items", "admin_users", column: "created_by_id"
   add_foreign_key "equipment_items", "admin_users", column: "updated_by_id"
+  add_foreign_key "favorites", "telegram_users"
   add_foreign_key "feats", "admin_users", column: "created_by_id"
   add_foreign_key "feats", "admin_users", column: "updated_by_id"
   add_foreign_key "glossary_categories", "glossary_categories", column: "parent_category_id"

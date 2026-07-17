@@ -16,9 +16,10 @@ module BotCommands
       [{type: response_type, answer: all_sections}]
     end
 
-    def initialize(input_value: nil, response_type: :message)
+    def initialize(input_value: nil, response_type: :message, user: nil)
       @input_value = input_value || ""
       @response_type = response_type
+      @user = user
     end
 
     private
@@ -43,13 +44,18 @@ module BotCommands
     end
 
     def keyboard_options
-      variants = AVAILABLE_SECTIONS
-      variants.map do |section_id, section_title|
+      options = AVAILABLE_SECTIONS.map do |section_id, section_title|
         {
           text: section_title,
           callback_data: "#{section_id}:"
         }
       end
+      options << favorites_option if ::Favorites::Policy.can_use?(user)
+      options
+    end
+
+    def favorites_option
+      {text: FavoritesList::HEADER, callback_data: "#{FavoritesList::CALLBACK_PREFIX}:"}
     end
 
     def callback_prefix

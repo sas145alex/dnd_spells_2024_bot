@@ -12,9 +12,10 @@ module BotCommands
       end
     end
 
-    def initialize(input_value: nil, subklass_gid: nil)
+    def initialize(input_value: nil, subklass_gid: nil, user: nil)
       @input_value = input_value
       @subklass_gid = subklass_gid
+      @user = user
     end
 
     private
@@ -60,49 +61,37 @@ module BotCommands
 
         #{klass_record.description_for_telegram}
       HTML
-      mentions = keyboard_mentions_options(selected_object)
-      inline_keyboard = mentions.in_groups_of(2, false)
-      if selected_object.use_invocations?
-        inline_keyboard.append(
-          [{text: Invocation.model_name.human(count: 999), callback_data: "invocations:"}]
-        )
-      elsif selected_object.use_metamagic?
-        inline_keyboard.append(
-          [{text: Metamagic.model_name.human(count: 999), callback_data: "metamagics:"}]
-        )
-      elsif selected_object.use_maneuvers?
-        inline_keyboard.append(
-          [{text: Maneuver.model_name.human(count: 999), callback_data: "maneuvers:"}]
-        )
-      elsif selected_object.use_psionic_powers?
-        inline_keyboard.append(
-          [{text: PsionicPower.model_name.human(count: 999), callback_data: "psionic_powers:"}]
-        )
-      elsif selected_object.use_plans?
-        inline_keyboard.append(
-          [{text: Plan.model_name.human(count: 999), callback_data: "plans:"}]
-        )
-      elsif selected_object.use_arcane_shots?
-        inline_keyboard.append(
-          [{text: ArcaneShot.model_name.human(count: 999), callback_data: "arcane_shots:"}]
-        )
-      end
-      if selected_object.has_spells?
-        linked_spells_button = {
-          text: "Доступные заклинания",
-          callback_data: "prefill_klass_spells:#{selected_object.to_global_id}"
-        }
-        inline_keyboard.append([linked_spells_button])
-      end
-      inline_keyboard.append([{text: "Умения", callback_data: "abilities:#{selected_object.to_global_id}"}])
-      inline_keyboard.append([go_back_button])
-      reply_markup = {inline_keyboard: inline_keyboard}
-
-      {
+      Presenters::LeafCard.call(
+        object: selected_object,
+        user: user,
         text: text,
-        reply_markup: reply_markup,
-        parse_mode: parse_mode
-      }
+        extra_rows: subklass_extra_rows
+      )
+    end
+
+    def subklass_extra_rows
+      rows = []
+      rows << [subresource_button] if subresource_button
+      if selected_object.has_spells?
+        rows << [{text: "Доступные заклинания", callback_data: "prefill_klass_spells:#{selected_object.to_global_id}"}]
+      end
+      rows << [{text: "Умения", callback_data: "abilities:#{selected_object.to_global_id}"}]
+      rows
+    end
+
+    def subresource_button
+      resource =
+        if selected_object.use_invocations? then [Invocation, "invocations"]
+        elsif selected_object.use_metamagic? then [Metamagic, "metamagics"]
+        elsif selected_object.use_maneuvers? then [Maneuver, "maneuvers"]
+        elsif selected_object.use_psionic_powers? then [PsionicPower, "psionic_powers"]
+        elsif selected_object.use_plans? then [Plan, "plans"]
+        elsif selected_object.use_arcane_shots? then [ArcaneShot, "arcane_shots"]
+        end
+      return unless resource
+
+      klass, callback = resource
+      {text: klass.model_name.human(count: 999), callback_data: "#{callback}:"}
     end
 
     def base_klass_selected?

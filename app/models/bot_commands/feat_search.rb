@@ -16,8 +16,9 @@ module BotCommands
       end
     end
 
-    def initialize(input_value: nil)
+    def initialize(input_value: nil, user: nil)
       @input_value = input_value
+      @user = user
     end
 
     private
@@ -45,12 +46,7 @@ module BotCommands
 
     def provide_feats_by_category
       feats = feat_scope.where(category: input_value)
-      options = feats.map do |item|
-        {
-          text: item.title,
-          callback_data: "#{callback_prefix}:#{item.to_global_id}"
-        }
-      end
+      options = keyboard_options(feats)
       inline_keyboard = options.in_groups_of(2, false)
 
       if input_value == "general"
@@ -71,12 +67,7 @@ module BotCommands
       ids = Segment.where(attribute_resource: selected_object, resource_type: "Feat").pluck(:resource_id)
       feats = feat_scope.where(id: ids)
       feats = feats.where(category: "general")
-      options = feats.map do |item|
-        {
-          text: item.title,
-          callback_data: "#{callback_prefix}:#{item.to_global_id}"
-        }
-      end
+      options = keyboard_options(feats)
       inline_keyboard = options.in_groups_of(2, false)
       inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}
@@ -95,26 +86,12 @@ module BotCommands
 
         #{selected_object.description_for_telegram}
       HTML
-      mentions = keyboard_mentions_options(selected_object)
-      inline_keyboard = mentions.in_groups_of(4, false)
-      inline_keyboard.append([go_back_button])
-      reply_markup = {inline_keyboard: inline_keyboard}
-
-      {
-        text: text,
-        reply_markup: reply_markup,
-        parse_mode: parse_mode
-      }
+      Presenters::LeafCard.call(object: selected_object, user: user, text: text, mention_columns: 4)
     end
 
     def provide_characteristics
       text = "Выбере характеристиру, которую хотите улучшить"
-      options = Characteristic.ordered.map do |item|
-        {
-          text: item.title,
-          callback_data: "#{callback_prefix}:#{item.to_global_id}"
-        }
-      end
+      options = keyboard_options(Characteristic.ordered)
       inline_keyboard = options.in_groups_of(2, false)
       inline_keyboard.append([go_back_button])
       reply_markup = {inline_keyboard: inline_keyboard}

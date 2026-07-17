@@ -27,7 +27,6 @@ module BotCommands
       private
 
       attr_reader :selected_klass
-      attr_reader :user
 
       def provide_filters
         text = "Разделы справочника по которым проводится поиск"

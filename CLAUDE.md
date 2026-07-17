@@ -105,11 +105,16 @@ When an operation or model uses `ActiveModel::Validations`, name the methods reg
 
 All bot commands live in `app/models/bot_commands/` and inherit `BaseCommand < ApplicationOperation`.
 `BaseCommand` (`base_command.rb`) provides shared helpers:
-- `keyboard_options(variants, forced_callback_prefix: nil, title_method: :title)` →
+- `keyboard_options(variants, forced_callback_prefix: nil, title_method: :title, mark_favorites: true)` →
   `[{text:, callback_data: "<prefix>:<global_id>"}]`. Callback data convention is **`prefix:global_id`**.
-- `keyboard_mentions_options(object)` → buttons with `callback_data: "pick_mention:<id>"`.
-- `go_back_button` → `{text: "Назад", callback_data: "go_back:go_back"}`.
+  Rows already in the user's favorites are prefixed with `Favorites::Marks::SYMBOL` (one query per
+  screen, keyed by GlobalID so PORO rows work too); pass `mark_favorites: false` where every row is a
+  favorite anyway (`FavoritesList`). Build **every** record list through this helper so it gets marked.
+- `links_to_pages(paged_scope, page_prefix = "<callback_prefix>_page")` → the prev/next page row for
+  a Kaminari-paged screen (mention buttons come from `Presenters::MentionButtons.for` instead).
+- `go_back_button` → `Presenters::LeafCard::GO_BACK_BUTTON`, the one definition of the "Назад" button.
 - `selected_object` → `GlobalID::Locator.locate(gid_value)&.decorate` (already decorated).
+- `user` → the current `TelegramUser`, threaded in by every command that renders a card.
 - `callback_prefix` **raises `NotImplementedError`** — every subclass must override it.
 - `parse_mode` → `"HTML"`, `locale` → `"ru"`.
 
@@ -140,6 +145,19 @@ After bulk content edits, rebuild the search index from a Rails console using **
 Each content model has a `*Decorator < ApplicationDecorator` (Draper). Decorators provide
 `description_for_telegram` (Markdown→HTML via `FormatChanger`, `lib/format_changer.rb`), `title`,
 `global_search_title`, and `parse_mode_for_telegram`. **Always `.decorate` before sending to Telegram.**
+
+## Card rendering (Presenters::LeafCard)
+
+Every leaf/detail "card" (the screen showing one record's description) is rendered by
+`Presenters::LeafCard.call(object:, user:, ...)` — **not** hand-built. It centralizes the shared
+keyboard so every card looks the same: the favorite toggle, the RU/EN locale toggle, mention rows,
+and the "Назад" button. Options: `text:` (override the default decorated description), `back_button:`,
+`locale_toggle:`, `mention_columns:`. When a card needs extra navigation buttons, pass them as
+`extra_rows:` (inserted between the mention rows and "Назад") instead of hand-building the keyboard —
+see `character_klass_search.rb`, whose subclass card has extra tiers. Mention buttons come from the
+shared `Presenters::MentionButtons.for` (which preloads `another_mentionable` to avoid an N+1).
+Because `Favoritable` is folded into `Multisearchable`, routing a card through `LeafCard` is what
+makes it favoritable in the UI.
 
 ## Background jobs
 
@@ -215,10 +233,11 @@ model (`Maneuver`) and wire it in:
    to index/show/form/filters/`permit_params`.
 6. **Bot command** `app/models/bot_commands/<name>_search.rb < BaseCommand` — multi-level navigation
    lives in **one** command, dispatched on `input_value` (blank → top groups; an enum key/token → a
-   sub-list; a GlobalID → the card). See `EquipmentSearch`/`FeatSearch`. Build buttons with
-   `keyboard_options`, end every screen with `go_back_button`, override `callback_prefix`. Extra menu
-   tiers that don't map to a column can be **hardcoded pseudo-layers** (string tokens kept distinct
-   from enum keys).
+   sub-list; a GlobalID → the card). See `EquipmentSearch`/`FeatSearch`. Build list/menu buttons with
+   `keyboard_options` and end those screens with `go_back_button`; render the **leaf card** via
+   `Presenters::LeafCard.call` (see *Card rendering*) so it gets the favorite button, locale toggle,
+   mentions and Назад for free. Override `callback_prefix`. Extra menu tiers that don't map to a column
+   can be **hardcoded pseudo-layers** (string tokens kept distinct from enum keys).
 7. **Wire `/sections`** — add `"<prefix>" => "Label"` to `BotCommands::Sections::AVAILABLE_SECTIONS`
    **and** define `<prefix>_callback_query` in `TelegramController` (the gem routes `"<prefix>:…"`
    callbacks there by prefix — no other registration). Update `sections_spec.rb`.
@@ -230,6 +249,21 @@ model (`Maneuver`) and wire it in:
 A new `Multisearchable` model **auto-joins** full-text search, `/search`, and the search-filters UI
 (both driven by `Multisearchable.used_klasses`) — no manual registration beyond step 4's
 `model_name.human`.
+
+## Adding an interactive callback (toggles, in-place edits)
+
+Callbacks route by prefix: `"<prefix>:<rest>"` → `<prefix>_callback_query(rest)`. The gem splits
+with `split(':', 2)`, so a GlobalID (full of colons) arrives intact as the single arg.
+
+- **In-place keyboard edits and toasts bypass the answer-hash protocol.** `AnswerProcessor` only
+  handles `:edit`(text) / `:reply` / `respond_with`; to flip just the keyboard call
+  `edit_message :reply_markup, reply_markup: {...}` directly in the action, and for a popup call
+  `answer_callback_query(text)`. See `fav_callback_query` + `BotCommands::FavoritesToggle`, which
+  rebuild the card's keyboard from the callback payload's own `inline_keyboard` (string-keyed JSON)
+  so the toggle needn't know how the card was originally rendered.
+- **State-mutating callbacks MUST be listed in `remember_history!`'s `except:`** — otherwise "Назад"
+  replays the mutation (e.g. toggles the favorite back). `fav_callback_query` is excluded for this
+  reason; navigation callbacks (list/card screens) stay remembered so Go Back walks the stack.
 
 ## Deployment & environment
 
@@ -329,6 +363,10 @@ Project skills live in `.claude/skills/` (committed); `skills-lock.json` pins th
 - Rebuilding search needs **two** calls — `regenerate_all_searchable_columns!` *and*
   `regenerate_all_multisearchables!`.
 - A new `BotCommands` subclass must override `callback_prefix` or it raises `NotImplementedError`.
+- Don't namespace a bot command under a module matching a top-level constant
+  (`BotCommands::Favorites::List` shadows `::Favorites::Policy` — Ruby resolves `Favorites::Policy`
+  to `BotCommands::Favorites::Policy` and raises `NameError`). Use flat names
+  (`BotCommands::FavoritesList`) or fully-qualify with a leading `::`.
 - A new table's `searchable_title` column is **yours to create** (fold it into `create_table`); the
   `Multisearchable` `before_validation` only *populates* it.
 - `DISTINCT … pluck` on a `Multisearchable` model collides with the `ordered` scope's `ORDER BY title`

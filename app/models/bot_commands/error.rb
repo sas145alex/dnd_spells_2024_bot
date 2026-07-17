@@ -17,7 +17,7 @@ module BotCommands
 
     private
 
-    attr_reader :user, :input_value
+    attr_reader :input_value
 
     def message
       input_value.presence || DEFAULT_MESSAGE

@@ -25,8 +25,9 @@ module BotCommands
       end
     end
 
-    def initialize(input_value: nil)
+    def initialize(input_value: nil, user: nil)
       @input_value = input_value
+      @user = user
     end
 
     private
@@ -64,7 +65,7 @@ module BotCommands
 
     def provide_text_card(command_record)
       decorated = command_record.decorate
-      mentions = keyboard_mentions_options(decorated)
+      mentions = Presenters::MentionButtons.for(decorated)
       screen(decorated.description_for_telegram, mentions.in_groups_of(2, false))
     end
 
@@ -80,8 +81,7 @@ module BotCommands
     end
 
     def provide_detailed_bastion
-      mentions = keyboard_mentions_options(selected_object)
-      screen(selected_object.description_for_telegram, mentions.in_groups_of(2, false))
+      Presenters::LeafCard.call(object: selected_object, user: user)
     end
 
     def screen(text, inline_keyboard)

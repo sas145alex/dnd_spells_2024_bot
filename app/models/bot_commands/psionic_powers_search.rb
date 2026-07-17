@@ -10,8 +10,9 @@ module BotCommands
       end
     end
 
-    def initialize(input_value: nil)
+    def initialize(input_value: nil, user: nil)
       @input_value = input_value
+      @user = user
     end
 
     private
@@ -34,17 +35,7 @@ module BotCommands
     end
 
     def provide_psionic_power_description
-      text = selected_object.description_for_telegram
-      mentions = keyboard_mentions_options(selected_object)
-      inline_keyboard = mentions.in_groups_of(2, false)
-      inline_keyboard.append([go_back_button])
-      reply_markup = {inline_keyboard: inline_keyboard}
-
-      {
-        text: text,
-        reply_markup: reply_markup,
-        parse_mode: parse_mode
-      }
+      Presenters::LeafCard.call(object: selected_object, user: user)
     end
 
     def psionic_power_selected?

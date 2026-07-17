@@ -261,6 +261,61 @@ RSpec.describe TelegramController do
     end
   end
 
+  describe "the fav toggle callback query" do
+    let!(:admin) { create(:telegram_user, :admin, external_id: external_id) }
+    let(:spell) { create(:spell, published_at: Time.current) }
+    let(:update) do
+      {
+        "callback_query" => {
+          "id" => "1",
+          "data" => "fav:#{spell.to_global_id}",
+          "from" => {"id" => external_id},
+          "message" => {
+            "chat" => {"id" => external_id},
+            "message_id" => 5,
+            "reply_markup" => {
+              "inline_keyboard" => [[{"text" => "⭐ В избранное", "callback_data" => "fav:#{spell.to_global_id}"}]]
+            }
+          }
+        }
+      }
+    end
+
+    it "adds the record to the user's favorites" do
+      expect { dispatch }.to change { admin.favorites.count }.by(1)
+    end
+
+    it "answers the callback query and edits the keyboard in place" do
+      dispatch
+
+      expect(bot.requests[:answerCallbackQuery].last).to include(text: "Добавлено в избранное ⭐")
+      expect(bot.requests[:editMessageReplyMarkup]).to be_present
+    end
+  end
+
+  describe "the favorites list callback query" do
+    let!(:admin) { create(:telegram_user, :admin, external_id: external_id) }
+    let(:spell) { create(:spell, published_at: Time.current) }
+    let(:update) do
+      {
+        "callback_query" => {
+          "id" => "1",
+          "data" => "favorites:",
+          "from" => {"id" => external_id},
+          "message" => {"chat" => {"id" => external_id}, "message_id" => 5}
+        }
+      }
+    end
+
+    before { create(:favorite, telegram_user: admin, favoritable: spell) }
+
+    it "edits the message into the favorites list" do
+      dispatch
+
+      expect(bot.requests[:editMessageText].last).to include(text: include("Избранное"))
+    end
+  end
+
   describe "current_user resolution" do
     let(:text) { "zzz_nonexistent_query_zzz" }
 

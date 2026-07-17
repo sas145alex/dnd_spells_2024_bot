@@ -7,6 +7,9 @@
 # (downcased, ё→е, whitespace-collapsed) and that `regenerate_searchable_columns!`
 # rebuilds it from the current title/original_title.
 RSpec.shared_examples "multisearchable" do |factory_name|
+  # Multisearchable includes Favoritable, so every searchable model is favoritable by definition.
+  it_behaves_like "favoritable", factory_name
+
   describe "Multisearchable" do
     subject(:record) { create(factory_name, title: title, original_title: original_title) }
 

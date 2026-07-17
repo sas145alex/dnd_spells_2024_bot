@@ -25,6 +25,7 @@ class TelegramController < BaseTelegramController
     roll!
     roll_callback_query
     search_filters_callback_query
+    fav_callback_query
   ]
 
   def start!(*_args)
@@ -67,13 +68,13 @@ class TelegramController < BaseTelegramController
   def spell!(*_args)
     save_context("spell!") unless message_from_chat?
 
-    answer_params = BotCommands::SpellSearch.call(payload: payload, search_mode_activated: !message_from_chat?)
+    answer_params = BotCommands::SpellSearch.call(payload: payload, search_mode_activated: !message_from_chat?, user: current_user)
     respond_with :message, answer_params
   end
 
   # @deprecated
   def spell_callback_query(spell_gid = nil, *_args)
-    answer_params = BotCommands::SpellSearch.call(payload: payload, spell_gid: spell_gid)
+    answer_params = BotCommands::SpellSearch.call(payload: payload, spell_gid: spell_gid, user: current_user)
     respond_with :message, answer_params
     Telegram::SpellMetricsJob.perform_later(spell_gid: spell_gid.to_s)
   end
@@ -119,13 +120,35 @@ class TelegramController < BaseTelegramController
 
   def sections!(*_args)
     @history_action_name = "sections_callback_query"
-    answer_messages = BotCommands::Sections.call(input_value: nil)
+    answer_messages = BotCommands::Sections.call(input_value: nil, user: current_user)
     process_answer_messages(answer_messages)
   end
 
   def sections_callback_query(*_args)
-    answer_messages = BotCommands::Sections.call(input_value: nil, response_type: :edit)
+    answer_messages = BotCommands::Sections.call(input_value: nil, response_type: :edit, user: current_user)
     process_answer_messages(answer_messages)
+  end
+
+  def favorites_callback_query(input_value = nil, *_args)
+    answer_messages = BotCommands::FavoritesList.call(input_value: input_value, user: current_user)
+    process_answer_messages(answer_messages)
+  end
+
+  def favorites_page_callback_query(page = nil, *_args)
+    answer_messages = BotCommands::FavoritesList.call(input_value: nil, page: page, user: current_user)
+    process_answer_messages(answer_messages)
+  end
+
+  def fav_callback_query(gid = nil, *_args)
+    result = BotCommands::FavoritesToggle.call(
+      user: current_user,
+      gid: gid,
+      inline_keyboard: payload.dig("message", "reply_markup", "inline_keyboard")
+    )
+    answer_callback_query(result[:toast])
+    return if result[:inline_keyboard].blank?
+
+    edit_message :reply_markup, reply_markup: {inline_keyboard: result[:inline_keyboard]}
   end
 
   def roll_page_callback_query(page = nil, *_args)
@@ -134,92 +157,92 @@ class TelegramController < BaseTelegramController
   end
 
   def feat_callback_query(input_value = nil, *_args)
-    answer_params = BotCommands::FeatSearch.call(input_value: input_value)
+    answer_params = BotCommands::FeatSearch.call(input_value: input_value, user: current_user)
     edit_message :text, answer_params
   end
 
   def class_callback_query(input_value = nil, *_args)
-    answer_params = BotCommands::CharacterKlassSearch.call(input_value: input_value)
+    answer_params = BotCommands::CharacterKlassSearch.call(input_value: input_value, user: current_user)
     edit_message :text, answer_params
   end
 
   def subclass_callback_query(subklass_gid = nil, *_args)
-    answer_params = BotCommands::CharacterKlassSearch.call(subklass_gid: subklass_gid)
+    answer_params = BotCommands::CharacterKlassSearch.call(subklass_gid: subklass_gid, user: current_user)
     edit_message :text, answer_params
   end
 
   def abilities_callback_query(input_value = nil, *_args)
-    answer_params = BotCommands::CharacterKlassAbilitiesSearch.call(input_value: input_value)
+    answer_params = BotCommands::CharacterKlassAbilitiesSearch.call(input_value: input_value, user: current_user)
     edit_message :text, answer_params
   end
 
   def invocations_callback_query(input_value = nil, *_args)
-    answer_params = BotCommands::InvocationsSearch.call(input_value: input_value)
+    answer_params = BotCommands::InvocationsSearch.call(input_value: input_value, user: current_user)
     edit_message :text, answer_params
   end
 
   def psionic_powers_callback_query(input_value = nil, *_args)
-    answer_params = BotCommands::PsionicPowersSearch.call(input_value: input_value)
+    answer_params = BotCommands::PsionicPowersSearch.call(input_value: input_value, user: current_user)
     edit_message :text, answer_params
   end
 
   def plans_callback_query(input_value = nil, *_args)
-    answer_params = BotCommands::PlansSearch.call(input_value: input_value)
+    answer_params = BotCommands::PlansSearch.call(input_value: input_value, user: current_user)
     edit_message :text, answer_params
   end
 
   def arcane_shots_callback_query(input_value = nil, *_args)
-    answer_params = BotCommands::ArcaneShotsSearch.call(input_value: input_value)
+    answer_params = BotCommands::ArcaneShotsSearch.call(input_value: input_value, user: current_user)
     edit_message :text, answer_params
   end
 
   def metamagics_callback_query(input_value = nil, *_args)
-    answer_params = BotCommands::MetamagicsSearch.call(input_value: input_value)
+    answer_params = BotCommands::MetamagicsSearch.call(input_value: input_value, user: current_user)
     edit_message :text, answer_params
   end
 
   def maneuvers_callback_query(input_value = nil, *_args)
-    answer_params = BotCommands::ManeuversSearch.call(input_value: input_value)
+    answer_params = BotCommands::ManeuversSearch.call(input_value: input_value, user: current_user)
     edit_message :text, answer_params
   end
 
   def origin_callback_query(input_value = nil, *_args)
-    answer_params = BotCommands::OriginSearch.call(input_value: input_value)
+    answer_params = BotCommands::OriginSearch.call(input_value: input_value, user: current_user)
     edit_message :text, answer_params
   end
 
   def glossary_callback_query(input_value = nil, *_args)
-    answer_params = BotCommands::GlossarySearch.call(input_value: input_value)
+    answer_params = BotCommands::GlossarySearch.call(input_value: input_value, user: current_user)
     edit_message :text, answer_params
   end
 
   def tool_callback_query(input_value = nil, *_args)
-    answer_params = BotCommands::ToolSearch.call(input_value: input_value)
+    answer_params = BotCommands::ToolSearch.call(input_value: input_value, user: current_user)
     edit_message :text, answer_params
   end
 
   def equipment_callback_query(input_value = nil, *_args)
-    answer_params = BotCommands::EquipmentSearch.call(input_value: input_value)
+    answer_params = BotCommands::EquipmentSearch.call(input_value: input_value, user: current_user)
     edit_message :text, answer_params
   end
 
   def bastion_callback_query(input_value = nil, *_args)
-    answer_params = BotCommands::BastionSearch.call(input_value: input_value)
+    answer_params = BotCommands::BastionSearch.call(input_value: input_value, user: current_user)
     edit_message :text, answer_params
   end
 
   def species_callback_query(input_value = nil, *_args)
-    answer_params = BotCommands::SpeciesSearch.call(input_value: input_value)
+    answer_params = BotCommands::SpeciesSearch.call(input_value: input_value, user: current_user)
     edit_message :text, answer_params
   end
 
   def all_spells_callback_query(input_value = nil, *_args)
-    answer_messages = BotCommands::AllSpells.call(input_value: input_value, session: session)
+    answer_messages = BotCommands::AllSpells.call(input_value: input_value, session: session, user: current_user)
     process_answer_messages(answer_messages)
   end
 
   def all_spells_page_callback_query(page = nil, *_args)
-    answer_messages = BotCommands::AllSpells.call(input_value: nil, page: page.to_i, session: session)
+    answer_messages = BotCommands::AllSpells.call(input_value: nil, page: page.to_i, session: session, user: current_user)
     process_answer_messages(answer_messages)
   end
 
@@ -251,24 +274,12 @@ class TelegramController < BaseTelegramController
   end
 
   def pick_mention_callback_query(*args)
-    selected_object = Mention.find(args[0].to_i)
-
-    mentionable = selected_object.another_mentionable.decorate
-    text = mentionable.description_for_telegram
-    parse_mode = mentionable.parse_mode_for_telegram
-
-    mentions = mentionable.mentions.map do |mention|
-      {
-        text: mention.another_mentionable.decorate.title,
-        callback_data: "pick_mention:#{mention.id}"
-      }
-    end
-    inline_keyboard = mentions.in_groups_of(1, false)
-    reply_markup = {inline_keyboard: inline_keyboard}
-
-    respond_with :message,
-      text: text,
-      reply_markup: reply_markup,
-      parse_mode: parse_mode
+    mention = Mention.find(args[0].to_i)
+    answer = Presenters::LeafCard.call(
+      object: mention.another_mentionable,
+      user: current_user,
+      back_button: false
+    )
+    respond_with :message, answer
   end
 end

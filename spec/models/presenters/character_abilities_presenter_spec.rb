@@ -97,7 +97,7 @@ RSpec.describe Presenters::CharacterAbilitiesPresenter do
     it "prefixes subklass ability titles with the emoji" do
       own_variant = variants.find { |variant| variant.level == 5 }
 
-      expect(own_variant.title).to include(described_class::EMOJI)
+      expect(own_variant.title).to include(CharacterKlassAbilityDecorator::EMOJI)
     end
   end
 end
