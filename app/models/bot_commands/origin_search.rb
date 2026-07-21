@@ -1,5 +1,9 @@
 module BotCommands
   class OriginSearch < BaseCommand
+    HOUSE_HEIRS = {text: "🤖 Наследники домов", value: "house_heirs"}.freeze
+    # edition_source of the Eberron dragonmark house-heir backgrounds
+    HOUSE_HEIRS_SOURCE = :efota
+
     def call
       if input_value.blank?
         give_origins
@@ -11,6 +15,8 @@ module BotCommands
         give_origins_by_characteristic
       elsif characteristic_search_selected?
         provide_characteristics
+      elsif house_heirs_selected?
+        give_house_heirs
       else
         invalid_input
       end
@@ -25,9 +31,10 @@ module BotCommands
     attr_reader :input_value
 
     def give_origins
-      variants = origin_scope.all
+      variants = non_heir_origins
       options = keyboard_options(variants)
       inline_keyboard = options.in_groups_of(2, false)
+      inline_keyboard.prepend([house_heirs_subcommand]) if heir_origins.exists?
       inline_keyboard.prepend([search_by_characteristic_subcommand])
       inline_keyboard.prepend(keyboard_option_section_info)
       inline_keyboard.append([go_back_button])
@@ -40,9 +47,22 @@ module BotCommands
       }
     end
 
+    def give_house_heirs
+      options = keyboard_options(heir_origins)
+      inline_keyboard = options.in_groups_of(2, false)
+      inline_keyboard.append([go_back_button])
+      reply_markup = {inline_keyboard: inline_keyboard}
+
+      {
+        text: HOUSE_HEIRS[:text],
+        reply_markup: reply_markup,
+        parse_mode: parse_mode
+      }
+    end
+
     def give_origins_by_characteristic
       ids = Segment.where(attribute_resource: selected_object, resource_type: "Origin").pluck(:resource_id)
-      resources = origin_scope.where(id: ids)
+      resources = non_heir_origins.where(id: ids)
       variants = resources.all
       options = keyboard_options(variants)
       inline_keyboard = options.in_groups_of(2, false)
@@ -113,6 +133,13 @@ module BotCommands
       keyboard_options(variants)
     end
 
+    def house_heirs_subcommand
+      {
+        text: HOUSE_HEIRS[:text],
+        callback_data: "#{callback_prefix}:#{HOUSE_HEIRS[:value]}"
+      }
+    end
+
     def origin_selected?
       selected_object.is_a?(::Origin)
     end
@@ -125,8 +152,20 @@ module BotCommands
       selected_object.is_a?(Characteristic)
     end
 
+    def house_heirs_selected?
+      input_value == HOUSE_HEIRS[:value]
+    end
+
     def origin_scope
       ::Origin.published.ordered
+    end
+
+    def non_heir_origins
+      origin_scope.where.not(edition_source: HOUSE_HEIRS_SOURCE)
+    end
+
+    def heir_origins
+      origin_scope.where(edition_source: HOUSE_HEIRS_SOURCE)
     end
 
     def callback_prefix

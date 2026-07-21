@@ -4,6 +4,7 @@ class Origin < ApplicationRecord
   include Mentionable
   include Segmentable
   include WhoDidItable
+  include EditionSourceable
 
   validates :title, presence: true
   validates :title, length: {minimum: 3, maximum: 250}, allow_blank: true

@@ -28,6 +28,50 @@ RSpec.describe BotCommands::OriginSearch do
     end
   end
 
+  context "when a house-heir origin exists" do
+    let(:input_value) { nil }
+    let!(:artist) { create(:origin, title: "Артист", description: "an entertainer", published_at: Time.current) }
+    let!(:heir) { create(:origin, :house_heir, title: "Наследник дома Каннит", description: "a house heir", published_at: Time.current) }
+
+    it "hides heirs from the main list and adds the house-heirs button" do
+      expect(result).to eq(
+        text: "Выбери происхождение",
+        reply_markup: {
+          inline_keyboard: [
+            [{
+              text: BotCommand.origin.decorate.title,
+              callback_data: "origin:#{BotCommand.origin.decorate.to_global_id}"
+            }],
+            [{text: "Поиск по хар-ке", callback_data: "origin:search_by_characteristic"}],
+            [{text: "Наследники домов", callback_data: "origin:house_heirs"}],
+            [{text: artist.decorate.title, callback_data: "origin:#{artist.to_global_id}"}],
+            [{text: "Назад", callback_data: "go_back:go_back"}]
+          ]
+        },
+        parse_mode: "HTML"
+      )
+    end
+  end
+
+  context "when the house-heirs subcommand is selected" do
+    let(:input_value) { "house_heirs" }
+    let!(:heir) { create(:origin, :house_heir, title: "Наследник дома Каннит", description: "a house heir", published_at: Time.current) }
+    let!(:artist) { create(:origin, title: "Артист", description: "an entertainer", published_at: Time.current) }
+
+    it "lists only the house-heir origins" do
+      expect(result).to eq(
+        text: "Наследники домов",
+        reply_markup: {
+          inline_keyboard: [
+            [{text: heir.decorate.title, callback_data: "origin:#{heir.to_global_id}"}],
+            [{text: "Назад", callback_data: "go_back:go_back"}]
+          ]
+        },
+        parse_mode: "HTML"
+      )
+    end
+  end
+
   context "when an origin is selected by global id" do
     let(:origin) { create(:origin, title: "Артист", description: "an entertainer", published_at: Time.current) }
     let(:input_value) { origin.to_global_id.to_s }

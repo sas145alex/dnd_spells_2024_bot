@@ -4,6 +4,9 @@ ActiveAdmin.register Origin do
     id_column
     column :title
     column :original_title
+    column :edition_source do |resource|
+      Origin.edition_sources[resource.edition_source]
+    end
     column :description do |resource|
       markdown_to_html(resource.description.first(300))
     end
@@ -36,6 +39,7 @@ ActiveAdmin.register Origin do
   filter :id
   filter :title
   filter :original_title
+  filter :edition_source, as: :select, collection: Origin.edition_sources.values
   filter :description
   filter :published_at
   filter :created_at
@@ -48,6 +52,9 @@ ActiveAdmin.register Origin do
       row :id
       row :title
       row :original_title
+      row :edition_source do
+        Origin.edition_sources[resource.edition_source]
+      end
       row :description do
         markdown_to_html(resource.description)
       end
@@ -80,6 +87,9 @@ ActiveAdmin.register Origin do
     f.inputs do
       f.input :title
       f.input :original_title
+      f.input :edition_source,
+        as: :select,
+        collection: Origin.edition_sources.map { |key, value| [value, key] }
       f.input :description,
         label: "Description (#{Origin::DESCRIPTION_FORMAT})",
         as: :simplemde_editor,
@@ -191,6 +201,7 @@ ActiveAdmin.register Origin do
   permit_params :title,
     :original_title,
     :description,
+    :edition_source,
     mentions_attributes: [:id, :another_mentionable_type, :another_mentionable_id, :_destroy],
     segment_items_attributes: [:id, :attribute_resource_type, :attribute_resource_id, :_destroy]
 end

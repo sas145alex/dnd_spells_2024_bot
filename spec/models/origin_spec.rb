@@ -6,6 +6,7 @@ RSpec.describe Origin do
   it_behaves_like "mentionable", :origin
   it_behaves_like "segmentable", :origin
   it_behaves_like "who_did_itable", :origin
+  it_behaves_like "edition_sourceable", :origin
 
   describe "validations" do
     subject(:record) do
