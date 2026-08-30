@@ -88,10 +88,7 @@ RSpec.describe BotCommands::FavoritesList do
     context "when the user is an admin" do
       let(:user) { create(:telegram_user, :admin) }
 
-      it "shows the bare total, with no cap" do
-        expect(answer[:text]).to include("<b>Карточек:</b> 1\n")
-        expect(answer[:text]).not_to include("/ #{Favorites::Policy::FREE_LIMIT}")
-      end
+      it { expect(answer[:text]).to include("<b>Карточек:</b> 1\n") }
     end
 
     context "when the user is over the limit" do

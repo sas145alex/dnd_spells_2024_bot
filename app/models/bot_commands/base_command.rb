@@ -11,6 +11,10 @@ module BotCommands
     # for the favorite button), so the reader belongs to the shared contract.
     attr_reader :user
 
+    def favorites_policy
+      @favorites_policy ||= ::Favorites::Policy.new(user)
+    end
+
     def invalid_input
       {
         text: "Невалидный ввод",

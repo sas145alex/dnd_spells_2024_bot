@@ -8,10 +8,6 @@ module Favorites
       new(user).can_use?
     end
 
-    def self.can_add?(user)
-      new(user).can_add?
-    end
-
     def initialize(user)
       @user = user
     end
@@ -31,10 +27,7 @@ module Favorites
     # locking for a 10-card limit: the unique index still rules out duplicates, and the worst
     # outcome is a single bonus card.
     def can_add?
-      return false unless can_use?
-      return true if limit.nil?
-
-      used < limit
+      can_use? && (limit.nil? || used < limit)
     end
 
     private

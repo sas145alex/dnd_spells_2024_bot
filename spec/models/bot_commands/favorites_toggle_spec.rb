@@ -45,8 +45,6 @@ RSpec.describe BotCommands::FavoritesToggle do
 
     it { expect { result }.not_to change(Favorite, :count) }
     it { expect(result[:toast]).to eq(described_class::LIMIT_TOAST) }
-
-    # No keyboard means the card is left untouched, so the button keeps its "add" label.
     it { expect(result[:inline_keyboard]).to be_nil }
 
     context "when the tapped record is already favorited" do

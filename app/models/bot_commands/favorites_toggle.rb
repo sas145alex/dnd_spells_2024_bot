@@ -4,9 +4,7 @@ module BotCommands
   # keyboard to edit back in place (the tapped button's label flipped to reflect the new state).
   # Rebuilding from the callback payload's own keyboard keeps every other button on the card intact
   # without the toggle needing to know how that card was originally rendered.
-  #
-  # A refusal (unavailable / not found / cap reached) returns a toast and no keyboard, which leaves
-  # the card exactly as it was — the button label does not flip.
+  # A refusal returns a toast and no keyboard, so the card is left untouched.
   class FavoritesToggle < BaseCommand
     ADDED_TOAST = "Добавлено в избранное ⭐".freeze
     REMOVED_TOAST = "Убрано из избранного".freeze
@@ -16,9 +14,9 @@ module BotCommands
       "Убери что-нибудь, чтобы добавить новую.".freeze
 
     def call
-      return {toast: UNAVAILABLE_TOAST} unless policy.can_use?
+      return {toast: UNAVAILABLE_TOAST} unless favorites_policy.can_use?
       return {toast: NOT_FOUND_TOAST} unless record.is_a?(::Favoritable)
-      return {toast: LIMIT_TOAST} if existing_favorite.nil? && !policy.can_add?
+      return {toast: LIMIT_TOAST} if existing_favorite.nil? && !favorites_policy.can_add?
 
       now_favorited = toggle!
       {
@@ -36,10 +34,6 @@ module BotCommands
     private
 
     attr_reader :gid, :inline_keyboard
-
-    def policy
-      @policy ||= ::Favorites::Policy.new(user)
-    end
 
     def toggle!
       if existing_favorite

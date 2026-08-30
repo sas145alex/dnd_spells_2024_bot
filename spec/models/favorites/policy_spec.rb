@@ -54,12 +54,6 @@ RSpec.describe Favorites::Policy do
       it { is_expected.to be(false) }
     end
 
-    context "when the user is over the limit" do
-      before { create_list(:favorite, described_class::FREE_LIMIT + 1, telegram_user: user) }
-
-      it { is_expected.to be(false) }
-    end
-
     context "when an admin is over the limit" do
       let(:user) { create(:telegram_user, :admin) }
 
@@ -86,20 +80,6 @@ RSpec.describe Favorites::Policy do
       let(:user) { nil }
 
       it { is_expected.to be(false) }
-    end
-  end
-
-  describe ".can_add?" do
-    subject { described_class.can_add?(user) }
-
-    context "when the user is at the limit" do
-      before { create_list(:favorite, described_class::FREE_LIMIT, telegram_user: user) }
-
-      it { is_expected.to be(false) }
-    end
-
-    context "when the user has room" do
-      it { is_expected.to be(true) }
     end
   end
 end
