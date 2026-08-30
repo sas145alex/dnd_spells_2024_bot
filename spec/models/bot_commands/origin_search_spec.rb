@@ -43,7 +43,7 @@ RSpec.describe BotCommands::OriginSearch do
               callback_data: "origin:#{BotCommand.origin.decorate.to_global_id}"
             }],
             [{text: "Поиск по хар-ке", callback_data: "origin:search_by_characteristic"}],
-            [{text: "Наследники домов", callback_data: "origin:house_heirs"}],
+            [{text: "🤖 Наследники домов", callback_data: "origin:house_heirs"}],
             [{text: artist.decorate.title, callback_data: "origin:#{artist.to_global_id}"}],
             [{text: "Назад", callback_data: "go_back:go_back"}]
           ]
@@ -60,7 +60,7 @@ RSpec.describe BotCommands::OriginSearch do
 
     it "lists only the house-heir origins" do
       expect(result).to eq(
-        text: "Наследники домов",
+        text: "🤖 Наследники домов",
         reply_markup: {
           inline_keyboard: [
             [{text: heir.decorate.title, callback_data: "origin:#{heir.to_global_id}"}],
