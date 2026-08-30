@@ -38,10 +38,19 @@ RSpec.describe Presenters::LeafCard do
       it { expect(fav_button[:text]).to eq("❌ Убрать из избранного") }
     end
 
-    context "when the user may not use favorites" do
+    context "when the user is not an admin" do
       let(:user) { create(:telegram_user) }
 
-      it { expect(fav_button).to be_nil }
+      it { expect(fav_button).to eq(text: "⭐ В избранное", callback_data: "fav:#{record.to_global_id}") }
+    end
+
+    # The cap is enforced on the tap, not on the render — the card still offers the button.
+    context "when the user is at the free limit" do
+      let(:user) { create(:telegram_user) }
+
+      before { create_list(:favorite, Favorites::Policy::FREE_LIMIT, telegram_user: user) }
+
+      it { expect(fav_button[:text]).to eq("⭐ В избранное") }
     end
 
     context "when there is no user" do

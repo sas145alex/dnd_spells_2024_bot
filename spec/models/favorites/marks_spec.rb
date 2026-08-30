@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe Favorites::Marks do
   subject(:label) { described_class.for(records, user).label(record, title) }
 
-  let(:user) { create(:telegram_user, :admin) }
+  let(:user) { create(:telegram_user) }
   let(:spell) { create(:spell, title: "Огненный шар") }
   let(:records) { [spell] }
   let(:record) { spell }
@@ -22,10 +22,10 @@ RSpec.describe Favorites::Marks do
       it { is_expected.to eq(starred_title) }
     end
 
-    context "when the user may not use favorites" do
-      let(:user) { create(:telegram_user) }
+    context "when the user is an admin" do
+      let(:user) { create(:telegram_user, :admin) }
 
-      it { is_expected.to eq(title) }
+      it { is_expected.to eq(starred_title) }
     end
   end
 

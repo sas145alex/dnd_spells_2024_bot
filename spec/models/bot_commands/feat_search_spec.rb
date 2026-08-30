@@ -78,7 +78,7 @@ RSpec.describe BotCommands::FeatSearch do
     end
 
     context "when the user may use favorites" do
-      subject(:result) { described_class.call(input_value: input_value, user: create(:telegram_user, :admin)) }
+      subject(:result) { described_class.call(input_value: input_value, user: create(:telegram_user)) }
 
       it "prepends an add-to-favorites button on the card" do
         keyboard = result[:reply_markup][:inline_keyboard]

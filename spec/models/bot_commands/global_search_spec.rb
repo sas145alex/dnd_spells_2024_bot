@@ -51,7 +51,7 @@ RSpec.describe BotCommands::GlobalSearch do
               type: :message,
               answer: {
                 text: spell.decorate.description_for_telegram,
-                reply_markup: {inline_keyboard: []},
+                reply_markup: {inline_keyboard: [[{text: "⭐ В избранное", callback_data: "fav:#{spell.to_global_id}"}]]},
                 parse_mode: "HTML"
               }
             }
@@ -65,7 +65,7 @@ RSpec.describe BotCommands::GlobalSearch do
         expect(Telegram::SpellMetricsJob).to have_received(:perform_later).with(spell_gid: spell.to_global_id.to_s)
       end
 
-      context "when the user may use favorites" do
+      context "when the user is an admin" do
         let(:user) { create(:telegram_user, :admin) }
 
         it "offers an add-to-favorites button on the card" do
@@ -88,7 +88,7 @@ RSpec.describe BotCommands::GlobalSearch do
         answer = result.first[:answer]
 
         expect(answer[:text]).to eq("<b>Алертность</b>\n\nОписание отсутствует.")
-        expect(answer[:reply_markup]).to eq({inline_keyboard: []})
+        expect(answer[:reply_markup]).to eq({inline_keyboard: [[{text: "⭐ В избранное", callback_data: "fav:#{feat.to_global_id}"}]]})
       end
     end
 

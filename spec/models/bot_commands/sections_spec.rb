@@ -57,8 +57,17 @@ RSpec.describe BotCommands::Sections do
         end
       end
 
-      context "for a non-admin user" do
+      context "for a regular user" do
         let(:user) { create(:telegram_user) }
+
+        it "appends the favorites section too — the feature is not admin-only" do
+          expect(keyboard.last).to eq([{text: "⭐ Избранное", callback_data: "favorites:"}])
+        end
+      end
+
+      # The outer expected_keyboard above depends on this: it calls the command without a user.
+      context "when no user is supplied" do
+        let(:user) { nil }
 
         it "does not show the favorites section" do
           expect(keyboard.flatten).not_to include(hash_including(callback_data: "favorites:"))

@@ -38,9 +38,10 @@ RSpec.describe BotCommands::AllSpells do
     context "when the listing user has favorited one of the spells" do
       let!(:favorited) { create(:spell, :published, level: 0, title: "Брызги кислоты") }
       let!(:plain) { create(:spell, :published, level: 5, title: "Облако смерти") }
-      let(:user) { create(:telegram_user, :admin) }
+      let(:owner) { create(:telegram_user) }
+      let(:user) { owner }
 
-      before { create(:favorite, telegram_user: user, favoritable: favorited) }
+      before { create(:favorite, telegram_user: owner, favoritable: favorited) }
 
       it "stars only the favorited spell's row" do
         keyboard = result.first[:answer][:reply_markup][:inline_keyboard]
@@ -50,8 +51,8 @@ RSpec.describe BotCommands::AllSpells do
           .to eq(["#{Favorites::Marks::SYMBOL} #{favorited.decorate.title}", plain.decorate.title])
       end
 
-      context "when the user may not use favorites" do
-        let(:user) { create(:telegram_user) }
+      context "when there is no listing user" do
+        let(:user) { nil }
 
         it "leaves every row unstarred" do
           keyboard = result.first[:answer][:reply_markup][:inline_keyboard]

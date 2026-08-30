@@ -262,7 +262,7 @@ RSpec.describe TelegramController do
   end
 
   describe "the fav toggle callback query" do
-    let!(:admin) { create(:telegram_user, :admin, external_id: external_id) }
+    let!(:user) { create(:telegram_user, external_id: external_id) }
     let(:spell) { create(:spell, published_at: Time.current) }
     let(:update) do
       {
@@ -282,7 +282,7 @@ RSpec.describe TelegramController do
     end
 
     it "adds the record to the user's favorites" do
-      expect { dispatch }.to change { admin.favorites.count }.by(1)
+      expect { dispatch }.to change { user.favorites.count }.by(1)
     end
 
     it "answers the callback query and edits the keyboard in place" do
@@ -291,10 +291,22 @@ RSpec.describe TelegramController do
       expect(bot.requests[:answerCallbackQuery].last).to include(text: "Добавлено в избранное ⭐")
       expect(bot.requests[:editMessageReplyMarkup]).to be_present
     end
+
+    context "when the user is at the free limit" do
+      before { create_list(:favorite, Favorites::Policy::FREE_LIMIT, telegram_user: user) }
+
+      it "refuses the add and leaves the card untouched" do
+        expect { dispatch }.not_to change { user.favorites.count }
+
+        expect(bot.requests[:answerCallbackQuery].last)
+          .to include(text: BotCommands::FavoritesToggle::LIMIT_TOAST)
+        expect(bot.requests[:editMessageReplyMarkup]).to be_blank
+      end
+    end
   end
 
   describe "the favorites list callback query" do
-    let!(:admin) { create(:telegram_user, :admin, external_id: external_id) }
+    let!(:user) { create(:telegram_user, external_id: external_id) }
     let(:spell) { create(:spell, published_at: Time.current) }
     let(:update) do
       {
@@ -307,7 +319,7 @@ RSpec.describe TelegramController do
       }
     end
 
-    before { create(:favorite, telegram_user: admin, favoritable: spell) }
+    before { create(:favorite, telegram_user: user, favoritable: spell) }
 
     it "edits the message into the favorites list" do
       dispatch

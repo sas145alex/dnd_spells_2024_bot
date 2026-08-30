@@ -159,6 +159,11 @@ shared `Presenters::MentionButtons.for` (which preloads `another_mentionable` to
 Because `Favoritable` is folded into `Multisearchable`, routing a card through `LeafCard` is what
 makes it favoritable in the UI.
 
+Favorites are available to **every** Telegram user. `Favorites::Policy` is the only place that
+decides: admins keep an unlimited list, everyone else is capped at `Favorites::Policy::FREE_LIMIT`
+(10) cards. The cap is enforced on the **add** path in `BotCommands::FavoritesToggle` only —
+removal always works, so a user who is over the cap can still prune their list.
+
 ## Background jobs
 
 Jobs are SolidQueue-backed (`app/jobs/`). `ApplicationJob` retries `StandardError` twice (5s wait).

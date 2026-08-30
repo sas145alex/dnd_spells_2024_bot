@@ -2,7 +2,7 @@ module BotCommands
   # The "⭐ Избранное" section: a paginated list of every card the user has favorited (any content
   # type), each opening the record's card with a "Назад" that returns to the list via the history
   # stack. Dispatched on input_value like the other section commands: blank → the list, a GlobalID
-  # → the card. Admin-gated for now (see Favorites::Policy).
+  # → the card. Open to every user; non-admins are capped at Favorites::Policy::FREE_LIMIT cards.
   class FavoritesList < BaseCommand
     FAVORITES_PER_PAGE = 10
     CALLBACK_PREFIX = "favorites".freeze
@@ -24,7 +24,7 @@ module BotCommands
     attr_reader :input_value, :page, :response_type
 
     def answer
-      return notice("Избранное пока недоступно.") unless ::Favorites::Policy.can_use?(user)
+      return notice("Избранное пока недоступно.") unless policy.can_use?
       return render_list if input_value.blank?
       return notice("Карточка не найдена. Возможно, она была удалена.") if selected_object.blank?
 
@@ -52,11 +52,23 @@ module BotCommands
     end
 
     def list_text
-      <<~HTML.chomp
-        <b>#{HEADER}</b>
-        <b>Страница:</b> #{paged_favorites.current_page} / #{paged_favorites.total_pages}
-        Выбери карточку:
-      HTML
+      [
+        "<b>#{HEADER}</b>",
+        counter_line,
+        "<b>Страница:</b> #{paged_favorites.current_page} / #{paged_favorites.total_pages}",
+        "Выбери карточку:"
+      ].join("\n")
+    end
+
+    # total_count is already loaded for the pager, so the counter costs no extra query.
+    def counter_line
+      return "<b>Карточек:</b> #{paged_favorites.total_count}" if policy.limit.nil?
+
+      "<b>Карточек:</b> #{paged_favorites.total_count} / #{policy.limit}"
+    end
+
+    def policy
+      @policy ||= ::Favorites::Policy.new(user)
     end
 
     def empty_list
