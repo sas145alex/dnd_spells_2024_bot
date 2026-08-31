@@ -138,16 +138,24 @@ class BaseTelegramController < Telegram::Bot::UpdatesController
 
   def remember_history!
     old_value = history
-    data = payload.key?("data") ? payload["data"].split(":")[1..].join(":") : nil
-    input_value = data || payload["text"] || ""
     action_to_remember = @history_action_name || action_name
-    new_item = {action: action_to_remember, input_value: input_value}
+    new_item = {action: action_to_remember, input_value: remembered_input_value(action_to_remember)}
 
     return if new_item == history.last
 
     old_value << new_item
     new_value = old_value.last(HISTORY_STACK_SIZE)
     session[:history_stack] = new_value
+  end
+
+  # A root command redirects its history to its callback twin (sections!, favorites!) so that Go
+  # Back edits the message in place. The twin renders the top screen and would read the command's
+  # own "/favorites" text as a card GlobalID, so a redirected state is remembered without an input.
+  def remembered_input_value(action_to_remember)
+    return "" unless action_to_remember == action_name
+
+    data = payload.key?("data") ? payload["data"].split(":")[1..].join(":") : nil
+    data || payload["text"] || ""
   end
 
   def history

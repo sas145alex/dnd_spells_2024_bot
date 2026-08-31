@@ -69,6 +69,13 @@ RSpec.describe BotCommands::FavoritesList do
     it { expect(result.first[:type]).to eq(:edit) }
   end
 
+  # The /favorites root command has no message to edit, so it asks for a fresh one.
+  context "when a message response type is requested" do
+    let(:response_type) { :message }
+
+    it { expect(result.first[:type]).to eq(:message) }
+  end
+
   context "when the selected global id cannot be located" do
     let(:spell) { create(:spell) }
     let(:input_value) { spell.to_global_id.to_s }

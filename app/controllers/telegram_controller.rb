@@ -129,6 +129,13 @@ class TelegramController < BaseTelegramController
     process_answer_messages(answer_messages)
   end
 
+  def favorites!(*_args)
+    @history_action_name = "favorites_callback_query"
+    answer_messages = BotCommands::FavoritesList.call(input_value: nil, user: current_user, response_type: :message)
+    process_answer_messages(answer_messages)
+  end
+  alias_method :fav!, :favorites!
+
   def favorites_callback_query(input_value = nil, *_args)
     answer_messages = BotCommands::FavoritesList.call(input_value: input_value, user: current_user)
     process_answer_messages(answer_messages)

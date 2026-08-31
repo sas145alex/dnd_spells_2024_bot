@@ -328,6 +328,68 @@ RSpec.describe TelegramController do
     end
   end
 
+  describe "the /favorites command" do
+    let!(:user) { create(:telegram_user, external_id: external_id) }
+    let(:spell) { create(:spell, published_at: Time.current) }
+    let(:text) { "/favorites" }
+
+    before { create(:favorite, telegram_user: user, favoritable: spell) }
+
+    it "sends the favorites list as a new message" do
+      dispatch
+
+      expect(bot.requests[:sendMessage].last).to include(text: include(BotCommands::FavoritesList::HEADER))
+      expect(bot.requests[:editMessageText]).to be_blank
+    end
+
+    it "lists the favorited card" do
+      dispatch
+
+      labels = bot.requests[:sendMessage].last[:reply_markup][:inline_keyboard].flatten.map { |button| button[:text] }
+      expect(labels).to include(spell.decorate.global_search_title)
+    end
+
+    # See remembered_input_value: a blank input keeps Go Back from replaying "/favorites" as a gid.
+    it "remembers the list screen as a blank favorites callback state" do
+      dispatch
+
+      session = TelegramController.session_store.read("#{bot.username}:#{external_id}")
+      expect(session["history_stack"].last).to eq({action: "favorites_callback_query", input_value: ""})
+    end
+  end
+
+  describe "a go_back callback query replaying a remembered /favorites state" do
+    let!(:user) { create(:telegram_user, external_id: external_id) }
+    let(:spell) { create(:spell, published_at: Time.current) }
+    let(:update) do
+      {
+        "callback_query" => {
+          "id" => "1",
+          "data" => "go_back:go_back",
+          "from" => {"id" => external_id},
+          "message" => {"chat" => {"id" => external_id}, "message_id" => 5}
+        }
+      }
+    end
+
+    before do
+      create(:favorite, telegram_user: user, favoritable: spell)
+      TelegramController.session_store.write(
+        "#{bot.username}:#{external_id}",
+        {history_stack: [
+          {action: "favorites_callback_query", input_value: ""},
+          {action: "favorites_callback_query", input_value: spell.to_global_id.to_s}
+        ]}
+      )
+    end
+
+    it "edits the card back into the favorites list" do
+      dispatch
+
+      expect(bot.requests[:editMessageText].last).to include(text: include(BotCommands::FavoritesList::HEADER))
+    end
+  end
+
   describe "current_user resolution" do
     let(:text) { "zzz_nonexistent_query_zzz" }
 

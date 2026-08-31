@@ -89,6 +89,10 @@ A bot command action follows this shape:
 **solid_cache** (`config.telegram_updates_controller.session_store = :solid_cache_store`) — *not* Redis.
 `remember_history!` (after-action) records the current action + input; `go_back_callback_query`
 replays the previous state. Actions that must not be remembered are explicitly excluded.
+`@history_action_name` overrides which action Go Back replays: root commands set their *callback*
+twin (see `sections!` / `favorites!`) so the replay edits the message in place instead of sending a
+new one. Such a redirected state is recorded with a **blank input** — the twin renders the top
+screen and would read the command's own `"/command"` text as a GlobalID.
 `current_user` finds-or-creates a `TelegramUser` by `payload["from"]["id"]`.
 `my_chat_member` updates routes to `TelegramChat::MemberChangeProcessor`.
 
@@ -277,7 +281,12 @@ Production runs in **webhook** mode, not polling:
 
 ```bash
 bundle exec rails telegram:bot:set_webhook RAILS_ENV=production   # rerun when domain or bot token changes
+bundle exec rails telegram:bot:set_commands RAILS_ENV=production  # push the slash-menu (setMyCommands)
 ```
+
+The slash-menu is **versioned in code** — `Telegram::Menu::COMMANDS` (`app/models/telegram/menu.rb`),
+not BotFather. Re-run `telegram:bot:set_commands` after adding or renaming a root command
+(`bin/kamal app exec --reuse "bin/rails telegram:bot:set_commands"` on a deployed host).
 
 `BOT_USE_LOCALHOST=1` points the bot at a local server for dev polling.
 
@@ -379,6 +388,12 @@ Project skills live in `.claude/skills/` (committed); `skills-lock.json` pins th
 - Multi-database app: `db:migrate:redo` (and similar) need the namespace, e.g.
   `bin/rails db:migrate:redo:primary VERSION=…`.
 - `make bot` is dev-only — production delivery is webhook-based.
+- **`.env.test` holds a placeholder `BOT_TOKEN`**, and dotenv loads `.env.test` *before* `.env` under
+  `RAILS_ENV=test` — so any Bot API call from a test-env console (`rails c -e test`,
+  `Telegram::Menu.set!`, …) hits `api.telegram.org` with an invalid token and raises
+  `Telegram::Bot::NotFound` ("Not Found", HTTP 404). Run bot tasks in **development** (real dev-bot
+  token in `.env`, `@dnd_spells_2024_dev_bot`) or production. Unrelated to webhook-vs-polling:
+  `setMyCommands` and friends are plain API calls either way.
 - Outbound Telegram sends go through `BotRequestJob` **async in production**, so `Telegram.bot.send_message`
   returns immediately and you can't observe its result/error. To send synchronously and capture the
   outcome (e.g. per-recipient delivery tracking), wrap it in `Telegram.bot.async(false) { ... }`.
