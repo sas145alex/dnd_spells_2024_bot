@@ -103,8 +103,9 @@ RSpec.describe BotCommands::FavoritesList do
 
       it "reports the real total against the cap and still lists the rows for pruning" do
         rows = keyboard.flatten.select { |button| button[:callback_data].to_s.start_with?("favorites:gid") }
+        free_limit = Favorites::Policy::FREE_LIMIT
 
-        expect(answer[:text]).to include("<b>Карточек:</b> 11 / #{Favorites::Policy::FREE_LIMIT}")
+        expect(answer[:text]).to include("<b>Карточек:</b> #{free_limit + 1} / #{free_limit}")
         expect(rows.size).to eq(described_class::FAVORITES_PER_PAGE)
       end
     end

@@ -2,7 +2,7 @@ module Favorites
   # Decides whether a user may use the favorites feature, and how many cards they may keep. Open to
   # every Telegram user: admins keep an unlimited list, everyone else is capped at FREE_LIMIT.
   class Policy
-    FREE_LIMIT = 10
+    FREE_LIMIT = 20
 
     def self.can_use?(user)
       new(user).can_use?
