@@ -5,6 +5,12 @@ module Multisearchable
     ApplicationRecord.descendants.select { |c| c.included_modules.include?(self) }
   end
 
+  # Order matters: pg_search documents are built from searchable_title, so the columns go first.
+  def self.reindex!
+    regenerate_all_searchable_columns!
+    regenerate_all_multisearchables!
+  end
+
   def self.regenerate_all_multisearchables!
     ApplicationRecord.transaction do
       used_klasses.each do |klass|

@@ -184,8 +184,7 @@ RSpec.describe BotCommands::GlobalSearch do
       let(:payload) { {"text" => "/search огненный шар"} }
 
       before do
-        Multisearchable.regenerate_all_searchable_columns!
-        Multisearchable.regenerate_all_multisearchables!
+        Multisearchable.reindex!
       end
 
       it "renders search results with a Spell button ordered first" do
@@ -210,8 +209,7 @@ RSpec.describe BotCommands::GlobalSearch do
       # 11 matches over a 10-per-page window → two pages, so the prev/next links render.
       before do
         11.times { |i| create(:spell, :published, title: "Огонь #{i}") }
-        Multisearchable.regenerate_all_searchable_columns!
-        Multisearchable.regenerate_all_multisearchables!
+        Multisearchable.reindex!
       end
 
       context "on the first page" do

@@ -18,9 +18,6 @@ load "db/seeds/seeders/bastions.rb"
 load "db/seeds/seeders/magic_items.rb"
 
 if Rails.env.local?
-  pp "Regenerating all searchable columns"
-  Multisearchable.regenerate_all_searchable_columns!
-
-  pp "Regenerating all pg multisearch entities"
-  Multisearchable.regenerate_all_multisearchables!
+  pp "Reindexing search"
+  Multisearchable.reindex!
 end
