@@ -342,22 +342,28 @@ Two independent NR agents, both in the EU account (`6614130`):
 ### Backups (Backblaze B2)
 
 Off-host DB backups run as the **`backup` Kamal accessory** (`accessories.backup` in `deploy.yml`) —
-`tiredofit/db-backup` (image tag **≥ 4.1.99** bundles the PG18 client, auto-selected). It
-connects to the `dnd_handbook-db` accessory over the `kamal` network (no `docker exec`), runs a nightly
-`pg_dump` of `dnd_handbook_production` → gzip → **Backblaze B2** (S3-compatible, `DB01_S3_*`), **7-day**
-retention (`DB01_CLEANUP_TIME`, in minutes). A post-backup hook (`.kamal/backup/notify.sh`, mounted to
-`/assets/scripts/post/`; `DB01_POST_SCRIPT_SKIP_X_VERIFY=TRUE`) POSTs a **Discord** embed on every run
-(success/failure) and, if `BACKUP_HEALTHCHECK_URL` is set, pings **healthchecks.io** as a dead-man's-switch
-(the "never ran at all" case the hook itself can't report).
+`nfrastack/db-backup` **5.x** (exact tag pinned; a single Go binary `dbb`). It connects to the
+`dnd_handbook-db` accessory over the `kamal` network (no `docker exec`) and runs a nightly dump of
+`dnd_handbook_production` → gzip → **Backblaze B2** (S3-compatible, `DB01_S3_*`), **7-day** retention
+(`DB01_CLEANUP_TIME`, in minutes). The dump comes from dbb's **own Go dumper, not `pg_dump`** (the image
+has no Postgres client), but it is plain SQL with `COPY`. Each dump `pgsql-<db>-<host>-full-<ts>.sql.gz`
+gets a `<file>.json` sidecar (status, sizes, server version, `compressed_md5`). The post-backup hook
+(`.kamal/backup/notify.sh`, wired via `DB01_POST_COMMAND`) reads `DBB_STATUS` / `DBB_NAME` /
+`DBB_FILENAME` env vars, POSTs a **Discord** embed on every run (success/failure) and, if
+`BACKUP_HEALTHCHECK_URL` is set, pings **healthchecks.io** as a dead-man's-switch (covers "never ran at
+all", and config-validation failures that abort before the hook runs). `CHECK_NEW_VERSION: "FALSE"`
+turns off the image's default daily version-check POST to nfrastack.
 
 - Boot/replace on a host: `bin/kamal accessory boot backup` (travels with the config like New Relic —
   no host-side cron/rclone to redo per migration). Logs: `bin/kamal backup-logs`.
-- On-demand run: `bin/kamal backup-now` (alias) or `bin/kamal accessory exec backup "backup-now"`.
+- On-demand run: `bin/kamal backup-now` (alias; execs `backup-now` in the **running** container via
+  `--reuse`). Its output lands in the container's `/logs/dbbackup.log`, not in the kamal output.
 - Restore (break-glass / verify): `bin/db-restore-local <dump.sql.gz> [db]` (into your local Postgres)
-  or `bin/db-restore-remote <dump.sql.gz> [db] [ssh_host]` (onto the prod host via SSH). Restore into a
-  **scratch** DB first to confirm a backup is good (an untested backup isn't a backup). A **local**
-  restore needs your local PG ≥ the dump's server major (modern Postgres dumps emit newer syntax like
-  `SET transaction_timeout` that older servers reject).
+  or `bin/db-restore-remote <dump.sql.gz> [db] [ssh_host]` (onto the prod host via SSH) — `gunzip | psql`,
+  checksum-verified against the `.json` sidecar when it sits next to the dump. `dbb restore` is a paid
+  (Supporter) feature, so these scripts **are** the restore path. Restore into a **scratch** DB first to
+  confirm a backup is good (an untested backup isn't a backup) — re-check after notable schema changes,
+  since the dumper isn't `pg_dump`. A **local** restore needs your local PG ≥ the dump's server major.
 - Secrets via 1Password (`DND_BOTS/DND_HANDBOOK`): `B2_KEY_ID`, `B2_APP_KEY`, `BACKUP_DISCORD_WEBHOOK`
   (+ optional `BACKUP_HEALTHCHECK_URL`); `DB01_PASS` reuses `POSTGRES_PASSWORD`. ⚠️ add the 1Password fields
   **before** referencing them in `.kamal/secrets` (else every secret-reading kamal command fails).

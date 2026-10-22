@@ -102,8 +102,8 @@ accessories:
       privileged: true
       pid: host
 
-  # Off-host PostgreSQL backups. Runs tiredofit/db-backup as a Kamal accessory (travels with the
-  # config like the New Relic one — no host-side cron/rclone to redo per migration): nightly pg_dump
+  # Off-host PostgreSQL backups. Runs nfrastack/db-backup as a Kamal accessory (travels with the
+  # config like the New Relic one — no host-side cron/rclone to redo per migration): nightly dump
   # of the primary DB -> gzip -> Backblaze B2 (S3-compatible), 7-day retention. No `network:` key, so
   # it joins the default `kamal` network and reaches the DB by container name `dnd_handbook-db`.
   # A post-backup hook (.kamal/backup/notify.sh) posts a Discord embed every run and, if
@@ -133,9 +133,6 @@ accessories:
         DB01_POST_COMMAND: /assets/scripts/post/notify.sh
         # On by default: a daily POST to nfrastack's server. We pin exact tags and bump via this file.
         CHECK_NEW_VERSION: "FALSE"
-        # Image defaults to Zabbix monitoring on; we have no Zabbix server, so it errors and adds a
-        # ~10s delay every run. Off.
-        CONTAINER_ENABLE_MONITORING: "FALSE"
       secret:
         - DB01_PASS
         - DB01_S3_KEY_ID
