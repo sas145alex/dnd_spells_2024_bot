@@ -392,7 +392,7 @@ Project skills live in `.claude/skills/` (committed); `skills-lock.json` pins th
 ## Gotchas
 
 - **`docs/` is gitignored on purpose** — everything under it (plan copies like `PLAN_*.md`, runbooks
-  like `HOSTING_MIGRATION.md`) is local-only working notes, **not** in git history; don't `git add` it.
+  like `done_HOSTING_MIGRATION.md`) is local-only working notes, **not** in git history; don't `git add` it.
 - A **Postgres major upgrade** (e.g. 18→19) is **not** just bumping the `db` accessory image tag:
   `postgres:N` won't start on an older major's data dir (`accessories.db` → `directories: data:…`). It
   needs a logical migration — `pg_dump` from the old major → boot the new image on an **empty** data
