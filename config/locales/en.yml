@@ -1,5 +1,12 @@
 en:
+  true: "Yes"
+  false: "No"
+
   types:
     boolean:
       "true": "Yes"
       "false": "No"
+
+  views:
+    pagination:
+      truncate: "..."

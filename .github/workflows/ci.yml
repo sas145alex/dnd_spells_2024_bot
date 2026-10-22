@@ -5,6 +5,14 @@ on:
   push:
     branches: [ main ]
 
+permissions:
+  contents: read
+
+# A new push to a PR cancels its outdated run; every main commit still gets its own full run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   scan_ruby:
     runs-on: ubuntu-latest
@@ -36,6 +44,27 @@ jobs:
 
       - name: Lint code for consistent style
         run: bin/rubocop -f github
+
+      - name: Check ru/en translations are in sync
+        run: bundle exec i18n-tasks missing -t diff
+
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build production image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   consistency:
     runs-on: ubuntu-latest

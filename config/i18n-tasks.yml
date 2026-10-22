@@ -1,0 +1,6 @@
+base_locale: ru
+locales: [ru, en]
+
+data:
+  read:
+    - config/locales/**/%{locale}.yml
