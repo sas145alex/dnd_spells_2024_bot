@@ -110,7 +110,7 @@ accessories:
   # BACKUP_HEALTHCHECK_URL is set, pings healthchecks.io as a dead-man's-switch.
   # Boot/replace on a host: bin/kamal accessory boot backup
   backup:
-    image: tiredofit/db-backup:4.1.100   # >=4.1.99 bundles the PG18 client (auto-selected)
+    image: nfrastack/db-backup:4.9.2   # last 4.x line; >=4.1.99 bundles the PG18 client
     host: dnd_handbook
     files:
       - .kamal/backup/notify.sh:/assets/scripts/post/notify.sh
