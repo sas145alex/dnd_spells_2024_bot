@@ -211,6 +211,14 @@ Reusable concern behaviour goes in `spec/support/shared_examples/` (e.g. `it_beh
 - **Testing outbound sends:** mock the client — `allow(Telegram.bot).to receive(:send_message)` — then
   assert `have_received(...)`. Discord HTTP is stubbed via WebMock (`require "webmock_helper"`).
 - Request specs use Devise `sign_in(admin)` and the `json_body` helper (`spec/support/api_helpers.rb`).
+- **One request spec file per controller action / scenario** — not one file covering many pages.
+  Admin specs live at `spec/requests/admin/<resource>/<action_or_scenario>_spec.rb`, described by the
+  route (`RSpec.describe "GET /admin/spells"`), e.g. `spells/index_spec.rb`,
+  `mentions/options_for_select_spec.rb`, `message_distributions/sending_spec.rb`.
+- **Every admin index page has an `index_spec.rb`** that creates a record and asserts the page renders
+  with `200` — it catches ActiveAdmin/Ransack breakage after gem bumps (e.g. a default association
+  filter the model doesn't allowlist in `ransackable_associations`). Add one when registering a new
+  admin resource.
 - **Coverage (SimpleCov):** running specs writes an HTML report to `tmp/coverage/index.html` and prints the
   line/branch % at the end of the run. SimpleCov only counts files exercised by the specs that
   **actually ran**, so the report is accurate **only after the full suite** (`bundle exec rspec`) —
@@ -253,7 +261,8 @@ model (`Maneuver`) and wire it in:
 8. **Seeds** — `Importers::Import<Name>s` (CSV → `create!`), `db/seeds/data/<name>s.csv`,
    `db/seeds/seeders/<name>s.rb`, and a `load` line in `db/seeds.rb`.
 9. **Specs + factory** — `spec/factories/<name>s.rb` (with traits), model spec (`it_behaves_like` the
-   concern shared examples + validations), bot-command spec (one context per nav state), decorator spec.
+   concern shared examples + validations), bot-command spec (one context per nav state), decorator spec,
+   and the admin `spec/requests/admin/<name>s/index_spec.rb` (page renders `200` with a record).
 
 A new `Multisearchable` model **auto-joins** full-text search, `/search`, and the search-filters UI
 (both driven by `Multisearchable.used_klasses`) — no manual registration beyond step 4's

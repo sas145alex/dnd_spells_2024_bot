@@ -8,6 +8,10 @@ class ApplicationRecord < ActiveRecord::Base
     column_names
   end
 
+  def self.ransackable_associations(auth_object = nil)
+    []
+  end
+
   def self.human_enum_names(enum_name, enum_value = nil, locale: nil, only: nil)
     enum_i18n_key = enum_name.to_s.pluralize
     if enum_value

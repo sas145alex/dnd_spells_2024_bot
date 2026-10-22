@@ -36,14 +36,14 @@ gem "draper", "~> 4.0"
 gem "httparty", "~> 0.24"
 
 # Monitoring & errors
-gem "sentry-ruby", "~> 6.3"
-gem "sentry-rails", "~> 6.3"
+gem "sentry-ruby", "~> 7.1"
+gem "sentry-rails", "~> 7.1"
 # Required in production for Sentry's profiler (config.profiles_sample_rate in config/initializers/sentry.rb)
 gem "stackprof", "~> 0.2"
 
 # Media / file storage
 gem "cloudinary", "~> 2.4"
-gem "active_storage_validations", "~> 3.0"
+gem "active_storage_validations", "~> 4.1"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[windows jruby]
@@ -83,5 +83,5 @@ group :test do
   gem "database_cleaner-active_record", "~> 2.2"
   gem "test-prof", "~> 1.0"
   gem "webmock", "~> 3.23"
-  gem "simplecov", "~> 0.22", require: false
+  gem "simplecov", "~> 1.3", require: false
 end

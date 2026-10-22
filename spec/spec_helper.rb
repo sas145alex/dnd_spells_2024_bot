@@ -5,16 +5,16 @@ require "simplecov"
 SimpleCov.start "rails" do
   coverage_dir "tmp/coverage"
   enable_coverage :branch
-  track_files "{app,lib}/**/*.rb"
+  cover "{app,lib}/**/*.rb"
 
   # Excluded from the coverage number — not unit-tested here:
-  add_filter "app/admin"             # ActiveAdmin DSL
-  add_filter "app/models/importers"  # dev-only CSV import, gated by Rails.env.development?
+  skip "app/admin"             # ActiveAdmin DSL
+  skip "app/models/importers"  # dev-only CSV import, gated by Rails.env.development?
 
-  add_group "Bot commands", "app/models/bot_commands"
-  add_group "Decorators",   "app/decorators"
-  add_group "Concerns",     "app/models/concerns"
-  add_group "Jobs",         "app/jobs"
+  group "Bot commands", "app/models/bot_commands"
+  group "Decorators",   "app/decorators"
+  group "Concerns",     "app/models/concerns"
+  group "Jobs",         "app/jobs"
 
   # Ratchet: fail the run if line/branch coverage drops below the previous run
   # (baseline stored in the gitignored tmp/coverage/.last_run.json). Only enforced on a
