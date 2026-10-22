@@ -133,9 +133,6 @@ accessories:
         DB01_POST_COMMAND: /assets/scripts/post/notify.sh
         # On by default: a daily POST to nfrastack's server. We pin exact tags and bump via this file.
         CHECK_NEW_VERSION: "FALSE"
-        # Image defaults to Zabbix monitoring on; we have no Zabbix server, so it errors and adds a
-        # ~10s delay every run. Off.
-        CONTAINER_ENABLE_MONITORING: "FALSE"
       secret:
         - DB01_PASS
         - DB01_S3_KEY_ID
