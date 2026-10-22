@@ -41,7 +41,7 @@ aliases:
   logs: app logs -f
   dbc: app exec -i --reuse "bin/rails dbconsole"
   dbb: accessory exec db -i --reuse "bash"
-  backup-now: accessory exec backup "backup-now"
+  backup-now: accessory exec backup --reuse "backup-now"
   backup-logs: accessory logs backup -f
 
 # Use a persistent storage volume for sqlite database files and local Active Storage files.
