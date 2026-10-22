@@ -102,8 +102,8 @@ accessories:
       privileged: true
       pid: host
 
-  # Off-host PostgreSQL backups. Runs tiredofit/db-backup as a Kamal accessory (travels with the
-  # config like the New Relic one — no host-side cron/rclone to redo per migration): nightly pg_dump
+  # Off-host PostgreSQL backups. Runs nfrastack/db-backup as a Kamal accessory (travels with the
+  # config like the New Relic one — no host-side cron/rclone to redo per migration): nightly dump
   # of the primary DB -> gzip -> Backblaze B2 (S3-compatible), 7-day retention. No `network:` key, so
   # it joins the default `kamal` network and reaches the DB by container name `dnd_handbook-db`.
   # A post-backup hook (.kamal/backup/notify.sh) posts a Discord embed every run and, if
