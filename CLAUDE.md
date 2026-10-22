@@ -158,9 +158,11 @@ MagicItem, Tool, Origin, Invocation, Metamagic, Maneuver, PsionicPower, ArcaneSh
 - **`Segmentable`** — links a resource to characteristics via `Segment` (used by Feat).
 - **`WhoDidItable`** — `created_by` / `updated_by` (AdminUser).
 
-After bulk content edits, rebuild the search index from a Rails console using **both**:
-`Multisearchable.regenerate_all_searchable_columns!` (rebuilds `searchable_title`) **and**
-`Multisearchable.regenerate_all_multisearchables!` (rebuilds the pg_search documents).
+After bulk content edits, rebuild the search index with `bin/rails search:reindex` (on a deployed
+host: `bin/kamal app exec --reuse "bin/rails search:reindex"`), or `Multisearchable.reindex!` from a
+console. It runs `regenerate_all_searchable_columns!` (rebuilds `searchable_title`) and then
+`regenerate_all_multisearchables!` (rebuilds the pg_search documents) — calling only one leaves the
+index stale.
 
 ## Decorators
 
@@ -390,7 +392,7 @@ Project skills live in `.claude/skills/` (committed); `skills-lock.json` pins th
 ## Gotchas
 
 - **`docs/` is gitignored on purpose** — everything under it (plan copies like `PLAN_*.md`, runbooks
-  like `HOSTING_MIGRATION.md`) is local-only working notes, **not** in git history; don't `git add` it.
+  like `done_HOSTING_MIGRATION.md`) is local-only working notes, **not** in git history; don't `git add` it.
 - A **Postgres major upgrade** (e.g. 18→19) is **not** just bumping the `db` accessory image tag:
   `postgres:N` won't start on an older major's data dir (`accessories.db` → `directories: data:…`). It
   needs a logical migration — `pg_dump` from the old major → boot the new image on an **empty** data
@@ -402,8 +404,9 @@ Project skills live in `.claude/skills/` (committed); `skills-lock.json` pins th
   image refuse to start in a **restart loop**. Prod `accessories.db` is `directories: - data:/var/lib/postgresql`
   (host cluster lives in `dnd_handbook-db/data/18/docker`). This bites every future major bump too.
 - The Telegram session / `history_stack` is in **solid_cache**, not Redis.
-- Rebuilding search needs **two** calls — `regenerate_all_searchable_columns!` *and*
-  `regenerate_all_multisearchables!`.
+- Rebuilding search needs **both** `regenerate_all_searchable_columns!` *and*
+  `regenerate_all_multisearchables!`, in that order — use `bin/rails search:reindex` /
+  `Multisearchable.reindex!`, which runs the pair.
 - A new `BotCommands` subclass must override `callback_prefix` or it raises `NotImplementedError`.
 - Don't namespace a bot command under a module matching a top-level constant
   (`BotCommands::Favorites::List` shadows `::Favorites::Policy` — Ruby resolves `Favorites::Policy`
