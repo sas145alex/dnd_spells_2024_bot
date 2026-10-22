@@ -9,7 +9,7 @@ managing content. Bot replies are in Russian; D&D terms are bilingual (RU title 
 
 | Concern | Choice |
 | --- | --- |
-| Language / framework | Ruby **4.0.5** (`.ruby-version`), Rails **8.1.4** |
+| Language / framework | Ruby **4.0.7** (`.ruby-version`), Rails **8.1.4** |
 | Database | PostgreSQL 18 (prod `postgres:18` accessory; local dev 18) |
 | Solid stack | `solid_cache`, `solid_queue`, `solid_cable` — **all on the primary Postgres DB** (`config/database.yml`) |
 | Bot | `telegram-bot` (telegram-bot-rb) |
@@ -183,7 +183,7 @@ makes it favoritable in the UI.
 
 Favorites are available to **every** Telegram user. `Favorites::Policy` is the only place that
 decides: admins keep an unlimited list, everyone else is capped at `Favorites::Policy::FREE_LIMIT`
-(10) cards. The cap is enforced on the **add** path in `BotCommands::FavoritesToggle` only —
+(20) cards. The cap is enforced on the **add** path in `BotCommands::FavoritesToggle` only —
 removal always works, so a user who is over the cap can still prune their list.
 
 ## Background jobs

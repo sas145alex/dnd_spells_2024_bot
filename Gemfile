@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 # duplicate the value from .ruby-version file but kamal deploy process requires it's been specified in Gemfile also
-ruby "4.0.5"
+ruby "4.0.7"
 
 # Core
 gem "rails", "~> 8.1"
