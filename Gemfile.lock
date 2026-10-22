@@ -220,10 +220,6 @@ GEM
       mutex_m
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
-    importmap-rails (2.2.3)
-      actionpack (>= 6.0.0)
-      activesupport (>= 6.0.0)
-      railties (>= 6.0.0)
     inherited_resources (1.14.0)
       actionpack (>= 6.0)
       has_scope (>= 0.6)
@@ -578,7 +574,6 @@ DEPENDENCIES
   ffaker (~> 2.24)
   font-awesome-rails (~> 4.7)
   httparty (~> 0.24)
-  importmap-rails (~> 2.2)
   kamal (~> 2.10)
   lefthook (~> 2.1)
   mutex_m (~> 0.3)

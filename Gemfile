@@ -10,7 +10,6 @@ gem "puma", "~> 8.0"
 
 # Asset pipeline & JS
 gem "sprockets-rails", "~> 3.5"
-gem "importmap-rails", "~> 2.2"
 # gem "turbo-rails"
 # gem "stimulus-rails"
 
