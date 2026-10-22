@@ -41,7 +41,7 @@ aliases:
   logs: app logs -f
   dbc: app exec -i --reuse "bin/rails dbconsole"
   dbb: accessory exec db -i --reuse "bash"
-  backup-now: accessory exec backup "backup-now"
+  backup-now: accessory exec backup --reuse "backup-now"
   backup-logs: accessory logs backup -f
 
 # Use a persistent storage volume for sqlite database files and local Active Storage files.
@@ -110,7 +110,7 @@ accessories:
   # BACKUP_HEALTHCHECK_URL is set, pings healthchecks.io as a dead-man's-switch.
   # Boot/replace on a host: bin/kamal accessory boot backup
   backup:
-    image: nfrastack/db-backup:4.9.2   # last 4.x line; >=4.1.99 bundles the PG18 client
+    image: nfrastack/db-backup:5.0.5
     host: dnd_handbook
     files:
       - .kamal/backup/notify.sh:/assets/scripts/post/notify.sh
@@ -130,7 +130,9 @@ accessories:
         DB01_S3_REGION: eu-central-003                   # middle segment of the B2 endpoint
         DB01_S3_HOST: s3.eu-central-003.backblazeb2.com  # the Endpoint shown on the B2 bucket
         DB01_S3_PATH: dnd_handbook
-        DB01_POST_SCRIPT_SKIP_X_VERIFY: "TRUE"
+        DB01_POST_COMMAND: /assets/scripts/post/notify.sh
+        # On by default: a daily POST to nfrastack's server. We pin exact tags and bump via this file.
+        CHECK_NEW_VERSION: "FALSE"
         # Image defaults to Zabbix monitoring on; we have no Zabbix server, so it errors and adds a
         # ~10s delay every run. Off.
         CONTAINER_ENABLE_MONITORING: "FALSE"
