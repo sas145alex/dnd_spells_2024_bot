@@ -1,36 +1,35 @@
 #!/usr/bin/env bash
-# Post-backup hook for the `backup` Kamal accessory (tiredofit/db-backup).
-# Mounted to /assets/scripts/post/ and run after EVERY backup with positional args:
-#   $1 exit_code  $2 db_type  $3 db_host  $4 db_name  $5 start  $6 finish
-#   $7 duration_s $8 filename $9 filesize $10 hash    $11 move_exit_code
+# Post-backup hook for the `backup` Kamal accessory (nfrastack/db-backup 5.x).
+# Wired via DB01_POST_COMMAND and run after EVERY backup with metadata in env vars (no args):
+#   DBB_KIND (backup|maintain)  DBB_STATUS (ok|failed)  DBB_NAME  DBB_HOST  DBB_FILENAME
+# The container env (BACKUP_* secrets) is inherited.
 #
 # It POSTs a Discord embed (green ok / red fail) to $BACKUP_DISCORD_WEBHOOK and, when
 # $BACKUP_HEALTHCHECK_URL is set, pings healthchecks.io ($URL on success, $URL/fail on failure)
 # as a dead-man's-switch — the one failure mode a post-hook can't self-report is "the
 # backup never ran at all", which healthchecks catches.
 #
-# FAILED if EITHER the dump exit code ($1) OR the move/upload exit code ($11) is non-zero. The image
-# passes them separately (see /assets/functions/10-db-backup, tiredofit/db-backup 4.1.x): a failed S3
-# upload leaves $1=0, so checking only $1 would post a false "OK".
+# DBB_STATUS starts as `failed` and flips to `ok` only after dump + upload both succeed, so it alone
+# covers a failed upload (4.x needed a separate upload exit code for that).
 set -u
 
-exit_code="${1:-1}"
-db_name="${4:-?}"
-duration="${7:-?}"
-filename="${8:-?}"
-filesize="${9:-?}"
-move_exit_code="${11:-0}"
+# Maintenance runs fire post hooks too; only backups should post an embed.
+[ "${DBB_KIND:-backup}" = "backup" ] || exit 0
 
-if [ "$exit_code" = "0" ] && [ "$move_exit_code" = "0" ]; then
+status="${DBB_STATUS:-failed}"
+db_name="${DBB_NAME:-?}"
+filename="${DBB_FILENAME:-?}"
+
+if [ "$status" = "ok" ]; then
   title="✅ DB backup OK"
   color=5763719
   hc_suffix=""
-  desc="DB: ${db_name}\\nFile: ${filename}\\nSize: ${filesize}\\nDuration: ${duration}s"
+  desc="DB: ${db_name}\\nFile: ${filename}"
 else
   title="❌ DB backup FAILED"
   color=15548997
   hc_suffix="/fail"
-  desc="DB: ${db_name}\\nDump exit: ${exit_code}  Upload exit: ${move_exit_code}\\nCheck: kamal accessory logs backup"
+  desc="DB: ${db_name}\\nStatus: ${status}\\nCheck: kamal accessory logs backup"
 fi
 
 if [ -n "${BACKUP_DISCORD_WEBHOOK:-}" ]; then
