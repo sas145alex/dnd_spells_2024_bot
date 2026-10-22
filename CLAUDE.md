@@ -9,7 +9,7 @@ managing content. Bot replies are in Russian; D&D terms are bilingual (RU title 
 
 | Concern | Choice |
 | --- | --- |
-| Language / framework | Ruby **4.0.5** (`.ruby-version`), Rails **8.1.3** |
+| Language / framework | Ruby **4.0.5** (`.ruby-version`), Rails **8.1.4** |
 | Database | PostgreSQL 18 (prod `postgres:18` accessory; local dev 18) |
 | Solid stack | `solid_cache`, `solid_queue`, `solid_cable` — **all on the primary Postgres DB** (`config/database.yml`) |
 | Bot | `telegram-bot` (telegram-bot-rb) |
@@ -38,8 +38,26 @@ bundle exec rspec spec/path/to/file_spec.rb   # single spec file
   `rubocop-rails` / `rubocop-performance` cops it enables. Run `bin/rubocop` to check, `bin/rubocop -A`
   to autocorrect.
 - The same RuboCop runs everywhere: the lefthook pre-commit hook autocorrects staged files
-  (`bin/rubocop -A --force-exclusion {staged_files}`, `lefthook.yml`), and CI runs `bin/rubocop -f github`
-  (`.github/workflows/ci.yml`) plus `bin/brakeman` (security). No StandardRB.
+  (`bin/rubocop -A --force-exclusion {staged_files}`, `lefthook.yml`), and CI runs `bin/rubocop -f github`.
+  No StandardRB.
+
+### CI
+
+`.github/workflows/ci.yml` runs on every PR and push to `main`; its jobs run in parallel:
+
+- `lint` — RuboCop + `bundle exec i18n-tasks missing -t diff`: every locale key must exist in **both**
+  `ru` and `en` (config `config/i18n-tasks.yml`; one run checks both directions). Run it locally after
+  touching `config/locales/`.
+- `scan_ruby` — Brakeman.
+- `test` — `bin/rails db:test:prepare && bundle exec rspec` on `postgres:18`. A fresh runner has no
+  SimpleCov baseline, so the coverage ratchet only bites on local full runs.
+- `consistency` — `bin/rails zeitwerk:check` + `db/schema.rb` is up to date. On an empty DB `db:migrate`
+  loads `schema.rb` and runs only newer migrations, so this catches a migration committed without its
+  schema dump — **not** an old migration that no longer replays from zero.
+- `docker` — builds the production image (no push; Buildx layer cache in GitHub Actions).
+
+A new push to a PR cancels its outdated run; `main` runs are never cancelled. Dependabot
+(`.github/dependabot.yml`) checks gems and actions every two months (cron, 1st of odd months).
 
 ### Commit conventions
 
@@ -245,7 +263,8 @@ model (`Maneuver`) and wire it in:
    `description_for_telegram` / `global_search_title` come from `ApplicationDecorator`.
 4. **Locales** `config/locales/models/<name>/{ru,en}.yml` — `activerecord.models.<name>` (needed for
    the search-filters list) + enum translations under the **pluralized** enum key (e.g.
-   `attributes.<name>.categories`); `human_enum_names(:category)` reads these.
+   `attributes.<name>.categories`); `human_enum_names(:category)` reads these. Keep both files'
+   keys identical — CI's `i18n-tasks` check fails otherwise.
 5. **Admin** `app/admin/<name>s.rb` — copy an existing one (e.g. `maneuvers.rb`), add the new columns
    to index/show/form/filters/`permit_params`.
 6. **Bot command** `app/models/bot_commands/<name>_search.rb < BaseCommand` — multi-level navigation
