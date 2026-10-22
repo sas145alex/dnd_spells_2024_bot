@@ -24,7 +24,7 @@ module Favorites
     end
 
     # Two taps arriving at once can both pass this and put a user one card over the cap. Not worth
-    # locking for a 10-card limit: the unique index still rules out duplicates, and the worst
+    # locking for a 20-card limit: the unique index still rules out duplicates, and the worst
     # outcome is a single bonus card.
     def can_add?
       can_use? && (limit.nil? || used < limit)
