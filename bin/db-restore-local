@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Restore a Backblaze B2 dump into your LOCAL Postgres (e.g. to inspect prod data).
-# Dumps are gzipped plain-SQL pg_dump files (pgsql_..._.sql.gz). If a sidecar <file>.md5 sits
-# next to the dump, its checksum is verified first.
+# Dumps are gzipped plain-SQL files (pgsql-..._.sql.gz). If a sidecar <file>.json (or 4.x <file>.md5)
+# sits next to the dump, its checksum is verified first.
 #
 # Usage:
 #   bin/db-restore-local <dump.sql.gz> [target_db]
@@ -24,8 +24,14 @@ db_owner="dnd_handbook"
 
 [ -f "$file" ] || { echo "no such file: $file" >&2; exit 1; }
 
-# Optional integrity check against the sidecar .md5 the backup tool writes next to each dump.
-if [ -f "${file}.md5" ] && command -v md5sum >/dev/null 2>&1; then
+# Optional integrity check against the sidecar the backup tool writes next to each dump:
+# <file>.json (db-backup 5.x, `compressed_md5`) or <file>.md5 (4.x).
+if [ -f "${file}.json" ] && command -v md5sum >/dev/null 2>&1; then
+  echo "Verifying checksum (${file}.json)..."
+  expected=$(sed -n 's/.*"compressed_md5": *"\([0-9a-f]*\)".*/\1/p' "${file}.json")
+  [ -n "$expected" ] && [ "$(md5sum < "$file" | cut -d' ' -f1)" = "$expected" ] \
+    || { echo "checksum verification FAILED -- aborting" >&2; exit 1; }
+elif [ -f "${file}.md5" ] && command -v md5sum >/dev/null 2>&1; then
   echo "Verifying checksum (${file}.md5)..."
   ( cd "$(dirname "$file")" && md5sum -c "$(basename "$file").md5" ) \
     || { echo "checksum verification FAILED -- aborting" >&2; exit 1; }
