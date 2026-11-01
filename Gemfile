@@ -48,7 +48,7 @@ gem "active_storage_validations", "~> 4.1"
 gem "tzinfo-data", platforms: %i[windows jruby]
 
 # Boot performance
-gem "bootsnap", "~> 1.22", require: false
+gem "bootsnap", "~> 1.26", require: false
 
 # Solid stack (cache / queue / cable on Postgres)
 gem "solid_cache", "~> 1.0"
