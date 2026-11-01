@@ -36,7 +36,7 @@ gem "httparty", "~> 0.24"
 
 # Monitoring & errors
 gem "sentry-ruby", "~> 7.1"
-gem "sentry-rails", "~> 7.1"
+gem "sentry-rails", "~> 7.2"
 # Required in production for Sentry's profiler (config.profiles_sample_rate in config/initializers/sentry.rb)
 gem "stackprof", "~> 0.2"
 
